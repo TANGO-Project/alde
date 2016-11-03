@@ -398,6 +398,7 @@ This is only possible for testbed where the node information is not gotten direc
         {
             id: 1,
             name: "embedded_node",
+            information_retrieved: "manually",
             architecture: [
                 {
                     ram: {
@@ -441,3 +442,131 @@ This is only possible for testbed where the node information is not gotten direc
                 }
             ]
         }
+        
+## Nodes [/testbeds/{testbed_id}/nodes/{node_id}]
+
++ Parameters
+    + testbed_id (number) - ID of the testbed in the form of an integer
+    + node_id (number) - ID of the node from the testbed in the form of an integer
+    
+### List the node information [GET]
+
++ Response 200(application/json)
+
+        {
+            id: "node_id",
+            name: "embedded_node",
+            information_retrieved: "manually",
+            architecture: [
+                {
+                    ram: {
+                        size: 24595464,
+                        unit: "kilobytes"
+                    }
+                },
+                {   
+                    cpu: {  
+                        vendor_id: "ARM",
+                        arch: "armv8",
+                        model: "XXXX",
+                        model_name: "ARM XXXX",
+                        cpu_speed: "2660.000",
+                        cache: {
+                            size: 12288,
+                            unit: "kilobyte"
+                        },
+                        fpu: "true",
+                        cpu_cores: 2,
+                        flags: "zzzz, yyyyy"
+                },
+                {
+                    gpu: {
+                        vendor_id: "NVIDIA",
+                        model_name: "NVIDIA Corporation GF110GL [Tesla M2075] (rev a1)",
+                        memory: [
+                            {
+                                address: "9a000000",
+                                type: "32-bit, non-prefetchable",
+                                size: "16",
+                                unit: "megabyte"
+                            }
+                        }
+                },
+                {
+                    fpga: {
+                        Xxxx: "yyy",
+                        zzzz: "aaaa"
+                    }
+                }
+            ]
+        }
+
+ a
+
+This only works with nodes that have the variable "information_retrieved" set to "manually".
+
++ Request (application/json)
+
+        {
+            name: "embedded_node2"
+        }
+    
++ Response 200 (application/json)
+
+        {
+            id: "node_id",
+            name: "embedded_node2",
+            information_retrieved: "manually",
+            architecture: [
+                {
+                    ram: {
+                        size: 24595464,
+                        unit: "kilobytes"
+                    }
+                },
+                {   
+                    cpu: {  
+                        vendor_id: "ARM",
+                        arch: "armv8",
+                        model: "XXXX",
+                        model_name: "ARM XXXX",
+                        cpu_speed: "2660.000",
+                        cache: {
+                            size: 12288,
+                            unit: "kilobyte"
+                        },
+                        fpu: "true",
+                        cpu_cores: 2,
+                        flags: "zzzz, yyyyy"
+                },
+                {
+                    gpu: {
+                        vendor_id: "NVIDIA",
+                        model_name: "NVIDIA Corporation GF110GL [Tesla M2075] (rev a1)",
+                        memory: [
+                            {
+                                address: "9a000000",
+                                type: "32-bit, non-prefetchable",
+                                size: "16",
+                                unit: "megabyte"
+                            }
+                        }
+                },
+                {
+                    fpga: {
+                        Xxxx: "yyy",
+                        zzzz: "aaaa"
+                    }
+                }
+            ]
+        }
+        
++ Request (application/json)
+
+        {
+            name: "nd46-2",
+        }
+    
++ Response 403 (text/plain)
+
+        It is not possible to change the information of an automatically updated node.
