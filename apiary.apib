@@ -581,4 +581,71 @@ This only works with nodes that have the variable "information_retrieved" set to
 
 + Response 403 (text/pain)
         
-        It is not possible to delete the information of an automatically updated node.
+        It is not possible to delete the information of an automatically updated node. 
+
+## Applications [/applications]
+
+### List all applications [GET]
+
++ Response 200 (application/json)
+
+        [
+            {
+                id: 0,
+                name: "APP_NAME",
+                status: "building",
+                path_to_code: "path_to_code",ç
+                build: {
+                    build_Script: "path_to_script",
+                    build_script_parameters: "XXXXX"
+                },
+                package: [
+                    docker: {
+                        xxx: "aaa",
+                        yyy: "aaa"
+                    },
+                    executable: {
+                        xxx: "aaa",
+                        yyy: "yyy"
+                    }
+                ],
+                execution: {
+                    execution_command: "XXXXX",
+                    execution_command_params: "YYYYY",
+                    execution_status: {
+                        slurm: {
+                            see_which_information_provides_sluem: "XXX"
+                        }
+                    }
+                }
+            },
+            {
+                id: 1,
+                name: "APP_NAME",
+                status: "building",
+                path_to_code: "path_to_code",ç
+                build: {
+                    build_Script: "path_to_script",
+                    build_script_parameters: "XXXXX"
+                },
+                package: [
+                    docker: {
+                        xxx: "aaa",
+                        yyy: "aaa"
+                    },
+                    executable: {
+                        xxx: "aaa",
+                        yyy: "yyy"
+                    }
+                ],
+                execution: {
+                    execution_command: "XXXXX",
+                    execution_command_params: "YYYYY",
+                    execution_status: {
+                        slurm: {
+                            see_which_information_provides_sluem: "XXX"
+                        }
+                    }
+                }
+            }
+        ]
