@@ -19,11 +19,24 @@ The Application Lifececyle Deployment Engine is being developed by Atos Research
             {
                 id: 0,
                 name: "nova_1",
-                on_line: "true"
+                on_line: "true",
+                type: "slurm",
+                protocol: "ssh",
+                endpoint: "user@172.0.0.1",
+                package_formats: [
+                    "docker",
+                    "spack"
+                ]
             },
             {
                 id: 1,
                 name: "embedded_1",
-                on_line: "false"
+                on_line: "false",
+                type: "embedded",
+                protocol: "file,
+                endpoint: "n/a",
+                package_formats: [
+                    "iso"
+                ]
             }
         ]
