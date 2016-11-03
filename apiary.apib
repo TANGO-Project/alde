@@ -1,80 +1,29 @@
 FORMAT: 1A
-HOST: http://polls.apiblueprint.org/
+HOST: http://alde.tango-project.eu/v1
 
 # Application Lifecycle Deployment Engine
 
-Polls is a simple API allowing consumers to view polls and vote in them.
+The Application Lifecycle Deployment Engine is a component of the TANGO project: http://www.tango-project.eu .
 
-## Questions Collection [/questions]
+It will be responsible of informing about the hetegoregenous resources in the different testbeds. Also, it will collect the application as input, compile it to the targetted testbed and, if possible, execute it.
 
-### List All Questions [GET]
+The Application Lifececyle Deployment Engine is being developed by Atos Research and Innovation and its code it is being relased under an Apache 2.0 license: https://www.apache.org/licenses/LICENSE-2.0
+
+## Testbeds [/testbeds]
+
+### List All Testbeds [GET]
 
 + Response 200 (application/json)
 
         [
             {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 2048
-                    }, {
-                        "choice": "Python",
-                        "votes": 1024
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 512
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 256
-                    }
-                ]
+                id: 0,
+                name: "nova_1",
+                on_line: "true"
+            },
+            {
+                id: 1,
+                name: "embedded_1",
+                on_line: "false"
             }
         ]
-
-### Create a New Question [POST]
-
-You may create your own question using this action. It takes a JSON
-object containing a question and a collection of answers in the
-form of choices.
-
-+ Request (application/json)
-
-        {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
-            ]
-        }
-
-+ Response 201 (application/json)
-
-    + Headers
-
-            Location: /questions/2
-
-    + Body
-
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
-                    }
-                ]
-            }
