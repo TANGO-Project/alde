@@ -93,3 +93,26 @@ The Application Lifececyle Deployment Engine is being developed by Atos Research
                 "spack"
             ]
         }
+
+### Update of testbed details [PUT]
+
++ Request (application/json)
+
+        {
+            name: "nova_3",
+        }
+    
++ Response 200 (application/json)
+
+        { 
+            id: 3,
+            name: "nova_3",
+            on_line: "true",
+            type: "slurm",
+            protocol: "ssh",
+            endpoint: "user@172.0.0.2",
+            package_formats: [
+                "docker",
+                "spack"
+            ]
+        }
