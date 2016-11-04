@@ -594,7 +594,7 @@ This only works with nodes that have the variable "information_retrieved" set to
                 id: 0,
                 name: "APP_NAME",
                 status: "building",
-                path_to_code: "path_to_code",ç
+                path_to_code: "path_to_code",
                 build: {
                     build_Script: "path_to_script",
                     build_script_parameters: "XXXXX"
@@ -623,7 +623,7 @@ This only works with nodes that have the variable "information_retrieved" set to
                 id: 1,
                 name: "APP_NAME",
                 status: "building",
-                path_to_code: "path_to_code",ç
+                path_to_code: "path_to_code",
                 build: {
                     build_Script: "path_to_script",
                     build_script_parameters: "XXXXX"
@@ -658,7 +658,7 @@ This only works with nodes that have the variable "information_retrieved" set to
         {
             name: "APP_NAME",
             status: "building",
-            path_to_code: "path_to_code",ç
+            path_to_code: "path_to_code",
             build: {
                 build_Script: "path_to_script",
                 build_script_parameters: "XXXXX"
@@ -690,7 +690,7 @@ This only works with nodes that have the variable "information_retrieved" set to
             id: 1,
             name: "APP_NAME",
             status: "building",
-            path_to_code: "path_to_code",ç
+            path_to_code: "path_to_code",
             build: {
                 build_Script: "path_to_script",
                 build_script_parameters: "XXXXX"
@@ -729,7 +729,7 @@ This only works with nodes that have the variable "information_retrieved" set to
             id: 1,
             name: "APP_NAME",
             status: "building",
-            path_to_code: "path_to_code",ç
+            path_to_code: "path_to_code",
             build: {
                 build_Script: "path_to_script",
                 build_script_parameters: "XXXXX"
@@ -754,3 +754,50 @@ This only works with nodes that have the variable "information_retrieved" set to
                 }
             }
         }
+        
+### Update the state of an application [PUT]
+
++ Request (application/json)
+
+        {
+            status: "compile"
+        }
+        
++ Response 200 (application/json)
+
+        {
+            id: 2,
+            name: "APP_NAME",
+            status: "compiling",
+            path_to_code: "path_to_code",
+            build: {
+                build_Script: "path_to_script",
+                build_script_parameters: "XXXXX"
+            },
+            package: [
+                docker: {
+                    xxx: "aaa",
+                    yyy: "aaa"
+                },
+                executable: {
+                    xxx: "aaa",
+                    yyy: "yyy"
+                }
+            ],
+            execution: {
+                execution_command: "XXXXX",
+                execution_command_params: "YYYYY",
+                execution_status: {
+                    slurm: {
+                        see_which_information_provides_sluem: "XXX"
+                    }
+                }
+            }
+        }
+        
+
+### Removing an application from ALDE [DELETE]
+
+This basically unregisters the application from ALDE. Depending on the testbed, it will also means to remove the application from the testbed.
+
++ Response 204
