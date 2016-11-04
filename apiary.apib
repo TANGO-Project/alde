@@ -648,4 +648,109 @@ This only works with nodes that have the variable "information_retrieved" set to
                     }
                 }
             }
-        ]
+        ] 
+
+### Create a new application [POST]
+
+
++ Request (application/json)
+
+        {
+            name: "APP_NAME",
+            status: "building",
+            path_to_code: "path_to_code",ç
+            build: {
+                build_Script: "path_to_script",
+                build_script_parameters: "XXXXX"
+            },
+            package: [
+                docker: {
+                    xxx: "aaa",
+                    yyy: "aaa"
+                },
+                executable: {
+                    xxx: "aaa",
+                    yyy: "yyy"
+                }
+            ],
+            execution: {
+                execution_command: "XXXXX",
+                execution_command_params: "YYYYY",
+                execution_status: {
+                    slurm: {
+                        see_which_information_provides_sluem: "XXX"
+                    }
+                }
+            }
+        }
+    
++ Response 201 (application/json)
+
+        {
+            id: 1,
+            name: "APP_NAME",
+            status: "building",
+            path_to_code: "path_to_code",ç
+            build: {
+                build_Script: "path_to_script",
+                build_script_parameters: "XXXXX"
+            },
+            package: [
+                docker: {
+                    xxx: "aaa",
+                    yyy: "aaa"
+                },
+                executable: {
+                    xxx: "aaa",
+                    yyy: "yyy"
+                }
+            ],
+            execution: {
+                execution_command: "XXXXX",
+                execution_command_params: "YYYYY",
+                execution_status: {
+                    slurm: {
+                        see_which_information_provides_sluem: "XXX"
+                    }
+                }
+            }
+        }
+        
+## Application [/applications/{application_id}]
+
++ Parameters
+    + application_id (number) - ID of the application in the form of an integer
+
+### Get the information of an application [GET]
+
++ Response 200 (application/json)
+
+        {
+            id: 1,
+            name: "APP_NAME",
+            status: "building",
+            path_to_code: "path_to_code",ç
+            build: {
+                build_Script: "path_to_script",
+                build_script_parameters: "XXXXX"
+            },
+            package: [
+                docker: {
+                    xxx: "aaa",
+                    yyy: "aaa"
+                },
+                executable: {
+                    xxx: "aaa",
+                    yyy: "yyy"
+                }
+            ],
+            execution: {
+                execution_command: "XXXXX",
+                execution_command_params: "YYYYY",
+                execution_status: {
+                    slurm: {
+                        see_which_information_provides_sluem: "XXX"
+                    }
+                }
+            }
+        }
