@@ -13,4 +13,4 @@ python:
 install: "pip install pybuilder"
 
 # command to compile and build tests
-scritp: "pyb"
+scritp: pyb
