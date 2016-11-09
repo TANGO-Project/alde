@@ -7,3 +7,7 @@ Application Lifecycle Deployment Engine is a component of the European Project T
 ## Build status from Travis-CI
 
 [![Build Status](https://travis-ci.org/TANGO-Project/alde.svg?branch=master)](https://travis-ci.org/TANGO-Project/alde)
+
+## SonarQube reports:
+
+SonarQube ( http://www.sonarqube.org/ ) reports for this project are available at: https://sonarqube.com/dashboard?id=tango%3Aalde
