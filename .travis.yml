@@ -13,12 +13,12 @@ python:
 # SonnarQube Configuration
 addons:
   sonarqube: true
-   #apt:
-  #   packages:
-  #     - oracle-java8-installer
-# env:
-#   global:
-#     - secure: ce9b5211cc48e2ca6ac94406eb8fe0a0f31eed06 # defines SONAR_TOKEN=abcdef0123456789
+  apt:
+    packages:
+      - oracle-java8-installer
+env:
+  global:
+    - secure: ce9b5211cc48e2ca6ac94406eb8fe0a0f31eed06 # defines SONAR_TOKEN=abcdef0123456789
 
 # command to install dependencies
 install: "pip install pybuilder"
@@ -27,8 +27,9 @@ script:
   # command to compile and build tests
   - pyb install_dependencies
   - pyb
+  - jdk_switcher use oraclejdk8
+  - java -version
   - pyb run_sonar_analysis
   - cat /home/travis/build/TANGO-Project/alde/target/reports/*
-#  - java -version
-  # # other script steps might be done before running the actual SonarQube analysis
-  #- sonar-scanner -Dsonar.login=$SONAR_TOKEN
+  # other script steps might be done before running the actual SonarQube analysis
+  - sonar-scanner -Dsonar.login=$SONAR_TOKEN
