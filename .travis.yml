@@ -32,4 +32,5 @@ script:
   - export JAVA_HOME="/usr/lib/jvm/java-8-oracle"
   - java -version
   # other script steps might be done before running the actual SonarQube analysis
+  - echo $SONAR_TOKEN
   - sonar-scanner -X -Dsonar.login=$SONAR_TOKEN
