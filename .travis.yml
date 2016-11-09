@@ -10,15 +10,18 @@ language: python
 python:
   - "3.4"
 
+before_install:
+  - java install oraclejdk8
+
 jdk:
   - oraclejdk8
 
 # SonnarQube Configuration
 addons:
   sonarqube: true
-  apt:
-    packages:
-      - oracle-java8-installer
+  #apt:
+  #  packages:
+  #    - oracle-java8-installer
 env:
   global:
     - secure: ce9b5211cc48e2ca6ac94406eb8fe0a0f31eed06 # defines SONAR_TOKEN=abcdef0123456789
