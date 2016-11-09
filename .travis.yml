@@ -10,18 +10,12 @@ language: python
 python:
   - "3.4"
 
-before_install:
-  - java install oraclejdk8
-
-jdk:
-  - oraclejdk8
-
 # SonnarQube Configuration
 addons:
   sonarqube: true
-  #apt:
-  #  packages:
-  #    - oracle-java8-installer
+  apt:
+    packages:
+      - oracle-java8-installer
 env:
   global:
     - secure: ce9b5211cc48e2ca6ac94406eb8fe0a0f31eed06 # defines SONAR_TOKEN=abcdef0123456789
@@ -33,7 +27,8 @@ script:
   # command to compile and build tests
   - pyb install_dependencies
   - pyb
-  #- jdk_switcher use oraclejdk8
+  - sudo update-java-alternatives --set "java-8-oracle-amd64"
+  - export JAVA_HOME=E="/usr/lib/jvm/java-8-oracle-amd64"
   - java -version
   - pyb run_sonar_analysis
   - cat /home/travis/build/TANGO-Project/alde/target/reports/*
