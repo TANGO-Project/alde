@@ -10,12 +10,12 @@ language: python
 python:
   - "3.4"
 
-# SonnarQube Configuration
-# addons:
+ SonnarQube Configuration
+ addons:
 #   apt:
 #     packages:
 #       - oracle-java8-installer
-#   sonarqube: true
+   sonarqube: true
 # env:
 #   global:
 #     - secure: ce9b5211cc48e2ca6ac94406eb8fe0a0f31eed06 # defines SONAR_TOKEN=abcdef0123456789
