@@ -28,7 +28,7 @@ script:
   - pyb install_dependencies
   - pyb
   - pyb run_sonar_analysis
-  - cat /home/travis/build/TANGO-Project/alde/target/reports
+  - cat /home/travis/build/TANGO-Project/alde/target/reports/*
 #  - java -version
   # # other script steps might be done before running the actual SonarQube analysis
   #- sonar-scanner -Dsonar.login=$SONAR_TOKEN
