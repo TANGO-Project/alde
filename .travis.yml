@@ -28,8 +28,8 @@ script:
   - pyb install_dependencies
   - pyb
   - ls /usr/lib/jvm/
-  - sudo update-java-alternatives --set "java-8-oracle-i386"
-  - export JAVA_HOME="/usr/lib/jvm/java-8-oracle-i386"
+  - sudo update-java-alternatives --set "java-8-oracle"
+  - export JAVA_HOME="/usr/lib/jvm/java-8-oracle"
   - java -version
   - pyb run_sonar_analysis
   - cat /home/travis/build/TANGO-Project/alde/target/reports/*
