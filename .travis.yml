@@ -10,11 +10,11 @@ language: python
 python:
   - "3.4"
 
- SonnarQube Configuration
+# SonnarQube Configuration
  addons:
-#   apt:
-#     packages:
-#       - oracle-java8-installer
+   #apt:
+  #   packages:
+  #     - oracle-java8-installer
    sonarqube: true
 # env:
 #   global:
@@ -28,6 +28,6 @@ script:
   - pyb install_dependencies
   - pyb
   - pyb run_sonar_analysis
-  # - java -version
+#  - java -version
   # # other script steps might be done before running the actual SonarQube analysis
-  # - sonar-scanner -Dsonar.login=$SONAR_TOKEN
+  #- sonar-scanner -Dsonar.login=$SONAR_TOKEN
