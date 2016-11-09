@@ -27,8 +27,9 @@ script:
   # command to compile and build tests
   - pyb install_dependencies
   - pyb
-  - sudo update-java-alternatives --set "java-8-oracle-amd64"
-  - export JAVA_HOME="/usr/lib/jvm/java-8-oracle-amd64"
+  - ls /usr/lib/jvm/
+  - sudo update-java-alternatives --set "java-8-oracle-i386"
+  - export JAVA_HOME="/usr/lib/jvm/java-8-oracle-i386"
   - java -version
   - pyb run_sonar_analysis
   - cat /home/travis/build/TANGO-Project/alde/target/reports/*
