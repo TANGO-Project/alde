@@ -26,5 +26,6 @@ install: "pip install pybuilder"
 script:
   # command to compile and build tests
   - pyb install_dependencies; pyb
+  - java -version
   # other script steps might be done before running the actual SonarQube analysis
   - sonar-scanner -Dsonar.login=$SONAR_TOKEN
