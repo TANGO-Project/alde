@@ -9,18 +9,22 @@
 language: python
 python:
   - "3.4"
-# command to install dependencies
-install: "pip install pybuilder"
-
-# command to compile and build tests
-script: "pyb install_dependencies; pyb"
 
 # SonnarQube Configuration
 addons:
+  apt:
+    packages:
+      - oracle-java8-installer
   sonarqube: true
 env:
   global:
     - secure: ce9b5211cc48e2ca6ac94406eb8fe0a0f31eed06 # defines SONAR_TOKEN=abcdef0123456789
+
+# command to install dependencies
+install: "pip install pybuilder"
+
 script:
+  # command to compile and build tests
+  - pyb install_dependencies; pyb
   # other script steps might be done before running the actual SonarQube analysis
   - sonar-scanner -Dsonar.login=$SONAR_TOKEN
