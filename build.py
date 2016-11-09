@@ -14,8 +14,13 @@ use_plugin("python.unittest")
 use_plugin("python.coverage")
 use_plugin("python.install_dependencies")
 use_plugin("python.distutils")
+use_plugin("python.sonarqube")
 
 default_task = "publish"
+
+# SonarQube configuration:
+sonarqube_project_name = "tango-alde"
+sonarqube_project_key = "ce9b5211cc48e2ca6ac94406eb8fe0a0f31eed06"
 
 @init
 def initialize(project):
