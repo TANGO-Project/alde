@@ -33,4 +33,4 @@ script:
   - java -version
   # other script steps might be done before running the actual SonarQube analysis
   - echo $SONAR_TOKEN
-  - sonar-scanner -X -Dsonar.login=$SONAR_TOKEN
+  - sonar-scanner -X -Dsonar.login="ce9b5211cc48e2ca6ac94406eb8fe0a0f31eed06"
