@@ -31,7 +31,5 @@ script:
   - sudo update-java-alternatives --set "java-8-oracle"
   - export JAVA_HOME="/usr/lib/jvm/java-8-oracle"
   - java -version
-  - pyb run_sonar_analysis
-  - cat /home/travis/build/TANGO-Project/alde/target/reports/*
   # other script steps might be done before running the actual SonarQube analysis
-  - sonar-scanner -Dsonar.login=$SONAR_TOKEN
+  - sonar-scanner -X -Dsonar.login=$SONAR_TOKEN
