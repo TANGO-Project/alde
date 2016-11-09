@@ -10,6 +10,9 @@ language: python
 python:
   - "3.4"
 
+jdk:
+  - oraclejdk8
+
 # SonnarQube Configuration
 addons:
   sonarqube: true
@@ -27,7 +30,7 @@ script:
   # command to compile and build tests
   - pyb install_dependencies
   - pyb
-  - jdk_switcher use oraclejdk8
+  #- jdk_switcher use oraclejdk8
   - java -version
   - pyb run_sonar_analysis
   - cat /home/travis/build/TANGO-Project/alde/target/reports/*
