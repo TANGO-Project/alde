@@ -23,7 +23,6 @@ script:
   # command to compile and build tests
   - pyb install_dependencies
   - pyb
-  - ls /usr/lib/jvm/
   - sudo update-java-alternatives --set "java-8-oracle"
   - export JAVA_HOME="/usr/lib/jvm/java-8-oracle"
   # other script steps might be done before running the actual SonarQube analysis
