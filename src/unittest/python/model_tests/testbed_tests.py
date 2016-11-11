@@ -34,5 +34,23 @@ class TestbedTest(unittest.TestCase):
         # from type Node
         no_node = "xxx"
         testbed.add_node(no_node)
-        #self.assertEquals(1, len(testbed.nodes))
+        self.assertEquals(1, len(testbed.nodes))
         self.assertEquals(node_1, testbed.nodes[0])
+
+    def test_remove_node(self):
+        """Test that the method that deletes a node from the list of nodes of
+           a testbed works as expected."""
+
+        # We create a testbed first
+        testbed = Testbed("name", True, "slurm", "ssh", "user@server", ['slurm'])
+        # We two nodes to the testbed
+        node_1 = Node(1, "node333", "on-line")
+        testbed.add_node(node_1)
+        node_2 = Node(2, "node333", "on-line")
+        testbed.add_node(node_2)
+
+        # We delete one of the nodes and check that the list only contains one node
+        testbed.remove_node(node_1)
+        self.assertEquals(1, len(testbed.nodes))
+        self.assertEquals(node_2, testbed.nodes[0])
+        testbed.remove_node("adasdfa")

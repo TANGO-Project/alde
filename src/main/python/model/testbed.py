@@ -6,6 +6,8 @@
 #
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
+from model.node import Node
+
 class Testbed():
     """Object model of the testbed connected to the Application Lifececyle
        Deployment engine"""
@@ -22,8 +24,12 @@ class Testbed():
 
     def add_node(self, node):
         """Adds a node to the list of nodes available in the testbed"""
-        self.nodes.append(node)
+
+        if isinstance(node, Node):
+            self.nodes.append(node)
 
     def remove_node(self, node):
         """Removes a node of the list of nedes in the testbed"""
-        print("nothing")
+
+        if node in self.nodes:
+            self.nodes.remove(node)
