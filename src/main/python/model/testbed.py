@@ -15,7 +15,15 @@ class Testbed():
 
         self.name = name
         self.on_line = on_line
-        self.category = categoy
+        self.category = category
         self.protocol = protocol
-        sefl.package_formats = package_formats
-        
+        self.package_formats = package_formats
+        self.nodes = []
+
+    def add_node(self, node):
+        """Adds a node to the list of nodes available in the testbed"""
+        self.nodes.append(node)
+
+    def remove_node(self, node):
+        """Removes a node of the list of nedes in the testbed"""
+        print("nothing")
