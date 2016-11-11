@@ -29,13 +29,13 @@ Installing setuptools, pip, wheel...done.
 
 Now it time to install PyBuilder:
 
-1. First we activate the virtualenv:
+* First we activate the virtualenv:
 
 ```
 $ source venv/bin/activate
 ```
 
-2. Now we install PyBuilder using Pip:
+* Now we install PyBuilder using Pip:
 
 ```
 $ pip install pybuilder
@@ -56,7 +56,7 @@ Successfully installed pybuilder-0.11.9 tblib-1.3.0
 
 Now it is possible to compile the project:
 
-1. Install first the dependencies:
+* Install first the dependencies:
 
 ```
 $ pyb install_dependencies
@@ -81,7 +81,7 @@ Build finished at 2016-11-11 14:55:10
 Build took 9 seconds (9637 ms)
 ```
 
-2. Now you can build the project (if you are using Windows, probably the coverage task is going to fail)
+* Now you can build the project (if you are using Windows, probably the coverage task is going to fail)
 
 ```
 $ pyb
