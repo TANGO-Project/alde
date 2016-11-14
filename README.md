@@ -2,7 +2,11 @@
 
 &copy; Atos Spain S.A. 2016
 
-Application Lifecycle Deployment Engine is a component of the European Project TANGO (http://tango-project.eu ).
+Application Lifecycle Deployment Engine (ALDE) is a component of the European Project TANGO (http://tango-project.eu ).
+
+## REST API documentation
+
+The Application Lifecycle Deployment Engine offers a REST API, it is documented here: ( https://jsapi.apiary.io/previews/applicationlifecycledeploymentengine/reference/0/testbed )
 
 ## How to contribute to ALDE
 
