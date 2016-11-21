@@ -8,12 +8,42 @@
 
 import unittest
 from model.memory import Memory
-from model.processor import GPU
+from model.processor import Processor, GPU, CPU, MCP
 
 class ProcessorTest(unittest.TestCase):
     """ Check the correct work of the Processor model class and Initializes
         subclasses, that can represent things like GPU, FPGAs, CPUs, etc..."""
 
+    def test_init_methods(self):
+        """Checks that the variables are correctly set"""
+
+        # Processor class
+        processor = Processor("x1", "x2")
+        self.assertEquals("x1", processor.vendor_id)
+        self.assertEquals("x2", processor.model_name)
+
+        # CPU class
+        cpu = CPU("Intel", "Xeon", "x86_64", "e6333", "2600Mhz", "yes", 2, "cache", "111")
+        self.assertEquals("Intel", cpu.vendor_id)
+        self.assertEquals("Xeon", cpu.model_name)
+        self.assertEquals("x86_64", cpu.arch)
+        self.assertEquals("2600Mhz", cpu.cpu_speed)
+        self.assertEquals("yes", cpu.fpu)
+        self.assertEquals(2, cpu.cpu_cores)
+        self.assertEquals("cache", cpu.cache)
+        self.assertEquals("111", cpu.flags)
+
+        # GPU
+        gpu = GPU("AMD", "Raedon")
+        self.assertEquals("AMD", gpu.vendor_id)
+        self.assertEquals("Raedon", gpu.model_name)
+        self.assertEquals([], gpu.memory)
+
+        # MCP
+        mcp = MCP("Intel", "Phi")
+        self.assertEquals("Intel", mcp.vendor_id)
+        self.assertEquals("Phi", mcp.model_name)
+        self.assertEquals([], mcp.memory)
 
     def test_add_memory_gpu(self):
         """Test that we can correctly add memory to a GPU moemory array"""
