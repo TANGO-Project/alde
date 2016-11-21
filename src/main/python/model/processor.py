@@ -6,6 +6,7 @@
 #
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
+from model.memory import Memory
 
 class Processor():
     """This class represents the basic information for all types of processors.
@@ -32,3 +33,24 @@ class CPU(Processor):
         self.cpu_cores = cpu_cores
         self.cache = cache
         self.flags = flags
+
+class GPU(Processor):
+    """This class represents the basic information of a GPU"""
+
+    def __init__(self, vendor_id, model_name):
+        """Initializes the basic attributes of a GPU"""
+
+        super().__init__(vendor_id, model_name)
+        self.memory = []
+
+    def add_memory(self, memory):
+        """It adds a new memory element to the GPU"""
+
+        if isinstance(memory, Memory):
+            self.memory.append(memory)
+
+    def remove_memory(self, memory):
+        """It removes a memory element of the GPU"""
+
+        if memory in self.memory:
+            self.memory.remove(memory)

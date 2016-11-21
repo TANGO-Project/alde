@@ -48,6 +48,7 @@ class TestbedTest(unittest.TestCase):
         testbed.add_node(node_1)
         node_2 = Node(2, "node333", "on-line")
         testbed.add_node(node_2)
+        self.assertEquals(2, len(testbed.nodes))
 
         # We delete one of the nodes and check that the list only contains one node
         testbed.remove_node(node_1)
