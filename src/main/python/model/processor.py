@@ -54,3 +54,12 @@ class GPU(Processor):
 
         if memory in self.memory:
             self.memory.remove(memory)
+
+
+class MCP(GPU):
+    """ This class representes a Many Core Processor """
+
+    def __init__(self, vendor_id, model_name):
+        """Initializes the basic attributes of a MCP"""
+
+        super().__init__(vendor_id, model_name)
