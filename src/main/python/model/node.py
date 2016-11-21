@@ -28,4 +28,5 @@ class Node():
     def remove_architecture_element(self, element):
         """It removes an architecture element to the node"""
 
-        print("TODO")
+        if element in self.architecture:
+            self.architecture.remove(element)

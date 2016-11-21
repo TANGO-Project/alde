@@ -33,3 +33,25 @@ class NodeTest(unittest.TestCase):
         node.add_architecture_element("aasas")
         self.assertEquals(1, len(node.architecture))
         self.assertEquals(memory, node.architecture[0])
+
+    def test_remove_architecture_element(self):
+        """Unit tests that verifies that an element is correctly removed
+           from the list or architecture elements of a node"""
+
+        # We define first a Node and verify that it has an empty array
+        # of architecture elements
+        node = Node(1, "node1", True)
+        self.assertEquals(0, len(node.architecture))
+
+        # We add one element to the node
+        memory = Memory(12121, "kilobytes")
+        node.add_architecture_element(memory)
+        self.assertEquals(1, len(node.architecture))
+
+        # We verify that we can remove it
+        node.remove_architecture_element(memory)
+        self.assertEquals(0, len(node.architecture))
+
+        # We verify that removing non existem element gives no error
+        node.remove_architecture_element("aasdfd")
+        self.assertEquals(0, len(node.architecture))
