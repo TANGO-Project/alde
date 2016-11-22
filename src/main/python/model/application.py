@@ -9,8 +9,18 @@
 # class Application():
 #
 #
-# class build():
+class Build():
+    """
+    Object that represents all the building information for an
+    application that needs to be build for one or more different
+    targetted architectures
+    """
 
+    def __init__(self, script, params):
+        """Initialize the basic parameters of the class"""
+
+        self.script = script
+        self.params = params
 
 class Execution():
     """
@@ -21,5 +31,5 @@ class Execution():
     def __init__(self, command, params):
         """Initializes the basic parameters of the class"""
 
-        self.command =command
+        self.command = command
         self.params = params

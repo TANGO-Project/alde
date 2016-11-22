@@ -7,7 +7,7 @@
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
 import unittest
-from model.application import Execution
+from model.application import Build, Execution
 
 class ApplicationTest(unittest.TestCase):
     """
@@ -21,3 +21,10 @@ class ApplicationTest(unittest.TestCase):
         execution = Execution("ls", "la")
         self.assertEquals("ls", execution.command)
         self.assertEquals("la", execution.params)
+
+    def test_initliazation_build(self):
+        """Test the initialization method of the class Build"""
+
+        build = Build("cc", "X")
+        self.assertEquals("cc", build.script)
+        self.assertEquals("X", build.params)
