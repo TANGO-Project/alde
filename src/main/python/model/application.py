@@ -5,13 +5,21 @@
 # Copyright: David García Pérez, Atos Research and Innovation, 2016.
 #
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
+from model.base import Base
+from sqlalchemy import Column, Integer, String
 
-class Application():
+class Application(Base):
     """
     Object that represents all the information for an
     application that it needs to be build and maybe deploy by the
     Application Lifecycle Deployment Engine
     """
+
+    # SQLAlchemy mapping code
+    __tablename__ = 'applications'
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    path_to_code = Column(String)
 
     def __init__(self, name, path_to_code):
         """Initializes the basic parameters of the class"""
