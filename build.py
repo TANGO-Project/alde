@@ -25,3 +25,4 @@ sonarqube_project_key = "ce9b5211cc48e2ca6ac94406eb8fe0a0f31eed06"
 @init
 def initialize(project):
     project.build_depends_on('mockito')
+    project.build_depends_on('sqlalchemy')
