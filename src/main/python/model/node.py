@@ -8,6 +8,7 @@
 
 from builtins import str
 from model.memory import Memory
+from model.processor import GPU, CPU, MCP
 
 class Node():
     """
@@ -24,11 +25,11 @@ class Node():
         self.architecture = []
         self.status = {}
 
-    def add_architecture_element(self, element):
+    def add_architecture_element(self, e):
         """It adds a new architecture element to the node"""
 
-        if isinstance(element, Memory):
-            self.architecture.append(element)
+        if isinstance(e, Memory) or isinstance(e, GPU) or isinstance(e, CPU) or isinstance(e, MCP):
+            self.architecture.append(e)
 
     def remove_architecture_element(self, element):
         """It removes an architecture element to the node"""

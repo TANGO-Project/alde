@@ -9,6 +9,7 @@
 import unittest
 from model.node import Node
 from model.memory import Memory
+from model.processor import CPU, GPU, MCP
 
 class NodeTest(unittest.TestCase):
     """
@@ -22,7 +23,7 @@ class NodeTest(unittest.TestCase):
         self.node = Node(1, "node1", True)
 
     def test_initialization(self):
-        """Test that an object of node class is initializated correctly"""
+        """ Test that an object of node class is initializated correctly """
 
         self.assertEquals(1, self.node.id)
         self.assertEquals("node1", self.node.name)
@@ -44,6 +45,24 @@ class NodeTest(unittest.TestCase):
         self.node.add_architecture_element("aasas")
         self.assertEquals(1, len(self.node.architecture))
         self.assertEquals(memory, self.node.architecture[0])
+
+        # We verify that we can add CPU element
+        cpu = CPU("Intel", "Xeon", "x86_64", "e6333", "2600Mhz", "yes", 2, "cache", "111")
+        self.node.add_architecture_element(cpu)
+        self.assertEquals(2, len(self.node.architecture))
+        self.assertEquals(cpu, self.node.architecture[1])
+
+        # We verify that we can add a GPU element
+        gpu = GPU("NVIDIA", "Maxwell")
+        self.node.add_architecture_element(gpu)
+        self.assertEquals(3, len(self.node.architecture))
+        self.assertEquals(gpu, self.node.architecture[2])
+
+        # We verify that we can add a MCP element
+        mcp = MCP("Intel", "Phi")
+        self.node.add_architecture_element(mcp)
+        self.assertEquals(4, len(self.node.architecture))
+        self.assertEquals(mcp, self.node.architecture[3])
 
     def add_memory(self):
         """ Just adds a memory object for add memory and remove memory tests"""

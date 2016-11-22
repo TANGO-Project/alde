@@ -9,8 +9,10 @@
 from model.node import Node
 
 class Testbed():
-    """Object model of the testbed connected to the Application Lifececyle
-       Deployment engine"""
+    """
+    Object model of the testbed connected to the Application Lifececyle
+    Deployment engine
+    """
 
     def __init__(self, name, on_line, category, protocol, endpoint, package_formats):
         """Initialize the basis attributes for the testbed class"""
