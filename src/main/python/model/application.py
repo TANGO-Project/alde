@@ -6,9 +6,24 @@
 #
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
-# class Application():
-#
-#
+class Application():
+    """
+    Object that represents all the information for an
+    application that it needs to be build and maybe deploy by the
+    Application Lifecycle Deployment Engine
+    """
+
+    def __init__(self, name, path_to_code):
+        """Initializes the basic parameters of the class"""
+
+        self.name = name
+        self.path_to_code = path_to_code
+        self.build = Build("","")
+        self.package = []
+        self.executable = []
+        self.execution = Execution("","")
+
+
 class Build():
     """
     Object that represents all the building information for an
