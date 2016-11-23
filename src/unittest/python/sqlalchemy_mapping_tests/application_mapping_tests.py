@@ -10,6 +10,10 @@ from sqlalchemy_mapping_tests.mapping_tests import MappingTest
 from model.application import Application
 
 class ApplicationMappingTest(MappingTest):
+    """
+    Series of test to validate the correct mapping to the class
+    Application to be stored into an SQL relational db
+    """
 
     def test_crud_application(self):
         """It test basic CRUD operations of an Application Class"""
@@ -26,3 +30,17 @@ class ApplicationMappingTest(MappingTest):
         self.assertIsNotNone(application.id)
         self.assertEquals("AppName", application.name)
         self.assertEquals("Path", application.path_to_code)
+
+        # We check that we can update the application
+        application.name = 'pepito'
+        self.session.commit()
+        application_2 = self.session.query(Application).filter_by(name='pepito').first()
+        self.assertEquals(application.id, application_2.id)
+        self.assertEquals("pepito", application.name)
+        self.assertEquals("Path", application.path_to_code)
+
+        # We check the deletion
+        self.session.delete(application_2)
+
+        count = self.session.query(Application).filter_by(name='pepito').count()
+        self.assertEquals(0, count)

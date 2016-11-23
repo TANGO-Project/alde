@@ -32,3 +32,14 @@ class TestbedMappingTest(MappingTest):
         self.assertTrue(testbed.on_line)
         self.assertEquals('ssh', testbed.protocol)
         self.assertEquals("user@server", testbed.endpoint)
+
+        # We update the testbed
+        testbed.on_line = False
+        self.session.commit()
+        testbed = self.session.query(Testbed).filter_by(name='name').first()
+        self.assertFalse(testbed.on_line)
+
+        # We check the deletion
+        self.session.delete(testbed)
+        count = self.session.query(Testbed).filter_by(name='name').count()
+        self.assertEquals(0, count)
