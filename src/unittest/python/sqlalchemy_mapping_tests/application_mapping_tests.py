@@ -6,25 +6,10 @@
 #
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
-import unittest
-from model.base import Base
+from sqlalchemy_mapping_tests.mapping_tests import MappingTest
 from model.application import Application
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
 
-class ApplicationMappingTest(unittest.TestCase):
-    """
-    It verifies the SQL mapping done with SQLAlchemy libs
-    """
-
-    def setUp(self):
-        """Does the initial setup of SQLAlchemy"""
-
-        self.engine = create_engine('sqlite:///:memory:', echo=True)
-        Base.metadata.create_all(self.engine)
-        Session = sessionmaker(bind=self.engine)
-        self.session = Session()
+class ApplicationMappingTest(MappingTest):
 
     def test_crud_application(self):
         """It test basic CRUD operations of an Application Class"""
@@ -41,8 +26,3 @@ class ApplicationMappingTest(unittest.TestCase):
         self.assertIsNotNone(application.id)
         self.assertEquals("AppName", application.name)
         self.assertEquals("Path", application.path_to_code)
-
-
-    def tearDown(self):
-        """ It closes the session after each test """
-        Base.metadata.drop_all(self.engine)

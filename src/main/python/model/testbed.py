@@ -6,13 +6,24 @@
 #
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
+from model.base import Base
 from model.node import Node
+from sqlalchemy import Column, Integer, String, Boolean
 
-class Testbed():
+class Testbed(Base):
     """
     Object model of the testbed connected to the Application Lifececyle
     Deployment engine
     """
+
+    # SQLAlchemy mapping code
+    __tablename__ = 'testbeds'
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    on_line = Column(Boolean)
+    protocol = Column(String)
+    endpoint = Column(String)
+    #package_formats = Column(String)
 
     def __init__(self, name, on_line, category, protocol, endpoint, package_formats):
         """Initialize the basis attributes for the testbed class"""
@@ -21,6 +32,7 @@ class Testbed():
         self.on_line = on_line
         self.category = category
         self.protocol = protocol
+        self.endpoint = endpoint
         self.package_formats = package_formats
         self.nodes = []
 
