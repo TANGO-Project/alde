@@ -8,7 +8,7 @@
 
 
 import unittest
-from model.memory import Memory
+from model.models import Memory
 
 class MemoryTests(unittest.TestCase):
     """Verifies the correct work of the class Memory"""

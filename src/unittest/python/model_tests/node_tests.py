@@ -7,9 +7,7 @@
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
 import unittest
-from model.node import Node
-from model.memory import Memory
-from model.processor import CPU, GPU, MCP
+from model.models import CPU, GPU, MCP, Memory, Node
 
 class NodeTest(unittest.TestCase):
     """
