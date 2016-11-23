@@ -22,7 +22,7 @@ class TestbedMappingTest(MappingTest):
         testbed = Testbed("name", True, "slurm", "ssh", "user@server", ['slurm'])
         self.assertIsNone(testbed.id)
 
-        # We store the boject in the db
+        # We store the object in the db
         self.session.add(testbed)
 
         # We recover the testbed from the db

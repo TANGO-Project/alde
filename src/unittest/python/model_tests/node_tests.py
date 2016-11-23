@@ -20,12 +20,11 @@ class NodeTest(unittest.TestCase):
     def setUp(self):
         """ Initializes the node object to use in the rest of tests """
 
-        self.node = Node(1, "node1", True)
+        self.node = Node("node1", True)
 
     def test_initialization(self):
         """ Test that an object of node class is initializated correctly """
 
-        self.assertEquals(1, self.node.id)
         self.assertEquals("node1", self.node.name)
         self.assertTrue(self.node.information_retrieved)
         self.assertEquals([], self.node.architecture)

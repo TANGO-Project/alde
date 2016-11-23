@@ -25,7 +25,7 @@ class TestbedTest(unittest.TestCase):
         self.assertEquals(0, len(testbed.nodes))
 
         # We add a node to the testbed and veriy it is added
-        node_1 = Node(1, "node333", "on-line")
+        node_1 = Node("node333", "on-line")
         testbed.add_node(node_1)
         self.assertEquals(1, len(testbed.nodes))
         self.assertEquals(node_1, testbed.nodes[0])
@@ -44,9 +44,9 @@ class TestbedTest(unittest.TestCase):
         # We create a testbed first
         testbed = Testbed("name", True, "slurm", "ssh", "user@server", ['slurm'])
         # We two nodes to the testbed
-        node_1 = Node(1, "node333", "on-line")
+        node_1 = Node("node333", "on-line")
         testbed.add_node(node_1)
-        node_2 = Node(2, "node333", "on-line")
+        node_2 = Node("node333", "on-line")
         testbed.add_node(node_2)
         self.assertEquals(2, len(testbed.nodes))
 

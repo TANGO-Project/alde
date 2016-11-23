@@ -41,6 +41,5 @@ class ApplicationMappingTest(MappingTest):
 
         # We check the deletion
         self.session.delete(application_2)
-
         count = self.session.query(Application).filter_by(name='pepito').count()
         self.assertEquals(0, count)
