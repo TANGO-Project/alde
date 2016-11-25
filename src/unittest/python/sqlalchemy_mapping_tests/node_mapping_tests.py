@@ -7,7 +7,7 @@
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
 from sqlalchemy_mapping_tests.mapping_tests import MappingTest
-from model.models import Node, CPU, GPU
+from model.models import Node, CPU, GPU, Memory
 
 class NodeMappingTest(MappingTest):
     """
@@ -107,3 +107,36 @@ class NodeMappingTest(MappingTest):
         node = self.session.query(Node).filter_by(name='node1').first()
         self.assertEquals(1, len(node.gpus))
         self.assertEquals("Nvidia", node.gpus[0].vendor_id)
+
+    def test_node_memory_relation(self):
+        """
+        Unit test that verifies that the correct relation between
+        the Memory class and the node class is built
+        """
+
+        # We create a node
+        node = Node("node1", True)
+
+        # We add several CPUs to it
+        node.memories = [
+            Memory(11111, "bytes"),
+            Memory(11211, "bytes")
+        ]
+
+        # We save everything to the db
+        self.session.add(node)
+        self.session.commit()
+
+        # We retrived and verify that the gpus are there
+        node = self.session.query(Node).filter_by(name='node1').first()
+
+        self.assertEquals(2, len(node.memories))
+        self.assertEquals(11111, node.memories[0].size)
+        self.assertEquals(11211, node.memories[1].size)
+
+        # Lets delete a gpu directly from the session
+        self.session.delete(node.memories[1])
+        self.session.commit()
+        node = self.session.query(Node).filter_by(name='node1').first()
+        self.assertEquals(1, len(node.memories))
+        self.assertEquals(11111, node.memories[0].size)

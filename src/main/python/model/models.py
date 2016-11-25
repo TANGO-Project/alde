@@ -23,6 +23,8 @@ class Memory(Base):
     units = Column(String)
     address = Column(String)
     memory_type = Column(String)
+    node_id = Column(Integer, ForeignKey('nodes.id'))
+    node = relationship("Node", back_populates="memories")
 
     def __init__(self, size, units, address='', memory_type=''):
         """Initialize the basis attributes for the tetbed class"""
@@ -127,6 +129,7 @@ class Node(Base):
     testbed = relationship("Testbed", back_populates="nodes")
     cpus = relationship("CPU", order_by=CPU.id, back_populates="node")
     gpus = relationship("GPU", order_by=GPU.id, back_populates="node")
+    memories = relationship("Memory", order_by=Memory.id, back_populates="node")
 
     def __init__(self, name, information_retrieved):
         """ Initialize the basis attributes for the testbed class """
