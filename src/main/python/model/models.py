@@ -100,28 +100,68 @@ class Node(Base):
 
         self.name = name
         self.information_retrieved = information_retrieved
+        self.cpus = []
+        self.gpus = []
+        self.mcps = []
+        self.memories = []
         self.architecture = []
         self.status = {}
 
-    def add_architecture_element(self, e):
-        """ It adds a new architecture element to the node """
+    def add_cpu(self, e):
+        """ It adds a new cpu element to the node """
 
-        if isinstance(e, Memory) or isinstance(e, GPU) or isinstance(e, CPU) or isinstance(e, MCP):
-            self.architecture.append(e)
+        if isinstance(e, CPU):
+            self.cpus.append(e)
 
-    def remove_architecture_element(self, element):
-        """ It removes an architecture element to the node """
+    def remove_cpu(self, cpu):
+        """ It removes a CPU to the node """
 
-        if element in self.architecture:
-            self.architecture.remove(element)
+        if cpu in self.cpus:
+            self.cpus.remove(cpu)
 
-    def add_status_element(self, key, value):
+    def add_gpu(self, gpu):
+        """ It adds a new GPU element to the node """
+
+        if isinstance(gpu, GPU):
+            self.gpus.append(gpu)
+
+    def remove_gpu(self, gpu):
+        """ It removes a CPU to the node """
+
+        if gpu in self.gpus:
+            self.gpus.remove(gpu)
+
+    def add_gpu(self, mcp):
+        """ It adds a new MCP element to the node """
+
+        if isinstance(mcp, MCP):
+            self.mcps.append(mcp)
+
+    def remove_gpu(self, mcp):
+        """ It removes a MCP to the node """
+
+        if mcp in self.mcps:
+            self.mcps.remove(mcp)
+
+    def add_memories(self, memory):
+        """ It adds a new Memory element to the node """
+
+        if isinstance(memory, Memory):
+            self.memories.append(memory)
+
+    def remove_gpu(self, memory):
+        """ It removes a Memory to the node """
+
+        if memory in self.memories:
+            self.memories.remove(memory)
+
+    def add_status(self, key, value):
         """ All the elements in the status are dictionaries """
 
         if isinstance(key, str) and isinstance(value, dict):
             self.status[key] = value
 
-    def remove_status_element(self, key):
+    def remove_status(self, key):
         """ Removes status element by key """
 
         if key in self.status.keys():
