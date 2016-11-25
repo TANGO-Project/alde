@@ -104,14 +104,13 @@ class Node(Base):
         self.gpus = []
         self.mcps = []
         self.memories = []
-        self.architecture = []
         self.status = {}
 
-    def add_cpu(self, e):
+    def add_cpu(self, cpu):
         """ It adds a new cpu element to the node """
 
-        if isinstance(e, CPU):
-            self.cpus.append(e)
+        if isinstance(cpu, CPU):
+            self.cpus.append(cpu)
 
     def remove_cpu(self, cpu):
         """ It removes a CPU to the node """
@@ -131,25 +130,25 @@ class Node(Base):
         if gpu in self.gpus:
             self.gpus.remove(gpu)
 
-    def add_gpu(self, mcp):
+    def add_mcp(self, mcp):
         """ It adds a new MCP element to the node """
 
         if isinstance(mcp, MCP):
             self.mcps.append(mcp)
 
-    def remove_gpu(self, mcp):
+    def remove_mcp(self, mcp):
         """ It removes a MCP to the node """
 
         if mcp in self.mcps:
             self.mcps.remove(mcp)
 
-    def add_memories(self, memory):
+    def add_memory(self, memory):
         """ It adds a new Memory element to the node """
 
         if isinstance(memory, Memory):
             self.memories.append(memory)
 
-    def remove_gpu(self, memory):
+    def remove_memory(self, memory):
         """ It removes a Memory to the node """
 
         if memory in self.memories:
