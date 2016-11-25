@@ -26,9 +26,9 @@ class ProcessorTest(unittest.TestCase):
         self.assertEquals("Intel", cpu.vendor_id)
         self.assertEquals("Xeon", cpu.model_name)
         self.assertEquals("x86_64", cpu.arch)
-        self.assertEquals("2600Mhz", cpu.cpu_speed)
+        self.assertEquals("2600Mhz", cpu.speed)
         self.assertEquals("yes", cpu.fpu)
-        self.assertEquals(2, cpu.cpu_cores)
+        self.assertEquals(2, cpu.cores)
         self.assertEquals("cache", cpu.cache)
         self.assertEquals("111", cpu.flags)
 

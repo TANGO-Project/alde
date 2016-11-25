@@ -7,7 +7,7 @@
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
 from sqlalchemy_mapping_tests.mapping_tests import MappingTest
-from model.models import Node
+from model.models import Node, CPU, GPU
 
 class NodeMappingTest(MappingTest):
     """
@@ -41,3 +41,69 @@ class NodeMappingTest(MappingTest):
         self.session.delete(node)
         count = self.session.query(Node).filter_by(name='node1').count()
         self.assertEquals(0, count)
+
+    def test_node_cpu_relation(self):
+        """
+        Unit test that verifies that the correct relation between
+        the testbed class and the node class is built
+        """
+
+        # We create a node
+        node = Node("node1", True)
+
+        # We add several CPUs to it
+        node.cpus = [
+            CPU("Intel", "Xeon", "x86_64", "e6333", "2600Mhz", True, 2, "cache", "111"),
+            CPU("AMD", "Zen", "x86_64", "xxxxx", "2600Mhz", True, 2, "cache", "111")
+        ]
+
+        # We save everything to the db
+        self.session.add(node)
+        self.session.commit()
+
+        # We retrived and verify that the cpus are there
+        node = self.session.query(Node).filter_by(name='node1').first()
+
+        self.assertEquals(2, len(node.cpus))
+        self.assertEquals("Intel", node.cpus[0].vendor_id)
+        self.assertEquals("AMD", node.cpus[1].vendor_id)
+
+        # Lets delete a cpu directly from the session
+        self.session.delete(node.cpus[1])
+        self.session.commit()
+        node = self.session.query(Node).filter_by(name='node1').first()
+        self.assertEquals(1, len(node.cpus))
+        self.assertEquals("Intel", node.cpus[0].vendor_id)
+
+    def test_node_gpu_relation(self):
+        """
+        Unit test that verifies that the correct relation between
+        the GPU class and the node class is built
+        """
+
+        # We create a node
+        node = Node("node1", True)
+
+        # We add several CPUs to it
+        node.gpus = [
+            GPU("Nvidia", "GeForce"),
+            GPU("AMD", "Raedon")
+        ]
+
+        # We save everything to the db
+        self.session.add(node)
+        self.session.commit()
+
+        # We retrived and verify that the gpus are there
+        node = self.session.query(Node).filter_by(name='node1').first()
+
+        self.assertEquals(2, len(node.gpus))
+        self.assertEquals("Nvidia", node.gpus[0].vendor_id)
+        self.assertEquals("AMD", node.gpus[1].vendor_id)
+
+        # Lets delete a gpu directly from the session
+        self.session.delete(node.gpus[1])
+        self.session.commit()
+        node = self.session.query(Node).filter_by(name='node1').first()
+        self.assertEquals(1, len(node.gpus))
+        self.assertEquals("Nvidia", node.gpus[0].vendor_id)

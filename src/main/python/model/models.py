@@ -10,11 +10,19 @@ from model.base import Base
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 
-class Memory():
+class Memory(Base):
     """
     Object model of the RAM that can have a node in the Application
     Lifecycle Deployment Engine
     """
+
+    # SQLAlchemy mapping code
+    __tablename__ = 'memories'
+    id = Column(Integer, primary_key=True)
+    size = Column(Integer)
+    units = Column(String)
+    address = Column(String)
+    memory_type = Column(String)
 
     def __init__(self, size, units, address='', memory_type=''):
         """Initialize the basis attributes for the tetbed class"""
@@ -35,23 +43,46 @@ class Processor():
         self.model_name = model_name
 
 
-class CPU(Processor):
+class CPU(Processor, Base):
     """This class represents the basic information of a CPU"""
 
-    def __init__(self, vendor_id, model_name, arch, model, cpu_speed, fpu, cpu_cores, cache, flags):
+    # SQLAlchemy mapping code
+    __tablename__ = 'cpus'
+    id = Column(Integer, primary_key=True)
+    vendor_id = Column(String)
+    model_name = Column(String)
+    arch = Column(String)
+    model = Column(String)
+    speed = Column(String)
+    fpu = Column(Boolean)
+    cores = Column(Integer)
+    cache = Column(String)
+    flags = Column(String)
+    node_id = Column(Integer, ForeignKey('nodes.id'))
+    node = relationship("Node", back_populates="cpus")
+
+    def __init__(self, vendor_id, model_name, arch, model, speed, fpu, cores, cache, flags):
         """Initialize the basic attributes of a CPU"""
 
         super().__init__(vendor_id, model_name)
         self.arch = arch
         self.model = model
-        self.cpu_speed = cpu_speed
+        self.speed = speed
         self.fpu = fpu
-        self.cpu_cores = cpu_cores
+        self.cores = cores
         self.cache = cache
         self.flags = flags
 
-class GPU(Processor):
+class GPU(Processor, Base):
     """This class represents the basic information of a GPU"""
+
+    # SQLAlchemy mapping code
+    __tablename__ = 'gpus'
+    id = Column(Integer, primary_key=True)
+    vendor_id = Column(String)
+    model_name = Column(String)
+    node_id = Column(Integer, ForeignKey('nodes.id'))
+    node = relationship("Node", back_populates="gpus")
 
     def __init__(self, vendor_id, model_name):
         """Initializes the basic attributes of a GPU"""
@@ -94,6 +125,8 @@ class Node(Base):
     information_retrieved = Column(Boolean)
     testbed_id = Column(Integer, ForeignKey('testbeds.id'))
     testbed = relationship("Testbed", back_populates="nodes")
+    cpus = relationship("CPU", order_by=CPU.id, back_populates="node")
+    gpus = relationship("GPU", order_by=GPU.id, back_populates="node")
 
     def __init__(self, name, information_retrieved):
         """ Initialize the basis attributes for the testbed class """
