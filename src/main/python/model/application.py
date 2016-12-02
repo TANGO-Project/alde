@@ -6,10 +6,11 @@
 #
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
-from model.base import Base
-from sqlalchemy import Column, Integer, String
+from flask_sqlalchemy import SQLAlchemy
 
-class Application(Base):
+db = SQLAlchemy()
+
+class Application(db.Model):
     """
     Object that represents all the information for an
     application that it needs to be build and maybe deploy by the
@@ -18,9 +19,9 @@ class Application(Base):
 
     # SQLAlchemy mapping code
     __tablename__ = 'applications'
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    path_to_code = Column(String)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    path_to_code = db.Column(db.String)
 
     def __init__(self, name, path_to_code):
         """Initializes the basic parameters of the class"""
