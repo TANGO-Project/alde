@@ -7,13 +7,13 @@
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
 import flask
-import flask.ext.restless
+import flask_restless
 from model.base import db
 from model.application import Application
 
 url_prefix_v1='/api/v1'
 
-def create_app_v1(sql_db_url, db, port):
+def create_app_v1(sql_db_url, port):
     """
     It creates the Flask REST app service
     """
@@ -24,9 +24,10 @@ def create_app_v1(sql_db_url, db, port):
     app.config['SQLALCHEMY_DATABASE_URI'] = sql_db_url
     app.config['LIVESERVER_PORT'] = port
     db.init_app(app)
+    db.app=app
 
     # Create the Flask-Restless API manager.
-    manager = flask.ext.restless.APIManager(app, flask_sqlalchemy_db=db)
+    manager = flask_restless.APIManager(app, flask_sqlalchemy_db=db)
     manager.create_api(Application, methods=['GET', 'POST', 'DELETE'], url_prefix=url_prefix_v1)
 
     return app

@@ -26,6 +26,7 @@ class MappingTest(TestCase):
          app = Flask(__name__)
          app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
          db.init_app(app)
+         db.app=app
          return app
 
      def setUp(self):
