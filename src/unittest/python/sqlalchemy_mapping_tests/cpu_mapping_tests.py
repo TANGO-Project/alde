@@ -8,6 +8,7 @@
 
 from sqlalchemy_mapping_tests.mapping_tests import MappingTest
 from model.models import CPU
+from model.base import db
 
 class CPUMappingTest(MappingTest):
     """
@@ -23,10 +24,10 @@ class CPUMappingTest(MappingTest):
         self.assertIsNone(cpu.id)
 
         # We store the object in the db
-        self.session.add(cpu)
+        db.session.add(cpu)
 
         # We recover the GPU from the db
-        cpu = self.session.query(CPU).filter_by(vendor_id='Intel').first()
+        cpu = db.session.query(CPU).filter_by(vendor_id='Intel').first()
         self.assertIsNotNone(cpu.id)
         self.assertEquals("Intel", cpu.vendor_id)
         self.assertEquals("Xeon", cpu.model_name)
@@ -40,11 +41,11 @@ class CPUMappingTest(MappingTest):
 
         # We update the gpu
         cpu.vendor_id = "AMD"
-        self.session.commit()
-        cpu = self.session.query(CPU).filter_by(vendor_id='AMD').first()
+        db.session.commit()
+        cpu = db.session.query(CPU).filter_by(vendor_id='AMD').first()
         self.assertEquals("AMD", cpu.vendor_id)
 
         # We check the deletion
-        self.session.delete(cpu)
-        count = self.session.query(CPU).filter_by(vendor_id='AMD').count()
+        db.session.delete(cpu)
+        count = db.session.query(CPU).filter_by(vendor_id='AMD').count()
         self.assertEquals(0, count)

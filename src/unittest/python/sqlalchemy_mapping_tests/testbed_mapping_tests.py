@@ -8,6 +8,7 @@
 
 from sqlalchemy_mapping_tests.mapping_tests import MappingTest
 from model.models import Testbed, Node
+from model.base import db
 
 class TestbedMappingTest(MappingTest):
     """
@@ -23,10 +24,10 @@ class TestbedMappingTest(MappingTest):
         self.assertIsNone(testbed.id)
 
         # We store the object in the db
-        self.session.add(testbed)
+        db.session.add(testbed)
 
         # We recover the testbed from the db
-        testbed = self.session.query(Testbed).filter_by(name='name').first()
+        testbed = db.session.query(Testbed).filter_by(name='name').first()
         self.assertIsNotNone(testbed.id)
         self.assertEquals('name', testbed.name)
         self.assertTrue(testbed.on_line)
@@ -35,13 +36,13 @@ class TestbedMappingTest(MappingTest):
 
         # We update the testbed
         testbed.on_line = False
-        self.session.commit()
-        testbed = self.session.query(Testbed).filter_by(name='name').first()
+        db.session.commit()
+        testbed = db.session.query(Testbed).filter_by(name='name').first()
         self.assertFalse(testbed.on_line)
 
         # We check the deletion
-        self.session.delete(testbed)
-        count = self.session.query(Testbed).filter_by(name='name').count()
+        db.session.delete(testbed)
+        count = db.session.query(Testbed).filter_by(name='name').count()
         self.assertEquals(0, count)
 
     def test_testbed_node_relation(self):
@@ -60,11 +61,11 @@ class TestbedMappingTest(MappingTest):
                            Node("node3", True) ]
 
         # We save everything to the db
-        self.session.add(testbed)
-        self.session.commit()
+        db.session.add(testbed)
+        db.session.commit()
 
         # We retrieve and verify that the nodes are there
-        testbed = self.session.query(Testbed).filter_by(name='name').first()
+        testbed = db.session.query(Testbed).filter_by(name='name').first()
 
         self.assertEquals(3, len(testbed.nodes))
         self.assertEquals("node1", testbed.nodes[0].name)
@@ -78,8 +79,8 @@ class TestbedMappingTest(MappingTest):
         testbed.remove_node(testbed.nodes[2])
 
         # We commit the state and it should be updated
-        self.session.commit()
-        testbed = self.session.query(Testbed).filter_by(name='name').first()
+        db.session.commit()
+        testbed = db.session.query(Testbed).filter_by(name='name').first()
         self.assertEquals(2, len(testbed.nodes))
         self.assertEquals("node1", testbed.nodes[0].name)
         self.assertTrue(testbed.nodes[0].information_retrieved)
@@ -87,15 +88,15 @@ class TestbedMappingTest(MappingTest):
         self.assertFalse(testbed.nodes[1].information_retrieved)
 
         # Lets delete the node directly from the session
-        self.session.delete(testbed.nodes[1])
-        self.session.commit()
-        testbed = self.session.query(Testbed).filter_by(name='name').first()
+        db.session.delete(testbed.nodes[1])
+        db.session.commit()
+        testbed = db.session.query(Testbed).filter_by(name='name').first()
         self.assertEquals(1, len(testbed.nodes))
         self.assertEquals("node1", testbed.nodes[0].name)
         self.assertTrue(testbed.nodes[0].information_retrieved)
 
         # It should be only one node in the db
-        nodes = self.session.query(Node).all()
+        nodes = db.session.query(Node).all()
         self.assertEquals(2, len(nodes))
         self.assertEquals("node1", nodes[0].name)
         self.assertTrue(nodes[0].information_retrieved)

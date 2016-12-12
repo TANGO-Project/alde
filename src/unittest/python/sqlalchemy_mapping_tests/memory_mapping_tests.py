@@ -8,38 +8,39 @@
 
 from sqlalchemy_mapping_tests.mapping_tests import MappingTest
 from model.models import Memory
+from model.base import db
 
 class MemoryMappingTests(MappingTest):
-    """
-    Test that validates the correct mapping of the class Memory to be
-    stored into SQL relational db
-    """
+     """
+     Test that validates the correct mapping of the class Memory to be
+     stored into SQL relational db
+     """
 
-    def test_crud_memory(self):
-        """ It tests the basic CRUD operations of a Memory class """
+     def test_crud_memory(self):
+         """ It tests the basic CRUD operations of a Memory class """
 
-        # We verify the object is not in the db after creating it
-        memory = Memory(11111, "bytes", "0x111", "writable")
-        self.assertIsNone(memory.id)
+         # We verify the object is not in the db after creating it
+         memory = Memory(11111, "bytes", "0x111", "writable")
+         self.assertIsNone(memory.id)
 
-        # We store the object in the db
-        self.session.add(memory)
+         # We store the object in the db
+         db.session.add(memory)
 
-        # We recover the Memory from the db
-        memory = self.session.query(Memory).filter_by(units='bytes').first()
-        self.assertIsNotNone(memory.id)
-        self.assertEquals(11111, memory.size)
-        self.assertEquals("bytes", memory.units)
-        self.assertEquals("0x111", memory.address)
-        self.assertEquals("writable", memory.memory_type)
+         # We recover the Memory from the db
+         memory = db.session.query(Memory).filter_by(units='bytes').first()
+         self.assertIsNotNone(memory.id)
+         self.assertEquals(11111, memory.size)
+         self.assertEquals("bytes", memory.units)
+         self.assertEquals("0x111", memory.address)
+         self.assertEquals("writable", memory.memory_type)
 
-        # We update the memory
-        memory.size = 0
-        self.session.commit()
-        memory = self.session.query(Memory).filter_by(units='bytes').first()
-        self.assertEquals(0, memory.size)
+         # We update the memory
+         memory.size = 0
+         db.session.commit()
+         memory = db.session.query(Memory).filter_by(units='bytes').first()
+         self.assertEquals(0, memory.size)
 
-        # We check the deletion
-        self.session.delete(memory)
-        count = self.session.query(Memory).filter_by(units='bytes').count()
-        self.assertEquals(0, count)
+         # We check the deletion
+         db.session.delete(memory)
+         count = db.session.query(Memory).filter_by(units='bytes').count()
+         self.assertEquals(0, count)

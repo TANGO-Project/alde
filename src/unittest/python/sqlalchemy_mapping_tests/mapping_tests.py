@@ -6,25 +6,38 @@
 #
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
-import unittest
-from model.base import Base
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from flask import Flask
+from flask_testing import TestCase
+from model.base import db
 
-class MappingTest(unittest.TestCase):
-    """
-    Common methods for all mapping test code
-    """
+class MappingTest(TestCase):
+     """
+     Common methods for all mapping test code
+     """
 
-    def setUp(self):
-        """Does the initial setup of SQLAlchemy"""
+     SQLALCHEMY_DATABASE_URI = "sqlite://"
+     TESTING = True
 
-        self.engine = create_engine('sqlite:///:memory:', echo=True)
-        Base.metadata.create_all(self.engine)
-        Session = sessionmaker(bind=self.engine)
-        self.session = Session()
+     def create_app(self):
+         """
+         It initializes flask_testing
+         """
 
-    def tearDown(self):
-        """ It closes the session after each test """
-        Base.metadata.drop_all(self.engine)
+         app = Flask(__name__)
+         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+         db.init_app(app)
+         return app
+
+     def setUp(self):
+         """
+         It creates the memory db
+         """
+
+         db.create_all()
+
+     def setDown(self):
+         """
+         Deletes everything in the memory db
+         """
+
+         db.session_remove()

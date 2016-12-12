@@ -6,43 +6,15 @@
 #
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
-from flask import Flask
-from flask_testing import TestCase
-from model.application import Application, db
+from sqlalchemy_mapping_tests.mapping_tests import MappingTest
+from model.application import Application
+from model.base import db
 
-class ApplicationMappingTest(TestCase):
+class ApplicationMappingTest(MappingTest):
     """
     Series of test to validate the correct mapping to the class
     Application to be stored into an SQL relational db
     """
-
-    SQLALCHEMY_DATABASE_URI = "sqlite://"
-    TESTING = True
-
-    def create_app(self):
-        """
-        It initializes flask_testing
-        """
-
-        app = Flask(__name__)
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-        db.init_app(app)
-        return app
-
-    def setUp(self):
-        """
-        It creates the memory db
-        """
-
-        db.create_all()
-
-    def setDown(self):
-        """
-        Deletes everything in the memory db
-        """
-
-        db.session_remove()
-        db.drop_all()
 
     def test_crud_application(self):
         """It test basic CRUD operations of an Application Class"""

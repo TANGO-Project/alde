@@ -6,11 +6,10 @@
 #
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
-from model.base import Base
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
-from sqlalchemy.orm import relationship
+from model.base import db
+# #from sqlalchemy.orm import relationship
 
-class Memory(Base):
+class Memory(db.Model):
     """
     Object model of the RAM that can have a node in the Application
     Lifecycle Deployment Engine
@@ -18,13 +17,13 @@ class Memory(Base):
 
     # SQLAlchemy mapping code
     __tablename__ = 'memories'
-    id = Column(Integer, primary_key=True)
-    size = Column(Integer)
-    units = Column(String)
-    address = Column(String)
-    memory_type = Column(String)
-    node_id = Column(Integer, ForeignKey('nodes.id'))
-    node = relationship("Node", back_populates="memories")
+    id = db.Column(db.Integer, primary_key=True)
+    size = db.Column(db.Integer)
+    units = db.Column(db.String)
+    address = db.Column(db.String)
+    memory_type = db.Column(db.String)
+    node_id = db.Column(db.Integer, db.ForeignKey('nodes.id'))
+    node = db.relationship("Node", back_populates="memories")
 
     def __init__(self, size, units, address='', memory_type=''):
         """Initialize the basis attributes for the tetbed class"""
@@ -45,23 +44,23 @@ class Processor():
         self.model_name = model_name
 
 
-class CPU(Processor, Base):
+class CPU(Processor, db.Model):
     """This class represents the basic information of a CPU"""
 
     # SQLAlchemy mapping code
     __tablename__ = 'cpus'
-    id = Column(Integer, primary_key=True)
-    vendor_id = Column(String)
-    model_name = Column(String)
-    arch = Column(String)
-    model = Column(String)
-    speed = Column(String)
-    fpu = Column(Boolean)
-    cores = Column(Integer)
-    cache = Column(String)
-    flags = Column(String)
-    node_id = Column(Integer, ForeignKey('nodes.id'))
-    node = relationship("Node", back_populates="cpus")
+    id = db.Column(db.Integer, primary_key=True)
+    vendor_id = db.Column(db.String)
+    model_name = db.Column(db.String)
+    arch = db.Column(db.String)
+    model = db.Column(db.String)
+    speed = db.Column(db.String)
+    fpu = db.Column(db.Boolean)
+    cores = db.Column(db.Integer)
+    cache = db.Column(db.String)
+    flags = db.Column(db.String)
+    node_id = db.Column(db.Integer, db.ForeignKey('nodes.id'))
+    node = db.relationship("Node", back_populates="cpus")
 
     def __init__(self, vendor_id, model_name, arch, model, speed, fpu, cores, cache, flags):
         """Initialize the basic attributes of a CPU"""
@@ -75,16 +74,16 @@ class CPU(Processor, Base):
         self.cache = cache
         self.flags = flags
 
-class GPU(Processor, Base):
+class GPU(Processor, db.Model):
     """This class represents the basic information of a GPU"""
 
     # SQLAlchemy mapping code
     __tablename__ = 'gpus'
-    id = Column(Integer, primary_key=True)
-    vendor_id = Column(String)
-    model_name = Column(String)
-    node_id = Column(Integer, ForeignKey('nodes.id'))
-    node = relationship("Node", back_populates="gpus")
+    id = db.Column(db.Integer, primary_key=True)
+    vendor_id = db.Column(db.String)
+    model_name = db.Column(db.String)
+    node_id = db.Column(db.Integer, db.ForeignKey('nodes.id'))
+    node = db.relationship("Node", back_populates="gpus")
 
     def __init__(self, vendor_id, model_name):
         """Initializes the basic attributes of a GPU"""
@@ -114,7 +113,7 @@ class MCP(GPU):
         super().__init__(vendor_id, model_name)
 
 
-class Node(Base):
+class Node(db.Model):
     """
     Object model of the node connected to the Application Lifececyle
     Deployment engine
@@ -122,14 +121,14 @@ class Node(Base):
 
     # SQLAlchemy mapping code
     __tablename__ = 'nodes'
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    information_retrieved = Column(Boolean)
-    testbed_id = Column(Integer, ForeignKey('testbeds.id'))
-    testbed = relationship("Testbed", back_populates="nodes")
-    cpus = relationship("CPU", order_by=CPU.id, back_populates="node")
-    gpus = relationship("GPU", order_by=GPU.id, back_populates="node")
-    memories = relationship("Memory", order_by=Memory.id, back_populates="node")
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    information_retrieved = db.Column(db.Boolean)
+    testbed_id = db.Column(db.Integer, db.ForeignKey('testbeds.id'))
+    testbed = db.relationship("Testbed", back_populates="nodes")
+    cpus = db.relationship("CPU", order_by=CPU.id, back_populates="node")
+    gpus = db.relationship("GPU", order_by=GPU.id, back_populates="node")
+    memories = db.relationship("Memory", order_by=Memory.id, back_populates="node")
 
     def __init__(self, name, information_retrieved):
         """ Initialize the basis attributes for the testbed class """
@@ -203,7 +202,7 @@ class Node(Base):
             del self.status[key]
 
 
-class Testbed(Base):
+class Testbed(db.Model):
     """
     Object model of the testbed connected to the Application Lifececyle
     Deployment engine
@@ -211,13 +210,13 @@ class Testbed(Base):
 
     # SQLAlchemy mapping code
     __tablename__ = 'testbeds'
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    on_line = Column(Boolean)
-    protocol = Column(String)
-    endpoint = Column(String)
-    #package_formats = Column(String)
-    nodes = relationship("Node", order_by=Node.id, back_populates="testbed")
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    on_line = db.Column(db.Boolean)
+    protocol = db.Column(db.String)
+    endpoint = db.Column(db.String)
+    #package_formats = db.Column(db.String)
+    nodes = db.relationship("Node", order_by=Node.id, back_populates="testbed")
 
     def __init__(self, name, on_line, category, protocol, endpoint, package_formats):
         """Initialize the basis attributes for the testbed class"""
