@@ -11,6 +11,7 @@ from flask_testing import TestCase
 from model.base import db
 from model.application import Application
 import alde
+import json
 
 class AldeTests(TestCase):
     """
@@ -57,6 +58,28 @@ class AldeTests(TestCase):
         as expected.
         """
 
+        # GET
         response = self.client.get("/api/v1/applications")
+
+        # We verify the respongse to the GET
+        self.assertEquals(200, response.status_code)
+        applications = response.json['objects']
+        self.assertEquals(2, len(applications))
+        application = applications[0]
+        self.assertEquals(1, application['id'])
+        self.assertEquals('AppName_1', application['name'])
+        self.assertEquals('Path_1', application['path_to_code'])
+        application = applications[1]
+        self.assertEquals(2, application['id'])
+        self.assertEquals('AppName_2', application['name'])
+        self.assertEquals('Path_2', application['path_to_code'])
+
+        # POST
+        response = self.client.post('/api/v1/applications',
+                                     data=dict(
+                                            name='AppName_3',
+                                            path_to_code='Path_3'
+                                          ),
+                                     content_type='application/json')
 
         print(response.json)
