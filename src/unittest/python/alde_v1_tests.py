@@ -10,7 +10,7 @@ from flask import Flask
 from flask_testing import TestCase
 from model.base import db
 from model.application import Application
-from model.models import Testbed
+from model.models import Testbed, Node
 import alde
 import json
 
@@ -49,6 +49,12 @@ class AldeV1Tests(TestCase):
         testbed_2 = Testbed("name_2", False, "slurm", "ssh", "user@server", ['slurm'])
         db.session.add(testbed_1)
         db.session.add(testbed_2)
+
+        # We store some nodes in the db for the tests
+        node_1 = Node("node_1", True)
+        node_2 = Node("node_2", False)
+        db.session.add(node_1)
+        db.session.add(node_2)
 
         db.session.commit()
 
@@ -196,3 +202,67 @@ class AldeV1Tests(TestCase):
         self.assertEquals("slurm", testbed['category'])
         self.assertEquals("ssh", testbed['protocol'])
         self.assertEquals("user@server", testbed['endpoint'])
+
+    def test_node_rest_api(self):
+        """
+        It tests all supported REST methods for an Testbed works
+        as expected.
+        """
+
+        # GET
+        response = self.client.get("/api/v1/nodes")
+
+        # We verify the respongse to the GET
+        self.assertEquals(200, response.status_code)
+        nodes = response.json['objects']
+        node = nodes[0]
+        self.assertEquals("node_1", node['name'])
+        self.assertTrue(node['information_retrieved'])
+        node = nodes[1]
+        self.assertEquals("node_2", node['name'])
+        self.assertFalse(node['information_retrieved'])
+
+        # POST
+        data={
+             'name' : 'node_3',
+             'information_retrieved' : False,
+         }
+
+        response = self.client.post("/api/v1/nodes",
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        self.assertEquals(201, response.status_code)
+        node = response.json
+        self.assertEquals("node_3", node['name'])
+        self.assertFalse(node['information_retrieved'])
+        # We check that we only have three testbeds
+        response = self.client.get("/api/v1/nodes")
+        self.assertEquals(3, len(response.json['objects']))
+
+        # GET Specific identity
+        response = self.client.get("/api/v1/nodes/3")
+        self.assertEquals(200, response.status_code)
+        node = response.json
+        self.assertEquals("node_3", node['name'])
+        self.assertFalse(node['information_retrieved'])
+
+        # DELETE
+        response = self.client.delete("/api/v1/nodes/1")
+
+        self.assertEquals(204, response.status_code)
+        # We check we only have two entities in the db
+        response = self.client.get("/api/v1/nodes")
+        self.assertEquals(2, len(response.json['objects']))
+
+        # PUT
+        data={"name": "Foobar"}
+
+        response = self.client.put("api/v1/nodes/2",
+                                   data=json.dumps(data),
+                                   content_type='application/json')
+
+        self.assertEquals(200, response.status_code)
+        node = response.json
+        self.assertEquals("Foobar", node['name'])
+        self.assertFalse(node['information_retrieved'])

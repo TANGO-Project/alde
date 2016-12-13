@@ -10,7 +10,7 @@ import flask
 import flask_restless
 from model.base import db
 from model.application import Application
-from model.models import Testbed
+from model.models import Testbed, Node
 
 url_prefix_v1='/api/v1'
 
@@ -38,6 +38,11 @@ def create_app_v1(sql_db_url, port):
 
     # Create the REST methods for a Testbed
     manager.create_api(Testbed,
+                       methods=['GET', 'POST', 'PUT', 'DELETE'],
+                       url_prefix=url_prefix_v1)
+
+    # Create teh REST methods for a Node
+    manager.create_api(Node,
                        methods=['GET', 'POST', 'PUT', 'DELETE'],
                        url_prefix=url_prefix_v1)
 
