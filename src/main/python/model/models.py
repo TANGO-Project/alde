@@ -213,12 +213,13 @@ class Testbed(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     on_line = db.Column(db.Boolean)
+    category = db.Column(db.String)
     protocol = db.Column(db.String)
     endpoint = db.Column(db.String)
     #package_formats = db.Column(db.String)
     nodes = db.relationship("Node", order_by=Node.id, back_populates="testbed")
 
-    def __init__(self, name, on_line, category, protocol, endpoint, package_formats):
+    def __init__(self, name, on_line, category, protocol, endpoint, package_formats=[]):
         """Initialize the basis attributes for the testbed class"""
 
         self.name = name
