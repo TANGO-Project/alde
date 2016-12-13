@@ -266,3 +266,63 @@ class AldeV1Tests(TestCase):
         node = response.json
         self.assertEquals("Foobar", node['name'])
         self.assertFalse(node['information_retrieved'])
+
+    def test_can_create_the_node(self):
+        """
+        Checks the right behaviour that checks if it is possible to add
+        a node
+        """
+
+        # Node not associated to any db
+        node = Node("xxx", True)
+
+        is_possible = alde.can_create_the_node(node)
+        self.assertEquals(True, is_possible['create'])
+        self.assertEquals('', is_possible['reason'])
+
+        # Node has an ivalid testbed id
+        node.testbed_id = 100000
+
+        is_possible = alde.can_create_the_node(node)
+        self.assertEquals(False, is_possible['create'])
+        self.assertEquals('Testbed does not exist', is_possible['reason'])
+
+        # Testbed exists but information is retrieved automatically
+        node.testbed_id = 1
+
+        is_possible = alde.can_create_the_node(node)
+        self.assertEquals(False, is_possible['create'])
+        self.assertEquals('Testbed is configured to automatically retrieve information of nodes',
+                          is_possible['reason'])
+
+        # Testeb exists but information is not retrieved automatically
+        node.testbed_id = 2
+
+        is_possible = alde.can_create_the_node(node)
+        self.assertEquals(True, is_possible['create'])
+        self.assertEquals('', is_possible['reason'])
+
+        # Testbed info is passed by the url:
+        node = Node("xxx", True)
+        ## Testbed does not allow it
+        is_possible = alde.can_create_the_node(node, testbed_id=1)
+        self.assertEquals(False, is_possible['create'])
+        self.assertEquals('Testbed is configured to automatically retrieve information of nodes',
+                          is_possible['reason'])
+        ## Testbed does allow it
+        is_possible = alde.can_create_the_node(node, testbed_id=2)
+        self.assertEquals(True, is_possible['create'])
+        self.assertEquals('', is_possible['reason'])
+
+        # Testbed and nodes are created at the same time
+        testbed_1 = Testbed("name_1", True, "slurm", "ssh", "user@server", ['slurm'])
+        testbed_2 = Testbed("name_2", False, "slurm", "ssh", "user@server", ['slurm'])
+        ## Testbed does not allow it
+        is_possible = alde.can_create_the_node(node, testbed=testbed_1)
+        self.assertEquals(False, is_possible['create'])
+        self.assertEquals('Testbed is configured to automatically retrieve information of nodes',
+                          is_possible['reason'])
+        ## Testbed does allow it
+        is_possible = alde.can_create_the_node(node, testbed=testbed_2)
+        self.assertEquals(True, is_possible['create'])
+        self.assertEquals('', is_possible['reason'])

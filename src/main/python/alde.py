@@ -13,6 +13,47 @@ from model.application import Application
 from model.models import Testbed, Node
 
 url_prefix_v1='/api/v1'
+accepted_message = { 'create' : True, 'reason' : ''}
+testbed_not_configured_message = { 'create' : False, 'reason' : 'Testbed is configured to automatically retrieve information of nodes'}
+
+def _testbed_creation_node(testbed):
+    """
+    Internal function to check if the testbed exists and allow or not the
+    creation of a node
+    """
+
+    if testbed == None:
+        return { 'create' : False, 'reason' : 'Testbed does not exist'}
+    elif testbed.on_line :
+        return testbed_not_configured_message
+    else:
+        return accepted_message
+
+def can_create_the_node(node, testbed_id=-1, testbed=None):
+    """
+    It checks if it is possible to add a Node.
+    It is necessary to check first if the testbed exits in the db
+    Or if the is due to the creation of the own testbed
+    Or if the node is independent and not associated to a testbed.
+    """
+
+    if testbed_id == -1 and testbed == None :
+        if node.testbed_id == None :
+            return accepted_message
+        else:
+            testbed = db.session.query(Testbed).filter_by(id=node.testbed_id).first()
+            return _testbed_creation_node(testbed)
+
+    elif testbed_id != -1 :
+        testbed = db.session.query(Testbed).filter_by(id=testbed_id).first()
+        return _testbed_creation_node(testbed)
+
+    else:
+        if testbed.on_line :
+            return testbed_not_configured_message
+        else:
+            return accepted_message
+
 
 def create_app_v1(sql_db_url, port):
     """
