@@ -28,6 +28,8 @@ def create_app_v1(sql_db_url, port):
 
     # Create the Flask-Restless API manager.
     manager = flask_restless.APIManager(app, flask_sqlalchemy_db=db)
-    manager.create_api(Application, methods=['GET', 'POST', 'DELETE'], url_prefix=url_prefix_v1)
+    manager.create_api(Application,
+                       methods=['GET', 'POST', 'DELETE'],
+                       url_prefix=url_prefix_v1)
 
     return app

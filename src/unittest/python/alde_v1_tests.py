@@ -13,7 +13,7 @@ from model.application import Application
 import alde
 import json
 
-class AldeTests(TestCase):
+class AldeV1Tests(TestCase):
     """
     Test that verifies the REST API of Alde for its v1 version
     """
@@ -75,11 +75,16 @@ class AldeTests(TestCase):
         self.assertEquals('Path_2', application['path_to_code'])
 
         # POST
+        data={
+                'name' : 'AppName_3',
+                'path_to_code' : 'Path_3'
+            }
+
         response = self.client.post('/api/v1/applications',
-                                     data=dict(
-                                            name='AppName_3',
-                                            path_to_code='Path_3'
-                                          ),
+                                     data=json.dumps(data),
                                      content_type='application/json')
 
-        print(response.json)
+        self.assertEquals(201, response.status_code)
+        self.assertEquals('AppName_3', response.json['name'])
+        self.assertEquals('Path_3', response.json['path_to_code'])
+        self.assertEquals(3, response.json['id'])
