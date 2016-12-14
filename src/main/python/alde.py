@@ -50,7 +50,7 @@ def can_create_the_node(node=None, testbed_id=-1, testbed=None):
         return _testbed_creation_node(testbed)
 
     else:
-        if testbed.on_line :
+        if testbed['on_line'] :
             return testbed_not_configured_message
         else:
             return accepted_message
@@ -71,6 +71,19 @@ def put_testbed_preprocessor(instance_id=None, data=None, **kw):
                                                 code=405)
 
 
+def post_testbed_preprocessor(data=None, **kw):
+    """
+    It checks the data in the testbed payload to check if it is possible to
+    add nodes to if necessary
+    """
+
+    if 'nodes' in data :
+        create = can_create_the_node(testbed=data)
+
+        if not create['create'] :
+            raise flask_restless.ProcessingException(
+                                            description=create['reason'],
+                                            code=405)
 
 def create_app_v1(sql_db_url, port):
     """
@@ -98,6 +111,7 @@ def create_app_v1(sql_db_url, port):
     manager.create_api(Testbed,
                        methods=['GET', 'POST', 'PUT', 'DELETE'],
                        preprocessors={
+                            'POST': [post_testbed_preprocessor],
                             'PUT_SINGLE': [put_testbed_preprocessor]
                             },
                        url_prefix=url_prefix_v1)

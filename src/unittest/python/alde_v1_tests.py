@@ -315,8 +315,14 @@ class AldeV1Tests(TestCase):
         self.assertEquals('', is_possible['reason'])
 
         # Testbed and nodes are created at the same time
-        testbed_1 = Testbed("name_1", True, "slurm", "ssh", "user@server", ['slurm'])
-        testbed_2 = Testbed("name_2", False, "slurm", "ssh", "user@server", ['slurm'])
+        testbed_1 = {
+                        'name' : 'name_3',
+                        'on_line' : True
+                    }
+        testbed_2 = {
+                        'name' : 'name_3',
+                        'on_line' : False
+                    }
         ## Testbed does not allow it
         is_possible = alde.can_create_the_node(node, testbed=testbed_1)
         self.assertEquals(False, is_possible['create'])
@@ -332,6 +338,66 @@ class AldeV1Tests(TestCase):
         Tests the behaviour to see if the node gets associated
         to a testbed and how
         """
+
+        ################
+        # POST TESTBED #
+        ################
+
+        # Testbed is not on-line, it should allow it
+        data={
+                'name' : 'name_3',
+                'on_line' : False,
+                'category' : 'embedded',
+                'protocol' : 'none',
+                'endpoint' : 'compiled_to_disk',
+                'nodes' : [
+                            {
+                                'name' : 'node_3',
+                                'information_retrieved' : False
+                            }
+                           ]
+            }
+        response = self.client.post("/api/v1/testbeds",
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        self.assertEquals(201, response.status_code)
+        testbed = response.json
+        self.assertEquals("name_3", testbed['name'])
+        self.assertFalse(testbed['on_line'])
+        self.assertEquals("embedded", testbed['category'])
+        self.assertEquals("none", testbed['protocol'])
+        self.assertEquals("compiled_to_disk", testbed['endpoint'])
+        node = testbed['nodes'][0]
+        self.assertEquals(False, node['information_retrieved'])
+        self.assertEquals('node_3', node['name'])
+        self.assertEquals(3, node['id'])
+
+        # Testbed is on-line, it shouldn't allow it
+        data={
+                'name' : 'name_3',
+                'on_line' : True,
+                'category' : 'embedded',
+                'protocol' : 'none',
+                'endpoint' : 'compiled_to_disk',
+                'nodes' : [
+                            {
+                                'name' : 'node_3',
+                                'information_retrieved' : False
+                            }
+                           ]
+            }
+        response = self.client.post("/api/v1/testbeds",
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+        self.assertEquals(405, response.status_code)
+        self.assertEquals(
+          'Testbed is configured to automatically retrieve information of nodes',
+          response.json['message'])
+
+        ###############
+        # PUT TESTBED #
+        ###############
 
         data={
              'nodes' : [
@@ -351,7 +417,7 @@ class AldeV1Tests(TestCase):
         node = response.json['nodes'][0]
         self.assertEquals(False, node['information_retrieved'])
         self.assertEquals('node_3', node['name'])
-        self.assertEquals(3, node['id'])
+        self.assertEquals(4, node['id'])
 
         # Testbed 1 is on-line, so it shouldn't allow to add a node to it
         response = self.client.put("/api/v1/testbeds/1",
