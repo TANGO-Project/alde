@@ -435,3 +435,43 @@ class AldeV1Tests(TestCase):
                                     content_type='application/json')
 
         self.assertEquals(404, response.status_code)
+
+        ################
+        # PATCH a Node #
+        ################
+        data={
+             'nodes' : {
+                        'add': [{
+                                    'name' : 'node_3',
+                                    'information_retrieved' : False
+                               }]
+                       }
+         }
+
+        # Testbed 2 is off-line, so it should allow to add a node
+        response = self.client.patch("/api/v1/testbeds/2",
+                                      data=json.dumps(data),
+                                      content_type='application/json')
+
+        self.assertEquals(200, response.status_code)
+        node = response.json['nodes'][0]
+        self.assertEquals(False, node['information_retrieved'])
+        self.assertEquals('node_3', node['name'])
+        self.assertEquals(4, node['id'])
+
+        # Testbed 1 is on-line, so it shouldn't allow to add a node to it
+        response = self.client.patch("/api/v1/testbeds/1",
+                                      data=json.dumps(data),
+                                      content_type='application/json')
+
+        self.assertEquals(405, response.status_code)
+        self.assertEquals(
+           'Testbed is configured to automatically retrieve information of nodes',
+           response.json['message'])
+
+        # Testbed does not exists in db
+        response = self.client.patch("/api/v1/testbeds/1000",
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        self.assertEquals(404, response.status_code)

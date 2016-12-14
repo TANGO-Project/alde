@@ -109,9 +109,10 @@ def create_app_v1(sql_db_url, port):
 
     # Create the REST methods for a Testbed
     manager.create_api(Testbed,
-                       methods=['GET', 'POST', 'PUT', 'DELETE'],
+                       methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
                        preprocessors={
                             'POST': [post_testbed_preprocessor],
+                            'PATCH_SINGLE': [put_testbed_preprocessor],
                             'PUT_SINGLE': [put_testbed_preprocessor]
                             },
                        url_prefix=url_prefix_v1)
