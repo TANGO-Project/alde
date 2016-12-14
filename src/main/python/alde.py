@@ -15,6 +15,7 @@ from model.models import Testbed, Node
 url_prefix_v1='/api/v1'
 accepted_message = { 'create' : True, 'reason' : ''}
 testbed_not_configured_message = { 'create' : False, 'reason' : 'Testbed is configured to automatically retrieve information of nodes'}
+no_testbed = 'Testbed does not exist'
 
 def _testbed_creation_node(testbed):
     """
@@ -23,13 +24,13 @@ def _testbed_creation_node(testbed):
     """
 
     if testbed == None:
-        return { 'create' : False, 'reason' : 'Testbed does not exist'}
+        return { 'create' : False, 'reason' : no_testbed }
     elif testbed.on_line :
         return testbed_not_configured_message
     else:
         return accepted_message
 
-def can_create_the_node(node, testbed_id=-1, testbed=None):
+def can_create_the_node(node=None, testbed_id=-1, testbed=None):
     """
     It checks if it is possible to add a Node.
     It is necessary to check first if the testbed exits in the db
@@ -53,6 +54,22 @@ def can_create_the_node(node, testbed_id=-1, testbed=None):
             return testbed_not_configured_message
         else:
             return accepted_message
+
+def put_testbed_preprocessor(instance_id=None, data=None, **kw):
+    """
+    It is going to check if the testbed allows the creation of nodes
+    """
+
+    if instance_id != None :
+
+        if 'nodes' in data :
+            create =  can_create_the_node(testbed_id=instance_id)
+
+            if not create['create'] and create['reason'] != no_testbed :
+                raise flask_restless.ProcessingException(
+                                                description=create['reason'],
+                                                code=405)
+
 
 
 def create_app_v1(sql_db_url, port):
@@ -80,6 +97,9 @@ def create_app_v1(sql_db_url, port):
     # Create the REST methods for a Testbed
     manager.create_api(Testbed,
                        methods=['GET', 'POST', 'PUT', 'DELETE'],
+                       preprocessors={
+                            'PUT_SINGLE': [put_testbed_preprocessor]
+                            },
                        url_prefix=url_prefix_v1)
 
     # Create teh REST methods for a Node

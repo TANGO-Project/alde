@@ -326,3 +326,46 @@ class AldeV1Tests(TestCase):
         is_possible = alde.can_create_the_node(node, testbed=testbed_2)
         self.assertEquals(True, is_possible['create'])
         self.assertEquals('', is_possible['reason'])
+
+    def test_testbed_node_insertions(self):
+        """
+        Tests the behaviour to see if the node gets associated
+        to a testbed and how
+        """
+
+        data={
+             'nodes' : [
+                        {
+                            'name' : 'node_3',
+                            'information_retrieved' : False
+                        }
+                       ]
+         }
+
+        # Testbed 2 is off-line, so it should allow to add a node
+        response = self.client.put("/api/v1/testbeds/2",
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        self.assertEquals(200, response.status_code)
+        node = response.json['nodes'][0]
+        self.assertEquals(False, node['information_retrieved'])
+        self.assertEquals('node_3', node['name'])
+        self.assertEquals(3, node['id'])
+
+        # Testbed 1 is on-line, so it shouldn't allow to add a node to it
+        response = self.client.put("/api/v1/testbeds/1",
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        self.assertEquals(405, response.status_code)
+        self.assertEquals(
+          'Testbed is configured to automatically retrieve information of nodes',
+          response.json['message'])
+
+        # Testbed does not exists in db
+        response = self.client.put("/api/v1/testbeds/1000",
+                                    data=json.dumps(data),
+                                    content_type='application/json')
+
+        self.assertEquals(404, response.status_code)
