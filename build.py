@@ -23,7 +23,7 @@ sonarqube_project_name = "tango-alde"
 sonarqube_project_key = "ce9b5211cc48e2ca6ac94406eb8fe0a0f31eed06"
 
 # Coverage configuration:
-coverage_exceptions = [ 'alde' ]
+coverage_exceptions = [ 'alde.py' ]
 
 @init
 def initialize(project):

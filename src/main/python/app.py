@@ -19,4 +19,4 @@ app = alde.create_app_v1(SQL_LITE_URL, PORT)
 
 # We start the Flask loop
 db.create_all() ## I will probably need to look at this more carefully...
-app.run()
+# app.run()
