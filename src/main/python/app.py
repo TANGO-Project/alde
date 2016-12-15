@@ -9,14 +9,14 @@
 
 # Main ALDE Falsk start app...
 
-import alde
-from model.base import db
+import alde # pragma: no cover
+from model.base import db # pragma: no cover
 
-SQL_LITE_URL='sqlite:////tmp/test.db'
-PORT=5000
+SQL_LITE_URL='sqlite:////tmp/test.db' # pragma: no cover
+PORT=5000 # pragma: no cover
 
-app = alde.create_app_v1(SQL_LITE_URL, PORT)
+app = alde.create_app_v1(SQL_LITE_URL, PORT) # pragma: no cover
 
 # We start the Flask loop
-db.create_all() ## I will probably need to look at this more carefully...
+db.create_all() # pragma: no cover
 # app.run()
