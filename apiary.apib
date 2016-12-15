@@ -125,30 +125,23 @@ The response is paginated. By default it shows the 10 first results, you can ask
 + Request (application/json)
 
         {
-            name: "nova_2",
-            on_line: "true",
-            type: "slurm",
-            protocol: "ssh",
-            endpoint: "user@172.0.0.2",
-            package_formats: [
-                "docker",
-                "spack"
-            ]
+          "name" : "Testbed_11",
+          "on_line" : false,
+          "category" : "embedded",
+          "protocol" : "none",
+          "endpoint" : "compiled_to_disk"
         }
 
 + Response 201 (application/json)
 
         {
-            id: 3,
-            name: "nova_2",
-            on_line: "true",
-            type: "slurm",
-            protocol: "ssh",
-            endpoint: "user@172.0.0.2",
-            package_formats: [
-                "docker",
-                "spack"
-            ]
+          "category": "embedded",
+          "endpoint": "compiled_to_disk",
+          "id": 12,
+          "name": "Testbed_11",
+          "nodes": [],
+          "on_line": false,
+          "protocol": "none"
         }
 
 ## Testbed [/testbeds/{testbed_id}]
@@ -161,16 +154,13 @@ The response is paginated. By default it shows the 10 first results, you can ask
 + Response 200 (application/json)
 
         {
-            id: testbed_id,
-            name: "nova_2il",
-            on_line: "true",
-            type: "slurm",
-            protocol: "ssh",
-            endpoint: "user@172.0.0.2",
-            package_formats: [
-                "docker",
-                "spack"
-            ]
+          "category": "embedded",
+          "endpoint": "compiled_to_disk",
+          "id": testbed_id,
+          "name": "Testbed_11",
+          "nodes": [],
+          "on_line": false,
+          "protocol": "none"
         }
 
 ### Update of testbed details [PUT]
@@ -178,22 +168,19 @@ The response is paginated. By default it shows the 10 first results, you can ask
 + Request (application/json)
 
         {
-            name: "nova_3",
+            name: "Testbed_12",
         }
 
 + Response 200 (application/json)
 
         {
-            id: 3,
-            name: "nova_3",
-            on_line: "true",
-            type: "slurm",
-            protocol: "ssh",
-            endpoint: "user@172.0.0.2",
-            package_formats: [
-                "docker",
-                "spack"
-            ]
+          "category": "embedded",
+          "endpoint": "compiled_to_disk",
+          "id": testbed_id,
+          "name": "Testbed_12",
+          "nodes": [],
+          "on_line": false,
+          "protocol": "none"
         }
 
 ### Delete of testbed detailes [DELETE]
@@ -202,223 +189,111 @@ This will delete the testbed from the ALDE database together with all the node i
 of
 + Response 204
 
+### Add a node to the testbed [PATCH]
+
+It can be used to add nodes to a testbed. The testbed is only going to allow a node to be added if this testbed is not of the on-line type.
+
++ Request (application/json)
+
+        {
+            "nodes" : {
+                "add": [
+                  {
+                    "name" : "node_3",
+                    "information_retrieved" : false
+                  }
+                ]
+            }
+        }
+
++ Response 200
+
+        {
+          "category": "embedded",
+          "endpoint": "compiled_to_disk",
+          "id": 11,
+          "name": "Testbed_11",
+          "nodes": [
+            {
+              "id": 1,
+              "information_retrieved": false,
+              "name": "node_3",
+              "testbed_id": 11
+            }
+          ],
+          "on_line": false,
+          "protocol": "none"
+        }
+
 ## Nodes [/testbeds/{testbed_id}/nodes]
 
 + Parameters
     + testbed_id (number) - ID of the testbed in the form of an integer
+    + page (number, optional) - Specifies the page of results the client wants to see
+    + results_per_page (number, optional) - Limits the number of results per each page
 
 ### List all nodes of a testbed [GET]
 
 + Response 200 (application/json)
 
-        [
+        {
+          "num_results": 3,
+          "objects": [
             {
-                id: 1,
-                name: "nd31",
-                information_retrieved: "automatically",
-                architecture: [
-                    {
-                        ram: {
-                            size: 24595464,
-                            units: "kilobyte"
-                        }
-                    },
-                    {
-                        cpu: {
-                            vendor_id: "GenuineIntel",
-                            arch: "x86_64",
-                            model: "44",
-                            model_name: "Intel(R) Xeon(R) CPU           E5640  @ 2.67GHz",
-                            cpu_speed: "2660.000",
-                            cache: {
-                                size: 12288,
-                                units: "kilobytes"
-                            },
-                            fpu: "true",
-                            cpu_cores: 4,
-                            flags: "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 popcnt aes lahf_lm arat epb dts tpr_shadow vnmi flexpriority ept vpid"
-                        }
-                    },
-                    {
-                        cpu: {
-                            vendor_id: "GenuineIntel",
-                            arch: "x86_64",
-                            model: "44",
-                            model_name: "Intel(R) Xeon(R) CPU           E5640  @ 2.67GHz",
-                            cpu_speed: "2660.000",
-                            cache: {
-                                size: 12288,
-                                units: "kilobytes"
-                            },
-                            fpu: "true",
-                            cpu_cores: 4,
-                            flags: "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 popcnt aes lahf_lm arat epb dts tpr_shadow vnmi flexpriority ept vpid"
-                        }
-                    }.
-                    {
-                        gpu: {
-                            vendor_id: "NVIDIA",
-                            model_name: "NVIDIA Corporation GF110GL [Tesla M2075] (rev a1)".
-                            memory: [
-                                {
-                                    address: "9a000000",
-                                    type: "32-bit, non-prefetchable",
-                                    size: 16,
-                                    unit: "megabytes"
-                                },
-                                {
-                                    address: "90000000",
-                                    type: "64-bit, prefetchable",
-                                    size: 128,
-                                    unit: "megabytes"
-                                }
-                                {
-                                    address: "98000000",
-                                    type: "64-bit, prefetchable",
-                                    size: 32,
-                                    unit: "megabytes"
-                                }
-                            ]
-                        }
-                    }
-                ],
-                status: {
-                    slurm: {
-                        cores_per_socket: "4",
-                        cpu_alloc: "0",
-                        cpu_error: "0",
-                        cpu_total: "8",
-                        cpu_load: "n/a",
-                        real_memory: 24018,
-                        alloc_memory: 0,
-                        sockets: 2,
-                        boards: 1,
-                        state: "MAINT*",
-                        threads_per_core: 1,
-                        tmp_disk: 0,
-                        weigth: 1,
-                        current_watts: "0",
-                        lowest_joules: "0",
-                        consumed_joules: "0",
-                        ext_sensors_joules: "n/s",
-                        ext_sensors_watts: "0",
-                        ext_sensors_temps: "n/s",
-                        reason: "Node unexpectedly rebooted [slurm@2016-09-14T08:37:00]"
-                        job: {
-                            id: 65648,
-                            usage_resources: 6
-                        }
-                    },
-                    os: {
-                        percentage_cpu: "150%",
-                        free_ram: "232455"
-                    },
-                    energy: {
-                        xxx: "yyy"
-                    }
-                }
+              "cpus": [],
+              "gpus": [],
+              "id": 1,
+              "information_retrieved": false,
+              "memories": [],
+              "name": "node_3",
+              "testbed": {
+                "category": "embedded",
+                "endpoint": "compiled_to_disk",
+                "id": 11,
+                "name": "Testbed_11",
+                "on_line": false,
+                "protocol": "none"
+              },
+              "testbed_id": 11
             },
             {
-                id: 2,
-                name: "nd46",
-                information_retrieved: "automatically",
-                architecture: [
-                    {
-                        ram: {
-                            size: 24595464,
-                            units: "kilobyte"
-                        }
-                    },
-                    {
-                        cpu: {
-                            vendor_id: "GenuineIntel",
-                            arch: "x86_64",
-                            model: "44",
-                            model_name: "Intel(R) Xeon(R) CPU           E5640  @ 2.67GHz",
-                            cpu_speed: "2660.000",
-                            cache: {
-                                size: 12288,
-                                units: "kilobytes"
-                            },
-                            fpu: "true",
-                            cpu_cores: 4,
-                            flags: "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 popcnt aes lahf_lm arat epb dts tpr_shadow vnmi flexpriority ept vpid"
-                        }
-                    },
-                    {
-                        cpu: {
-                            vendor_id: "GenuineIntel",
-                            arch: "x86_64",
-                            model: "44",
-                            model_name: "Intel(R) Xeon(R) CPU           E5640  @ 2.67GHz",
-                            cpu_speed: "2660.000",
-                            cache: {
-                                size: 12288,
-                                units: "kilobytes"
-                            },
-                            fpu: "true",
-                            cpu_cores: 4,
-                            flags: "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 popcnt aes lahf_lm arat epb dts tpr_shadow vnmi flexpriority ept vpid"
-                        }
-                    }.
-                    {
-                        mcp: {
-                            vendor_id: "Intel Corporation",
-                            model_name: "Intel Corporation Xeon Phi coprocessor 5100 series (rev 11)",
-                            memory: [
-                                {
-                                    address: "181c00000000",
-                                    type: "64-bit, prefetchable",
-                                    size: 8,
-                                    unit: "gigabyte"
-                                },
-                                {
-                                    address: "91400000",
-                                    type: "64-bit, non-prefetchable"
-                                    size: "128"
-                                    unit: "kilobyte"
-                                }
-                            ]
-                        }
-                    }
-                ],
-                status: {
-                    slurm: {
-                        cores_per_socket: "4",
-                        cpu_alloc: "0",
-                        cpu_error: "0",
-                        cpu_total: "8",
-                        cpu_load: "n/a",
-                        real_memory: 24018,
-                        alloc_memory: 0,
-                        sockets: 2,
-                        boards: 1,
-                        state: "MAINT*",
-                        threads_per_core: 1,
-                        tmp_disk: 0,
-                        weigth: 1,
-                        current_watts: "0",
-                        lowest_joules: "0",
-                        consumed_joules: "0",
-                        ext_sensors_joules: "n/s",
-                        ext_sensors_watts: "0",
-                        ext_sensors_temps: "n/s",
-                        reason: "Node unexpectedly rebooted [slurm@2016-09-14T08:37:00]"
-                        job: {
-                            id: 65648,
-                            usage_resources: 6
-                        }
-                    },
-                    os: {
-                        percentage_cpu: "150%",
-                        free_ram: "232455"
-                    },
-                    energy: {
-                        xxx: "yyy"
-                    }
-                }
+              "cpus": [],
+              "gpus": [],
+              "id": 2,
+              "information_retrieved": false,
+              "memories": [],
+              "name": "node_4",
+              "testbed": {
+                "category": "embedded",
+                "endpoint": "compiled_to_disk",
+                "id": 11,
+                "name": "Testbed_11",
+                "on_line": false,
+                "protocol": "none"
+              },
+              "testbed_id": 11
+            },
+            {
+              "cpus": [],
+              "gpus": [],
+              "id": 3,
+              "information_retrieved": false,
+              "memories": [],
+              "name": "node_5",
+              "testbed": {
+                "category": "embedded",
+                "endpoint": "compiled_to_disk",
+                "id": 11,
+                "name": "Testbed_11",
+                "on_line": false,
+                "protocol": "none"
+              },
+              "testbed_id": 11
             }
-        ]
+          ],
+          "page": 1,
+          "total_pages": 1
+        }
 
 ### Create a new node in a testbed [POST]
 
