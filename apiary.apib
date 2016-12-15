@@ -225,7 +225,81 @@ It can be used to add nodes to a testbed. The testbed is only going to allow a n
           "protocol": "none"
         }
 
-## Nodes [/testbeds/{testbed_id}/nodes]
+## Nodes in a testbed [/testbeds/{testbed_id}/nodes]
+
+As in the previous cases, the response is paginated:
+
++ Parameters
+    + testbed_id (number) - ID of the testbed in the form of an integer
+    + page (number, optional) - Specifies the page of results the client wants to see
+    + results_per_page (number, optional) - Limits the number of results per each page
+
+### List all nodes of a testbed [GET]
+
++ Response 200 (application/json)
+
+        {
+          "num_results": 3,
+          "objects": [
+            {
+              "cpus": [],
+              "gpus": [],
+              "id": 1,
+              "information_retrieved": false,
+              "memories": [],
+              "name": "node_3",
+              "testbed": {
+                "category": "embedded",
+                "endpoint": "compiled_to_disk",
+                "id": 11,
+                "name": "Testbed_11",
+                "on_line": false,
+                "protocol": "none"
+              },
+              "testbed_id": 11
+            },
+            {
+              "cpus": [],
+              "gpus": [],
+              "id": 2,
+              "information_retrieved": false,
+              "memories": [],
+              "name": "node_4",
+              "testbed": {
+                "category": "embedded",
+                "endpoint": "compiled_to_disk",
+                "id": 11,
+                "name": "Testbed_11",
+                "on_line": false,
+                "protocol": "none"
+              },
+              "testbed_id": 11
+            },
+            {
+              "cpus": [],
+              "gpus": [],
+              "id": 3,
+              "information_retrieved": false,
+              "memories": [],
+              "name": "node_5",
+              "testbed": {
+                "category": "embedded",
+                "endpoint": "compiled_to_disk",
+                "id": 11,
+                "name": "Testbed_11",
+                "on_line": false,
+                "protocol": "none"
+              },
+              "testbed_id": 11
+            }
+          ],
+          "page": 1,
+          "total_pages": 1
+        }
+
+### Nodes [/nodes]
+
+As in the previous cases, the response is paginated:
 
 + Parameters
     + testbed_id (number) - ID of the testbed in the form of an integer
@@ -302,161 +376,42 @@ This is only possible for testbed where the node information is not gotten direc
 + Request (application/json)
 
         {
-            name: "embedded_node",
-            architecture: [
-                {
-                    ram: {
-                        size: 24595464,
-                        unit: "kilobytes"
-                    }
-                },
-                {
-                    cpu: {
-                        vendor_id: "ARM",
-                        arch: "armv8",
-                        model: "XXXX",
-                        model_name: "ARM XXXX",
-                        cpu_speed: "2660.000",
-                        cache: {
-                            size: 12288,
-                            unit: "kilobyte"
-                        },
-                        fpu: "true",
-                        cpu_cores: 2,
-                        flags: "zzzz, yyyyy"
-                    }
-                },
-                {
-                    gpu: {
-                        vendor_id: "NVIDIA",
-                        model_name: "NVIDIA Corporation GF110GL [Tesla M2075] (rev a1)",
-                        memory: [
-                            {
-                                address: "9a000000",
-                                type: "32-bit, non-prefetchable",
-                                size: "16",
-                                unit: "megabyte"
-                            }
-                        }
-                },
-                {
-                    fpga: {
-                        Xxxx: "yyy",
-                        zzzz: "aaaa"
-                    }
-                }
-            ]
+          "name" : "node_3",
+          "information_retrieved" : false
         }
 
 + Response 201 (application/json)
 
         {
-            id: 1,
-            name: "embedded_node",
-            information_retrieved: "manually",
-            architecture: [
-                {
-                    ram: {
-                        size: 24595464,
-                        unit: "kilobytes"
-                    }
-                },
-                {
-                    cpu: {
-                        vendor_id: "ARM",
-                        arch: "armv8",
-                        model: "XXXX",
-                        model_name: "ARM XXXX",
-                        cpu_speed: "2660.000",
-                        cache: {
-                            size: 12288,
-                            unit: "kilobyte"
-                        },
-                        fpu: "true",
-                        cpu_cores: 2,
-                        flags: "zzzz, yyyyy"
-                    }
-                },
-                {
-                    gpu: {
-                        vendor_id: "NVIDIA",
-                        model_name: "NVIDIA Corporation GF110GL [Tesla M2075] (rev a1)",
-                        memory: [
-                            {
-                                address: "9a000000",
-                                type: "32-bit, non-prefetchable",
-                                size: "16",
-                                unit: "megabyte"
-                            }
-                        }
-                },
-                {
-                    fpga: {
-                        Xxxx: "yyy",
-                        zzzz: "aaaa"
-                    }
-                }
-            ]
+          "cpus": [],
+          "gpus": [],
+          "id": 4,
+          "information_retrieved": false,
+          "memories": [],
+          "name": "node_3",
+          "testbed": null,
+          "testbed_id": null
         }
 
-## Nodes [/testbeds/{testbed_id}/nodes/{node_id}]
+## Nodes [/nodes/{node_id}]
 
 + Parameters
-    + testbed_id (number) - ID of the testbed in the form of an integer
     + node_id (number) - ID of the node from the testbed in the form of an integer
 
 ### List the node information [GET]
 
 + Response 200 (application/json)
 
-        {
-            id: "node_id",
-            name: "embedded_node",
-            information_retrieved: "manually",
-            architecture: [
-                {
-                    ram: {
-                        size: 24595464,
-                        unit: "kilobytes"
-                    }
-                },
-                {
-                    cpu: {
-                        vendor_id: "ARM",
-                        arch: "armv8",
-                        model: "XXXX",
-                        model_name: "ARM XXXX",
-                        cpu_speed: "2660.000",
-                        cache: {
-                            size: 12288,
-                            unit: "kilobyte"
-                        },
-                        fpu: "true",
-                        cpu_cores: 2,
-                        flags: "zzzz, yyyyy"
-                    }
-                },
-                {
-                    gpu: {
-                        vendor_id: "NVIDIA",
-                        model_name: "NVIDIA Corporation GF110GL [Tesla M2075] (rev a1)",
-                        memory: [
-                            {
-                                address: "9a000000",
-                                type: "32-bit, non-prefetchable",
-                                size: "16",
-                                unit: "megabyte"
-                            }
-                        }
-                },
-                {
-                    fpga: {
-                        Xxxx: "yyy",
-                        zzzz: "aaaa"
-                    }
-                }
-            ]
-        }
+      {
+        "cpus": [],
+        "gpus": [],
+        "id": 4,
+        "information_retrieved": false,
+        "memories": [],
+        "name": "node_3",
+        "testbed": null,
+        "testbed_id": null
+      }
 
 ### Updates the information of a node [PUT]
 This only works with nodes that have the variable "information_retrieved" set to "manually".
@@ -464,78 +419,26 @@ This only works with nodes that have the variable "information_retrieved" set to
 + Request (application/json)
 
         {
-            name: "embedded_node2"
+          "name" : "node_5"
         }
 
 + Response 200 (application/json)
 
         {
-            id: "node_id",
-            name: "embedded_node2",
-            information_retrieved: "manually",
-            architecture: [
-                {
-                    ram: {
-                        size: 24595464,
-                        unit: "kilobytes"
-                    }
-                },
-                {
-                    cpu: {
-                        vendor_id: "ARM",
-                        arch: "armv8",
-                        model: "XXXX",
-                        model_name: "ARM XXXX",
-                        cpu_speed: "2660.000",
-                        cache: {
-                            size: 12288,
-                            unit: "kilobyte"
-                        },
-                        fpu: "true",
-                        cpu_cores: 2,
-                        flags: "zzzz, yyyyy"
-                    }
-                },
-                {
-                    gpu: {
-                        vendor_id: "NVIDIA",
-                        model_name: "NVIDIA Corporation GF110GL [Tesla M2075] (rev a1)",
-                        memory: [
-                            {
-                                address: "9a000000",
-                                type: "32-bit, non-prefetchable",
-                                size: "16",
-                                unit: "megabyte"
-                            }
-                        }
-                },
-                {
-                    fpga: {
-                        Xxxx: "yyy",
-                        zzzz: "aaaa"
-                    }
-                }
-            ]
+          "cpus": [],
+          "gpus": [],
+          "id": 4,
+          "information_retrieved": false,
+          "memories": [],
+          "name": "node_5",
+          "testbed": null,
+          "testbed_id": null
         }
-
-+ Request (application/json)
-
-        {
-            name: "nd46-2",
-        }
-
-+ Response 403 (text/plain)
-
-        It is not possible to change the information of an automatically updated node.
 
 ### Deletion of a node [DELETE]
 This only works with nodes that have the variable "information_retrieved" set to "manually".
 
 + Response 204
-
-+ Response 403 (text/pain)
-
-        It is not possible to delete the information of an automatically updated node.
 
 ## Applications [/applications]
 
