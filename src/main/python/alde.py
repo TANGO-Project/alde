@@ -10,7 +10,7 @@ import flask
 import flask_restless
 from model.base import db
 from model.application import Application
-from model.models import Testbed, Node
+from model.models import Testbed, Node, Memory, CPU, MCP, GPU
 
 url_prefix_v1='/api/v1'
 accepted_message = { 'create' : True, 'reason' : ''}
@@ -119,6 +119,26 @@ def create_app_v1(sql_db_url, port):
 
     # Create teh REST methods for a Node
     manager.create_api(Node,
+                       methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+                       url_prefix=url_prefix_v1)
+
+    # Create the REST methods for the GPU
+    manager.create_api(GPU,
+                       methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+                       url_prefix=url_prefix_v1)
+
+    # Create the REST methods for the MCP
+    manager.create_api(MCP,
+                       methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+                       url_prefix=url_prefix_v1)
+
+    # Create the REST methods for the Memory
+    manager.create_api(Memory,
+                       methods=['GET', 'POST', 'PUT', 'DELETE'],
+                       url_prefix=url_prefix_v1)
+
+    # Create the REST methods for the CPU
+    manager.create_api(CPU,
                        methods=['GET', 'POST', 'PUT', 'DELETE'],
                        url_prefix=url_prefix_v1)
 
