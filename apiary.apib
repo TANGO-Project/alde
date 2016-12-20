@@ -256,7 +256,7 @@ It can be used to add nodes to a testbed. The testbed is only going to allow a n
           "protocol": "none"
         }
 
-## Nodes in a testbed [/testbeds/{testbed_id}/nodes]
+## Nodes in a testbed [/testbeds/{testbed_id}/nodes?page={page},results_per_page={results_per_page}]
 
 As in the previous cases, the response is paginated:
 
@@ -328,12 +328,11 @@ As in the previous cases, the response is paginated:
           "total_pages": 1
         }
 
-### Nodes [/nodes]
+### Nodes [/nodes?page={page},results_per_page={results_per_page}]
 
 As in the previous cases, the response is paginated:
 
 + Parameters
-    + testbed_id (number) - ID of the testbed in the form of an integer
     + page (number, optional) - Specifies the page of results the client wants to see
     + results_per_page (number, optional) - Limits the number of results per each page
 
@@ -433,16 +432,16 @@ This is only possible for testbed where the node information is not gotten direc
 
 + Response 200 (application/json)
 
-      {
-        "cpus": [],
-        "gpus": [],
-        "id": 4,
-        "information_retrieved": false,
-        "memories": [],
-        "name": "node_3",
-        "testbed": null,
-        "testbed_id": null
-      }
+          {
+            "cpus": [],
+            "gpus": [],
+            "id": 4,
+            "information_retrieved": false,
+            "memories": [],
+            "name": "node_3",
+            "testbed": null,
+            "testbed_id": null
+          }
 
 ### Updates the information of a node [PUT]
 This only works with nodes that have the variable "information_retrieved" set to "manually".
@@ -501,97 +500,97 @@ It includes examples about how to add a CPU, GPU, MCP or Memory to a node
 
 + Response 200 (application/json)
 
-    {
-      "cpus": [
         {
-          "arch": "x86_64",
-          "cache": "12288 KB",
-          "cores": 4,
-          "flags": "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 popcnt aes lahf_lm ida arat dtherm tpr_shadow vnmi flexpriority ept vpid",
-          "fpu": true,
-          "id": 1,
-          "model": "44",
-          "model_name": "Intel(R) Xeon(R) CPU           E5630  @ 2.53GHz",
-          "node_id": 4,
-          "speed": "2527.198 Mhz",
-          "vendor_id": "GenuineIntel"
+          "cpus": [
+            {
+              "arch": "x86_64",
+              "cache": "12288 KB",
+              "cores": 4,
+              "flags": "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 popcnt aes lahf_lm ida arat dtherm tpr_shadow vnmi flexpriority ept vpid",
+              "fpu": true,
+              "id": 1,
+              "model": "44",
+              "model_name": "Intel(R) Xeon(R) CPU           E5630  @ 2.53GHz",
+              "node_id": 4,
+              "speed": "2527.198 Mhz",
+              "vendor_id": "GenuineIntel"
+            }
+          ],
+          "gpus": [],
+          "id": 4,
+          "information_retrieved": false,
+          "memories": [],
+          "name": "node_5",
+          "testbed": null,
+          "testbed_id": null
         }
-      ],
-      "gpus": [],
-      "id": 4,
-      "information_retrieved": false,
-      "memories": [],
-      "name": "node_5",
-      "testbed": null,
-      "testbed_id": null
-    }
 
 + Request (application/json)
 
-    {
-      "memories":
         {
-          "add" :
-            [
-              {
-                "size" : "4096",
-                "units" : "MB",
-                "address" : "",
-                "memory_type" : "DDR3"
-              },
-              {
-                "size" : "4096",
-                "units" : "MB",
-                "address" : "",
-                "memory_type" : "DDR3"
+          "memories":
+            {
+              "add" :
+                [
+                  {
+                    "size" : "4096",
+                    "units" : "MB",
+                    "address" : "",
+                    "memory_type" : "DDR3"
+                  },
+                  {
+                    "size" : "4096",
+                    "units" : "MB",
+                    "address" : "",
+                    "memory_type" : "DDR3"
+                  }
+                ]
               }
-            ]
           }
-      }
 
 + Response 200 (application/json)
 
-    {
-      "cpus": [
         {
-          "arch": "x86_64",
-          "cache": "12288 KB",
-          "cores": 4,
-          "flags": "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 popcnt aes lahf_lm ida arat dtherm tpr_shadow vnmi flexpriority ept vpid",
-          "fpu": true,
-          "id": 1,
-          "model": "44",
-          "model_name": "Intel(R) Xeon(R) CPU           E5630  @ 2.53GHz",
-          "node_id": 4,
-          "speed": "2527.198 Mhz",
-          "vendor_id": "GenuineIntel"
-        }
-      ],
-        "gpus": [],
-        "id": 4,
-        "information_retrieved": false,
-        "memories": [
-          {
-            "address": "",
-            "id": 1,
-            "memory_type": "DDR3",
-            "node_id": 4,
-            "size": 4096,
-            "units": "MB"
-          },
-          {
-            "address": "",
-            "id": 2,
-            "memory_type": "DDR3",
-            "node_id": 4,
-            "size": 4096,
-            "units": "MB"
+          "cpus": [
+            {
+              "arch": "x86_64",
+              "cache": "12288 KB",
+              "cores": 4,
+              "flags": "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 popcnt aes lahf_lm ida arat dtherm tpr_shadow vnmi flexpriority ept vpid",
+              "fpu": true,
+              "id": 1,
+              "model": "44",
+              "model_name": "Intel(R) Xeon(R) CPU           E5630  @ 2.53GHz",
+              "node_id": 4,
+              "speed": "2527.198 Mhz",
+              "vendor_id": "GenuineIntel"
+            }
+          ],
+            "gpus": [],
+            "id": 4,
+            "information_retrieved": false,
+            "memories": [
+              {
+                "address": "",
+                "id": 1,
+                "memory_type": "DDR3",
+                "node_id": 4,
+                "size": 4096,
+                "units": "MB"
+              },
+              {
+                "address": "",
+                "id": 2,
+                "memory_type": "DDR3",
+                "node_id": 4,
+                "size": 4096,
+                "units": "MB"
+              }
+            ],
+            "name": "node_5",
+            "testbed": null,
+            "testbed_id": null
           }
-        ],
-        "name": "node_5",
-        "testbed": null,
-        "testbed_id": null
-      }
 
 
 
