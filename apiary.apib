@@ -594,72 +594,32 @@ It includes examples about how to add a CPU, GPU, MCP or Memory to a node
 
 
 
-## Applications [/applications]
+## Applications [/applications?page={page},results_per_page={results_per_page}]
+
+As in the previous cases, the response is paginated:
+
++ Parameters
+    + page (number, optional) - Specifies the page of results the client wants to see
+    + results_per_page (number, optional) - Limits the number of results per each page
 
 ### List all applications [GET]
 
+
 + Response 200 (application/json)
 
-        [
+        {
+          "num_results": 1,
+          "objects": [
             {
-                id: 0,
-                name: "APP_NAME",
-                status: "building",
-                path_to_code: "path_to_code",
-                build: {
-                    build_Script: "path_to_script",
-                    build_script_parameters: "XXXXX"
-                },
-                package: [
-                    docker: {
-                        xxx: "aaa",
-                        yyy: "aaa"
-                    },
-                    executable: {
-                        xxx: "aaa",
-                        yyy: "yyy"
-                    }
-                ],
-                execution: {
-                    execution_command: "XXXXX",
-                    execution_command_params: "YYYYY",
-                    execution_status: {
-                        slurm: {
-                            see_which_information_provides_sluem: "XXX"
-                        }
-                    }
-                }
-            },
-            {
-                id: 1,
-                name: "APP_NAME",
-                status: "building",
-                path_to_code: "path_to_code",
-                build: {
-                    build_Script: "path_to_script",
-                    build_script_parameters: "XXXXX"
-                },
-                package: [
-                    docker: {
-                        xxx: "aaa",
-                        yyy: "aaa"
-                    },
-                    executable: {
-                        xxx: "aaa",
-                        yyy: "yyy"
-                    }
-                ],
-                execution: {
-                    execution_command: "XXXXX",
-                    execution_command_params: "YYYYY",
-                    execution_status: {
-                        slurm: {
-                            see_which_information_provides_sluem: "XXX"
-                        }
-                    }
-                }
+              "id": 1,
+              "name": "AppName_3",
+              "path_to_code": "Path_3"
             }
-        ]
+          ],
+          "page": 1,
+          "total_pages": 1
+        }
+
 
 ### Create a new application [POST]
 
