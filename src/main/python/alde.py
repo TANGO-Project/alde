@@ -14,7 +14,8 @@ from model.models import Testbed, Node, Memory, CPU, MCP, GPU
 
 url_prefix_v1='/api/v1'
 accepted_message = { 'create' : True, 'reason' : ''}
-testbed_not_configured_message = { 'create' : False, 'reason' : 'Testbed is configured to automatically retrieve information of nodes'}
+testbed_not_configured_message = { 'create' : False,
+                                   'reason' : 'Testbed is configured to automatically retrieve information of nodes'}
 no_testbed = 'Testbed does not exist'
 
 def _testbed_creation_node(testbed):
