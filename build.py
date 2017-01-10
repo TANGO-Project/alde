@@ -16,7 +16,7 @@ use_plugin("python.install_dependencies")
 use_plugin("python.distutils")
 use_plugin("python.sonarqube")
 
-default_task = "publish"
+default_task = ["clean", "publish"]
 
 # SonarQube configuration:
 sonarqube_project_name = "tango-alde"
@@ -25,6 +25,9 @@ sonarqube_project_key = "ce9b5211cc48e2ca6ac94406eb8fe0a0f31eed06"
 # Coverage configuration:
 coverage_allow_non_imported_modules = "True"
 coverage_exceptions = [ 'alde.py' ]
+
+# Resources to be copied
+
 
 @init
 def initialize(project):
