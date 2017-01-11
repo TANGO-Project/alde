@@ -15,21 +15,31 @@ def _execute_command(command):
     """
     It just executes the give command and returns the output
     """
+
     output = subprocess.check_output(command)
     return output
 
 
-def execute_command(command, server=''):
+def execute_command(command, server='', params=[]):
     """
     It executes a command, if server variable it is set, it will try to
     execute the command via ssh. It is not able to input user and password
     it is exected it is possible to connect to the server without it
     """
 
+    params.insert(0, command)
+
     if server != '':
-        command = "ssh " + server + " \"" + command + "\""
-        output = _execute_command(command)
+        command = ""
+        for param in params:
+            command = command + " " + param
+
+        command = command[1:]
+        params = [ "ssh", server, command]
+
+    if len(params) == 1:
+        output = _execute_command(params[0])
     else:
-        output = _execute_command(command)
+        output = _execute_command(params)
 
     return output
