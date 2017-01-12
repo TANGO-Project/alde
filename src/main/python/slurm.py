@@ -41,4 +41,32 @@ def parse_sinfo_partitions(command_output):
 
                 nodes.append(node)
 
+            else:
+                node_start_name = nodes_string.split('[')[0]
+                boundaries = nodes_string.split('[')[1].split(']')[0].split(',')
+                for boundarie in boundaries:
+                    if '-' not in boundarie:
+                        node_name = node_start_name + boundarie
+                        node = { 'partition': partition,
+                                 'partition_avail': avail,
+                                 'partition_timelimit': timelimit,
+                                 'partition_state': state,
+                                 'node_name': node_name}
+
+                        nodes.append(node)
+                    else:
+                        limits = boundarie.split('-')
+                        start = int(limits[0])
+                        end = int(limits[1]) + 1
+
+                        for number in range(start,end):
+                            node_name = node_start_name + str(number)
+                            node = { 'partition': partition,
+                                     'partition_avail': avail,
+                                     'partition_timelimit': timelimit,
+                                     'partition_state': state,
+                                     'node_name': node_name}
+
+                            nodes.append(node)
+
     return nodes

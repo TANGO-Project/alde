@@ -47,4 +47,7 @@ bullion_S       up   infinite      1  alloc nd80"""
         output = slurm.parse_sinfo_partitions(command_output)
 
         # We verify the output
-        self.assertEquals(8,len(output))
+        self.assertEquals(58,len(output))
+
+        for node in output:
+            print(node)
