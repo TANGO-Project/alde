@@ -49,5 +49,36 @@ bullion_S       up   infinite      1  alloc nd80"""
         # We verify the output
         self.assertEquals(58,len(output))
 
-        for node in output:
-            print(node)
+        example1 = {
+                    'partition_state': 'drain',
+                    'partition': 'bullx',
+                    'node_name': 'nd15',
+                    'partition_timelimit': 'infinite',
+                    'partition_avail': 'up'
+                   }
+        example2 = {
+                    'partition_state': 'idle',
+                    'partition': 'bullx',
+                    'node_name': 'nd10',
+                    'partition_timelimit': 'infinite',
+                    'partition_avail': 'up'
+                   }
+        example3 = {
+                    'partition_state': 'idle',
+                    'partition': 'B510_2.6GHz',
+                    'node_name': 'nd43',
+                    'partition_timelimit': 'infinite',
+                    'partition_avail': 'up'
+                   }
+        example4 = {
+                    'partition_avail': 'up',
+                    'partition': 'B510_2.6GHz',
+                    'node_name': 'nd41',
+                    'partition_timelimit': 'infinite',
+                    'partition_state': 'idle'
+                   }
+
+        self.assertTrue(example1 in output)
+        self.assertTrue(example2 in output)
+        self.assertTrue(example3 in output)
+        self.assertTrue(example4 in output)
