@@ -208,6 +208,10 @@ class Testbed(db.Model):
     Deployment engine
     """
 
+    # Categories of testbeds
+    slurm_category = 'SLURM'
+    protocol_local = 'LOCAL'
+
     # SQLAlchemy mapping code
     __tablename__ = 'testbeds'
     id = db.Column(db.Integer, primary_key=True)

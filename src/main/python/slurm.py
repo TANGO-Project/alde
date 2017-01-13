@@ -7,6 +7,8 @@
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
 import re
+import shell
+from model.models import Testbed
 
 def parse_sinfo_partitions(command_output):
     """
@@ -70,3 +72,34 @@ def parse_sinfo_partitions(command_output):
                             nodes.append(node)
 
     return nodes
+
+def get_nodes_testbed(testbed):
+    """
+    This function gets the testbed object information, from that information
+    it determines if the testbed it is of the category SLURM.
+
+    If it is SLURM, it will determine if it connects via ssh.
+
+        If it connects via ssh it will get the node info executing the command
+        via ssh
+
+        If it is not ssh, it will execute directly the sinfo command in console.
+
+    If it is not type SLURM it will just return an empty list
+    """
+
+    command = "sinfo"
+    params = ["-a"]
+
+    if testbed.category == Testbed.slurm_category:
+        if testbed.protocol == Testbed.protocol_local:
+            output = shell.execute_command(command=command, params=params)
+            print(output)
+        else:
+            output = shell.execute_command(command=command,
+                                           server=testbed.protocol,
+                                           params=params)
+
+        return parse_sinfo_partitions(output)
+    else:
+        return []
