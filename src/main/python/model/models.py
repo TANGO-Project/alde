@@ -124,6 +124,7 @@ class Node(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     information_retrieved = db.Column(db.Boolean)
+    disabled = db.Column(db.Boolean)
     testbed_id = db.Column(db.Integer, db.ForeignKey('testbeds.id'))
     testbed = db.relationship("Testbed", back_populates="nodes")
     cpus = db.relationship("CPU", order_by=CPU.id, back_populates="node")
@@ -134,6 +135,7 @@ class Node(db.Model):
         """ Initialize the basis attributes for the testbed class """
 
         self.name = name
+        self.disabled = False
         self.information_retrieved = information_retrieved
         self.cpus = []
         self.gpus = []

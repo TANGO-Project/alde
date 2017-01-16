@@ -8,7 +8,9 @@
 
 import re
 import shell
-from model.models import Testbed
+import query
+from model.models import Testbed, Node
+from model.base import db
 
 def parse_sinfo_partitions(command_output):
     """
@@ -94,7 +96,6 @@ def get_nodes_testbed(testbed):
     if testbed.category == Testbed.slurm_category:
         if testbed.protocol == Testbed.protocol_local:
             output = shell.execute_command(command=command, params=params)
-            print(output)
         else:
             output = shell.execute_command(command=command,
                                            server=testbed.protocol,
@@ -103,3 +104,62 @@ def get_nodes_testbed(testbed):
         return parse_sinfo_partitions(output)
     else:
         return []
+
+def check_nodes_in_db_for_on_line_testbeds():
+    """
+    This function it is going to get all the nodes in the db that are:
+        on-line
+        Type slurm
+
+    To each node it is going to get the nodes and it is going to compare the
+    information with the information in the db. It can happen two things:
+        * If the node is in the db, info it is updated if necessary
+        * If the node is not in the db, it is added
+
+    After that, the method it is going to verify if there is a node that it is
+    in the db but it is not in the list provided. If that happens, the node
+    it is changed to dissabled
+    """
+
+    testbeds = query.get_slurm_online_testbeds()
+
+    for testbed in testbeds:
+        nodes_from_slurm = get_nodes_testbed(testbed)
+
+        nodes_names_from_slurm = [x['node_name'] for x in nodes_from_slurm]
+        nodes_names_from_db = []
+        nodes_ids = []
+        for node in testbed.nodes:
+            nodes_names_from_db.append(node.name)
+            nodes_ids.append({'name' : node.name, 'id': node.id})
+
+        nodes_in_slurm_and_db = set(nodes_names_from_slurm).intersection(set(nodes_names_from_db))
+        nodes_in_slurm_and_not_in_db = set(nodes_names_from_slurm).difference(set(nodes_names_from_db))
+        nodes_in_db_and_not_in_slurm = set(nodes_names_from_db).difference(set(nodes_names_from_slurm))
+
+        # We add new nodes if not previously present in the db
+        for node in nodes_in_slurm_and_not_in_db:
+            new_node = Node(name = node, information_retrieved = True)
+            db.session.add(new_node)
+            db.session.commit()
+
+        # We check that the nodes in the db are updated if necessary
+        for node in nodes_in_slurm_and_db:
+            interested_nodes = [d for d in nodes_ids if d['name'] == node]
+
+            for node_id in interested_nodes:
+                node_from_db = db.session.query(Node).filter_by(id=node_id['id']).first()
+                if node_from_db.disabled:
+                    node_from_db.disabled = False
+                    db.session.commit()
+
+        # We check that the nodes not returned by slurm are set to 0
+        for node in nodes_in_db_and_not_in_slurm:
+            interested_nodes = [d for d in nodes_ids if d['name'] == node]
+
+            for node_id in interested_nodes:
+                node_from_db = db.session.query(Node).filter_by(id=node_id['id']).first()
+
+                if not node_from_db.disabled:
+                    node_from_db.disabled = True
+                    db.session.commit()
