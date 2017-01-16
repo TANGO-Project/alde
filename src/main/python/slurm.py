@@ -121,7 +121,9 @@ def check_nodes_in_db_for_on_line_testbeds():
     it is changed to dissabled
     """
 
+    print("Checking info for the testbeds: ")
     testbeds = query.get_slurm_online_testbeds()
+    print(testbeds)
 
     for testbed in testbeds:
         nodes_from_slurm = get_nodes_testbed(testbed)

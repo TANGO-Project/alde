@@ -8,6 +8,8 @@
 
 import flask
 import flask_restless
+import slurm
+from flask_apscheduler import APScheduler
 from model.base import db
 from model.application import Application
 from model.models import Testbed, Node, Memory, CPU, MCP, GPU
@@ -17,6 +19,23 @@ accepted_message = { 'create' : True, 'reason' : ''}
 testbed_not_configured_message = { 'create' : False,
                                    'reason' : 'Testbed is configured to automatically retrieve information of nodes'}
 no_testbed = 'Testbed does not exist'
+
+class Config(object):
+    """
+    It defines the tasks jobs that need to be executed periodically...
+    """
+
+    JOBS = [
+        {
+            'id': 'job1',
+            'func': 'slurm:check_nodes_in_db_for_on_line_testbeds',
+            'args': (),
+            'trigger': 'interval',
+            'seconds': 30
+        }
+    ]
+
+    SCHEDULER_API_ENABLED = True
 
 def _testbed_creation_node(testbed):
     """
@@ -97,6 +116,7 @@ def create_app_v1(sql_db_url, port):
     app.config['SQLALCHEMY_DATABASE_URI'] = sql_db_url
     app.config['LIVESERVER_PORT'] = port
     app.config['PRESERVE_CONTEXT_ON_EXCEPTION'] = False
+    app.config.from_object(Config())
     db.init_app(app)
     db.app=app
 
@@ -142,5 +162,12 @@ def create_app_v1(sql_db_url, port):
     manager.create_api(CPU,
                        methods=['GET', 'POST', 'PUT', 'DELETE'],
                        url_prefix=url_prefix_v1)
+
+    # Create the scheduler of tasks
+    scheduler = APScheduler()
+    # it is also possible to enable the API directly
+    # scheduler.api_enabled = True
+    scheduler.init_app(app)
+    scheduler.start()
 
     return app
