@@ -12,7 +12,13 @@
 
 import configparser
 import alde # pragma: no cover
+import logging # pragma: no cover
+from logging.config import fileConfig # pragma: no cover
 from model.base import db # pragma: no cover
+
+# Loading logger configuration
+fileConfig('logging_config.ini') # pragma: no cover
+logger = logging.getLogger() # pragma: no cover
 
 def load_config():
     """
@@ -21,6 +27,7 @@ def load_config():
     than the main executable
     """
 
+    logger.info("Loading configuration")
     config = configparser.ConfigParser()
     config.read('alde_configuration.ini')
     print(config.sections())
@@ -40,6 +47,8 @@ def main(): # pragma: no cover
     """
 
     conf = load_config() # pragma: no cover
+
+    logger.info("Starting ALDE") # pragma: no cover
     app = alde.create_app_v1(conf['SQL_LITE_URL'], conf['PORT']) # pragma: no cover
 
     # We start the Flask loop
