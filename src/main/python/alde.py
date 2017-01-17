@@ -27,7 +27,7 @@ class Config(object):
 
     JOBS = [
         {
-            'id': 'job1',
+            'id': 'check_nodes_in_db_for_on_line_testbeds',
             'func': 'slurm:check_nodes_in_db_for_on_line_testbeds',
             'args': (),
             'trigger': 'interval',

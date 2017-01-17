@@ -23,13 +23,14 @@ def parse_sinfo_partitions(command_output):
     """
 
     nodes = []
-    lines = command_output.split('\n')
+    lines = command_output.decode('utf-8').split('\n')
 
     for line in lines:
-        if line[:9] != "PARTITION":
-            line = re.sub(' +', ' ', line)
 
+        if not line.startswith("PARTITION") and line:
+            line = re.sub(' +', ' ', line)
             words = line.split(' ')
+
             partition = words[0]
             avail = words[1]
             timelimit = words[2]
@@ -122,14 +123,11 @@ def check_nodes_in_db_for_on_line_testbeds():
     in the db but it is not in the list provided. If that happens, the node
     it is changed to dissabled
     """
-
-    print("Checking info for the testbeds: ")
+    
     testbeds = query.get_slurm_online_testbeds()
-    print(testbeds)
 
     for testbed in testbeds:
         nodes_from_slurm = get_nodes_testbed(testbed)
-
         nodes_names_from_slurm = [x['node_name'] for x in nodes_from_slurm]
         nodes_names_from_db = []
         nodes_ids = []
@@ -144,7 +142,7 @@ def check_nodes_in_db_for_on_line_testbeds():
         # We add new nodes if not previously present in the db
         for node in nodes_in_slurm_and_not_in_db:
             new_node = Node(name = node, information_retrieved = True)
-            db.session.add(new_node)
+            testbed.add_node(new_node)
             db.session.commit()
 
         # We check that the nodes in the db are updated if necessary

@@ -21,26 +21,7 @@ class SlurmTests(MappingTest):
     testbed
     """
 
-    command_output = """PARTITION    AVAIL  TIMELIMIT  NODES  STATE NODELIST
-bullx           up   infinite      1  drain nd15
-bullx           up   infinite      9   idle nd[10-14,16-19]
-partners*       up    8:00:00      1  drain nd15
-partners*       up    8:00:00      9   idle nd[10-14,16-19]
-gpus            up   infinite      2 drain* nd[20-21]
-gpus            up   infinite      1   idle nd22
-gpu2075         up   infinite      1 maint* nd23
-B510_2.2GHz     up   infinite      2 maint* nd[36-37]
-B510_2.2GHz     up   infinite      2   idle nd[38-39]
-B510_2.6GHz     up   infinite      2 maint* nd[32-33]
-B510_2.6GHz     up   infinite      1  maint nd31
-B510_2.6GHz     up   infinite      9   idle nd[24-26,28-30,40-41,43]
-B510_2.6GHz     up   infinite      2   down nd[27,42]
-B515k20x        up   infinite      2 drain* nd[44-45]
-B515xeon-phi    up   infinite      2 drain* nd[46-47]
-B520            up   infinite      1 drain* nd56
-B520            up   infinite      9  drain nd[57-65]
-bullion         up   infinite      1  maint nd76
-bullion_S       up   infinite      1  alloc nd80"""
+    command_output=b'PARTITION   AVAIL  TIMELIMIT  NODES  STATE NODELIST\nbullx          up   infinite      1  drain nd15\nbullx          up   infinite      9   idle nd[10-14,16-19]\npartners*      up    8:00:00      1  drain nd15\npartners*      up    8:00:00      9   idle nd[10-14,16-19]\ngpus           up   infinite      2 drain* nd[20-21]\ngpus           up   infinite      1   idle nd22\ngpu2075        up   infinite      1 maint* nd23\nB510_2.2GHz    up   infinite      2 maint* nd[36-37]\nB510_2.2GHz    up   infinite      2   idle nd[38-39]\nB510_2.6GHz    up   infinite      2 maint* nd[32-33]\nB510_2.6GHz    up   infinite      1  maint nd31\nB510_2.6GHz    up   infinite      8   idle nd[24-26,29-30,40-41,43]\nB510_2.6GHz    up   infinite      3   down nd[27-28,42]\nbullion        up   infinite      1  alloc nd76\nbullion_S      up   infinite      1  alloc nd80\n'
 
     example1 = {
                 'partition_state': 'drain',
@@ -80,7 +61,7 @@ bullion_S       up   infinite      1  alloc nd80"""
         output = slurm.parse_sinfo_partitions(self.command_output)
 
         # We verify the output
-        self.assertEquals(58,len(output))
+        self.assertEquals(44,len(output))
         self.assertTrue(self.example1 in output)
         self.assertTrue(self.example2 in output)
         self.assertTrue(self.example3 in output)
@@ -105,7 +86,7 @@ bullion_S       up   infinite      1  alloc nd80"""
         mock_shell.return_value = self.command_output
         nodes = slurm.get_nodes_testbed(testbed)
 
-        self.assertEquals(58,len(nodes))
+        self.assertEquals(44,len(nodes))
         self.assertTrue(self.example1 in nodes)
         self.assertTrue(self.example2 in nodes)
         self.assertTrue(self.example3 in nodes)
@@ -117,7 +98,7 @@ bullion_S       up   infinite      1  alloc nd80"""
         mock_shell.return_value = self.command_output
         nodes = slurm.get_nodes_testbed(testbed)
 
-        self.assertEquals(58,len(nodes))
+        self.assertEquals(44,len(nodes))
         self.assertTrue(self.example1 in nodes)
         self.assertTrue(self.example2 in nodes)
         self.assertTrue(self.example3 in nodes)
@@ -169,6 +150,7 @@ bullion_S       up   infinite      1  alloc nd80"""
         node = node[0]
         self.assertEquals('node_3', node.name)
         self.assertTrue(node.information_retrieved)
+        self.assertEquals(3, len(testbed.nodes))
 
         node = db.session.query(Node).filter_by(name='node_1').all()
         self.assertEquals(1, len(node))

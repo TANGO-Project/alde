@@ -33,4 +33,4 @@ def load_config():
 
 # We start the Flask loop
 #db.create_all() # pragma: no cover
-# app.run()
+# app.run(use_reloader=False)
