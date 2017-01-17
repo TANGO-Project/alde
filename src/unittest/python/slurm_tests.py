@@ -113,7 +113,7 @@ bullion_S       up   infinite      1  alloc nd80"""
         mock_shell.assert_called_with(command=command, params=params)
 
         # We create a testbe with ssh access
-        testbed = Testbed('x', 'false', Testbed.slurm_category, "user@ssh.com", 'xxx')
+        testbed = Testbed('x', 'false', Testbed.slurm_category, Testbed.protocol_ssh , "user@ssh.com")
         mock_shell.return_value = self.command_output
         nodes = slurm.get_nodes_testbed(testbed)
 
@@ -123,6 +123,15 @@ bullion_S       up   infinite      1  alloc nd80"""
         self.assertTrue(self.example3 in nodes)
         self.assertTrue(self.example4 in nodes)
         mock_shell.assert_called_with(command=command, server="user@ssh.com", params=params)
+
+        # Testbed with unknown protocol should return empty String
+        # We create a testbe with ssh access
+        testbed = Testbed('x', True, Testbed.slurm_category, "xxx" , "user@ssh.com")
+        mock_shell.return_value = self.command_output
+        nodes = slurm.get_nodes_testbed(testbed)
+
+        self.assertEquals(0,len(nodes))
+
 
     @mock.patch('slurm.get_nodes_testbed')
     def test_check_nodes_in_db_for_on_line_testbeds(self, mock_get_nodes):

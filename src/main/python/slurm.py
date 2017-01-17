@@ -96,10 +96,12 @@ def get_nodes_testbed(testbed):
     if testbed.category == Testbed.slurm_category:
         if testbed.protocol == Testbed.protocol_local:
             output = shell.execute_command(command=command, params=params)
-        else:
+        elif testbed.protocol == Testbed.protocol_ssh:
             output = shell.execute_command(command=command,
-                                           server=testbed.protocol,
+                                           server=testbed.endpoint,
                                            params=params)
+        else:
+            return []
 
         return parse_sinfo_partitions(output)
     else:
