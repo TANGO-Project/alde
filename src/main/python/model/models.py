@@ -213,6 +213,7 @@ class Testbed(db.Model):
     # Categories of testbeds
     slurm_category = 'SLURM'
     protocol_local = 'LOCAL'
+    protocol_ssh = 'SSH'
 
     # SQLAlchemy mapping code
     __tablename__ = 'testbeds'

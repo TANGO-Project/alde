@@ -9,6 +9,7 @@
 import re
 import shell
 import query
+import logging
 from model.models import Testbed, Node
 from model.base import db
 
@@ -23,13 +24,14 @@ def parse_sinfo_partitions(command_output):
     """
 
     nodes = []
-    lines = command_output.split('\n')
+    lines = command_output.decode('utf-8').split('\n')
 
     for line in lines:
-        if line[:9] != "PARTITION":
-            line = re.sub(' +', ' ', line)
 
+        if not line.startswith("PARTITION") and line:
+            line = re.sub(' +', ' ', line)
             words = line.split(' ')
+
             partition = words[0]
             avail = words[1]
             timelimit = words[2]
@@ -96,10 +98,12 @@ def get_nodes_testbed(testbed):
     if testbed.category == Testbed.slurm_category:
         if testbed.protocol == Testbed.protocol_local:
             output = shell.execute_command(command=command, params=params)
-        else:
+        elif testbed.protocol == Testbed.protocol_ssh:
             output = shell.execute_command(command=command,
-                                           server=testbed.protocol,
+                                           server=testbed.endpoint,
                                            params=params)
+        else:
+            return []
 
         return parse_sinfo_partitions(output)
     else:
@@ -121,13 +125,12 @@ def check_nodes_in_db_for_on_line_testbeds():
     it is changed to dissabled
     """
 
-    print("Checking info for the testbeds: ")
     testbeds = query.get_slurm_online_testbeds()
-    print(testbeds)
 
     for testbed in testbeds:
-        nodes_from_slurm = get_nodes_testbed(testbed)
+        logging.info("Checking node info for testbed: " + testbed.name)
 
+        nodes_from_slurm = get_nodes_testbed(testbed)
         nodes_names_from_slurm = [x['node_name'] for x in nodes_from_slurm]
         nodes_names_from_db = []
         nodes_ids = []
@@ -141,8 +144,9 @@ def check_nodes_in_db_for_on_line_testbeds():
 
         # We add new nodes if not previously present in the db
         for node in nodes_in_slurm_and_not_in_db:
+            logging.info("Adding a new node: " + node + " to testbed: " + testbed.name)
             new_node = Node(name = node, information_retrieved = True)
-            db.session.add(new_node)
+            testbed.add_node(new_node)
             db.session.commit()
 
         # We check that the nodes in the db are updated if necessary
@@ -152,6 +156,7 @@ def check_nodes_in_db_for_on_line_testbeds():
             for node_id in interested_nodes:
                 node_from_db = db.session.query(Node).filter_by(id=node_id['id']).first()
                 if node_from_db.disabled:
+                    logging.info("Enabling node: " + node)
                     node_from_db.disabled = False
                     db.session.commit()
 
@@ -163,5 +168,6 @@ def check_nodes_in_db_for_on_line_testbeds():
                 node_from_db = db.session.query(Node).filter_by(id=node_id['id']).first()
 
                 if not node_from_db.disabled:
+                    logging.info("Disabling node: " + node)
                     node_from_db.disabled = True
                     db.session.commit()

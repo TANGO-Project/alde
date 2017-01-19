@@ -12,9 +12,22 @@
 
 import configparser
 import alde # pragma: no cover
+import logging # pragma: no cover
+from logging.config import fileConfig # pragma: no cover
 from model.base import db # pragma: no cover
 
+# Loading logger configuration
+fileConfig('logging_config.ini') # pragma: no cover
+logger = logging.getLogger() # pragma: no cover
+
 def load_config():
+    """
+    Functions that loads ALDE configuration from file
+    It is specting a file alde_configuration.ini in the same location
+    than the main executable
+    """
+
+    logger.info("Loading configuration")
     config = configparser.ConfigParser()
     config.read('alde_configuration.ini')
     print(config.sections())
@@ -28,9 +41,19 @@ def load_config():
 
     return conf
 
-#conf = load_config() # pragma: no cover
-#app = alde.create_app_v1(conf['SQL_LITE_URL'], conf['PORT']) # pragma: no cover
+def main(): # pragma: no cover
+    """
+    Main function that starts the ALDE Flask Service
+    """
 
-# We start the Flask loop
-#db.create_all() # pragma: no cover
-# app.run()
+    conf = load_config() # pragma: no cover
+
+    logger.info("Starting ALDE") # pragma: no cover
+    app = alde.create_app_v1(conf['SQL_LITE_URL'], conf['PORT']) # pragma: no cover
+
+    # We start the Flask loop
+    db.create_all() # pragma: no cover
+    app.run(use_reloader=False)
+
+if __name__ == '__main__':
+    main()
