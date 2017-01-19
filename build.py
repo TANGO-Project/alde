@@ -11,10 +11,10 @@ from pybuilder.core import init, use_plugin
 
 use_plugin("python.core")
 use_plugin("python.unittest")
-use_plugin("python.coverage")
+#use_plugin("python.coverage")
 use_plugin("python.install_dependencies")
 use_plugin("python.distutils")
-use_plugin("python.sonarqube")
+#use_plugin("python.sonarqube")
 
 default_task = ["clean", "publish"]
 
@@ -37,4 +37,5 @@ def initialize(project):
     project.depends_on('Flask')
     project.depends_on('Flask-Restless')
     project.depends_on('Flask-SQLAlchemy')
-    project.depends_on('Flask-Testing')
+    project.build_depends_on('Flask-Testing')
+    project.depends_on('Flask-APScheduler')
