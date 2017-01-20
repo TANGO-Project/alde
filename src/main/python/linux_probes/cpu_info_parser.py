@@ -8,7 +8,10 @@
 
 import itertools
 import re
-from model.models import CPU
+import shell
+import subprocess
+import logging
+from model.models import CPU, Testbed, Node
 
 architectures={ 'GenuineIntel': 'x86_64'}
 
@@ -48,3 +51,34 @@ def parse_cpu_info(cpu_info):
             cpus.append(cpu)
 
     return cpus
+
+def get_cpuinfo_node(testbed, node):
+    """
+    Given a testbed of type linux and a node, it is able to connect to it
+    and retrieve the necessary information of the cpu_info of the node.
+
+    In returns the cpu information in the form of a list of CPU objects
+    """
+
+    try:
+        if node in testbed.nodes and not node.disabled:
+            command = "ssh"
+            params = [node.name, "'cat", "/proc/cpuinfo'"]
+
+            if Testbed.protocol_local == testbed.protocol:
+                cpu_info = shell.execute_command(command=command, params=params)
+            elif Testbed.protocol_ssh == testbed.protocol:
+                cpu_info = shell.execute_command(command=command,
+                                                 server=testbed.endpoint,
+                                                 params=params)
+            else:
+                logging.info("Tesbed protocol: %s not supported to get node information",
+                    testbed.protocol)
+                return []
+
+            return parse_cpu_info(cpu_info)
+        else:
+            return []
+    except subprocess.CalledProcessError:
+        logging.error("Exception trying to get the node cpu info")
+        return []

@@ -10,6 +10,7 @@
 # SSH tools to execute commands
 
 import subprocess
+import logging
 
 def _execute_command(command):
     """
@@ -20,6 +21,8 @@ def _execute_command(command):
         output = subprocess.check_output(command)
         return output
     except subprocess.CalledProcessError as e:
+        logging.error("Trying to execute command: " + str(command))
+        logging.error('Error: %s', str(e))
         raise e
 
 def execute_command(command, server='', params=[]):
@@ -48,4 +51,5 @@ def execute_command(command, server='', params=[]):
         return output
 
     except subprocess.CalledProcessError as e:
+        logging.error("Trying to execute command at server " + server)
         raise e

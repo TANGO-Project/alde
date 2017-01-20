@@ -10,6 +10,7 @@ import unittest
 import unittest.mock as mock
 import shell
 import subprocess
+from testfixtures import LogCapture
 
 class ShellTests(unittest.TestCase):
     """
@@ -57,6 +58,8 @@ class ShellTests(unittest.TestCase):
         by the script that uses this function
         """
 
+        l = LogCapture() # we cature the logger
+
         error = subprocess.CalledProcessError(returncode=255, cmd="ls")
         mock_subprocess.side_effect = error
 
@@ -64,3 +67,11 @@ class ShellTests(unittest.TestCase):
                           shell.execute_command,
                           command="ls",
                           params=["-la", "."])
+
+        # Checking that we are logging the correct messages
+        l.check(
+            ('root', 'ERROR', "Trying to execute command: ['ls', '-la', '.']"),
+            ('root', 'ERROR', "Error: Command 'ls' returned non-zero exit status 255"),
+            ('root', 'ERROR', 'Trying to execute command at server ')
+            )
+        l.uninstall() # We uninstall the capture of the logger
