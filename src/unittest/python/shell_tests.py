@@ -9,6 +9,7 @@
 import unittest
 import unittest.mock as mock
 import shell
+import subprocess
 
 class ShellTests(unittest.TestCase):
     """
@@ -47,3 +48,19 @@ class ShellTests(unittest.TestCase):
         mock_subprocess.check_output.assert_called_with(["ssh",
                                                          "pepito@ssh.com",
                                                          "ls -la ."])
+
+    @mock.patch('shell.subprocess.check_output')
+    def test_raise_exception(self, mock_subprocess):
+        """
+        It verifies that an exception is raised when an error occours when
+        exectuting a command, the exception will be handled latar own
+        by the script that uses this function
+        """
+
+        error = subprocess.CalledProcessError(returncode=255, cmd="ls")
+        mock_subprocess.side_effect = error
+
+        self.assertRaises(subprocess.CalledProcessError,
+                          shell.execute_command,
+                          command="ls",
+                          params=["-la", "."])
