@@ -32,10 +32,11 @@ coverage_exceptions = [ 'alde.py' ]
 @init
 def initialize(project):
     project.build_depends_on('mockito')
+    project.build_depends_on('Flask-Testing')
+    project.build_depends_on('testfixtures')
     project.depends_on('python-dateutil')
     project.depends_on('sqlalchemy')
     project.depends_on('Flask')
     project.depends_on('Flask-Restless')
     project.depends_on('Flask-SQLAlchemy')
-    project.build_depends_on('Flask-Testing')
     project.depends_on('Flask-APScheduler')

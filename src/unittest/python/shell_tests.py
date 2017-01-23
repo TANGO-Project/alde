@@ -9,6 +9,8 @@
 import unittest
 import unittest.mock as mock
 import shell
+import subprocess
+from testfixtures import LogCapture
 
 class ShellTests(unittest.TestCase):
     """
@@ -47,3 +49,29 @@ class ShellTests(unittest.TestCase):
         mock_subprocess.check_output.assert_called_with(["ssh",
                                                          "pepito@ssh.com",
                                                          "ls -la ."])
+
+    @mock.patch('shell.subprocess.check_output')
+    def test_raise_exception(self, mock_subprocess):
+        """
+        It verifies that an exception is raised when an error occours when
+        exectuting a command, the exception will be handled latar own
+        by the script that uses this function
+        """
+
+        l = LogCapture() # we cature the logger
+
+        error = subprocess.CalledProcessError(returncode=255, cmd="ls")
+        mock_subprocess.side_effect = error
+
+        self.assertRaises(subprocess.CalledProcessError,
+                          shell.execute_command,
+                          command="ls",
+                          params=["-la", "."])
+
+        # Checking that we are logging the correct messages
+        l.check(
+            ('root', 'ERROR', "Trying to execute command: ['ls', '-la', '.']"),
+            ('root', 'ERROR', "Error: Command 'ls' returned non-zero exit status 255"),
+            ('root', 'ERROR', 'Trying to execute command at server ')
+            )
+        l.uninstall() # We uninstall the capture of the logger

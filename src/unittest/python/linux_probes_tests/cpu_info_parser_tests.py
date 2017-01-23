@@ -8,8 +8,12 @@
 
 
 import unittest
+import unittest.mock as mock
 import shell
+import subprocess
 import linux_probes.cpu_info_parser as parser
+from model.models import Node, Testbed
+from testfixtures import LogCapture
 
 class CpuInfoParserTests(unittest.TestCase):
     """Verifies the correct work of the funcions for parsing cpu info information"""
@@ -35,3 +39,97 @@ class CpuInfoParserTests(unittest.TestCase):
             self.assertEquals('8192 KB', cpu.cache)
             self.assertEquals('fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni dtes64 monitor ds_cpl vmx est tm2 ssse3 cx16 xtpr pdcm dca sse4_1 sse4_2 popcnt lahf_lm ida dts tpr_shadow vnmi flexpriority ept vpid',
                                cpu.flags)
+
+    @mock.patch("shell.execute_command")
+    def test_get_cpuinfo_node(self, mock_shell):
+        """
+        It verfies that given a testbed it is possible to get the cpuinfo
+        information of the node.
+        """
+
+        l = LogCapture() # we cature the logger
+
+        # When the testbed is local
+        testbed = Testbed("name1",
+                            True,
+                            Testbed.slurm_category,
+                            Testbed.protocol_local,
+                            "user@server",
+                            ['slurm'])
+
+        node_1 = Node("node_1", True) # We add some nodes to Testbed_1
+        node_2 = Node("node_2", True)
+        testbed.nodes = [ node_1, node_2]
+        node_1.disabled = True
+        node_3 = Node("node_3", True)
+
+        # When the node does not belong to the testbed it should return empty list
+        cpus = parser.get_cpuinfo_node(testbed, node_3)
+
+        self.assertEquals(0, len(cpus))
+
+        # When the node is there, we have to get double CPU info
+        mock_shell.return_value = self.command_output
+
+        cpus = parser.get_cpuinfo_node(testbed, node_2)
+
+        self.assertEquals(8, len(cpus))
+        mock_shell.assert_called_with(command="ssh",
+                                      params=["node_2", "'cat", "/proc/cpuinfo'"])
+        self.assertEqual(mock_shell.call_count, 1)
+
+        # When the node is dissabled it should return an empty list
+        cpus = parser.get_cpuinfo_node(testbed, node_1)
+
+        self.assertEquals(0, len(cpus))
+        self.assertEqual(mock_shell.call_count, 1)
+
+        # When the testbed is using ssh protocol
+        testbed = Testbed("name1",
+                            True,
+                            Testbed.slurm_category,
+                            Testbed.protocol_ssh,
+                            "user@server",
+                            ['slurm'])
+        testbed.nodes = [node_2]
+
+        mock_shell.return_value = self.command_output
+
+        cpus = parser.get_cpuinfo_node(testbed, node_2)
+
+        self.assertEquals(8, len(cpus))
+        mock_shell.assert_called_with(command="ssh",
+                                      server=testbed.endpoint,
+                                      params=["node_2", "'cat", "/proc/cpuinfo'"])
+        self.assertEqual(mock_shell.call_count, 2)
+
+        # We simulate what happens if we get an exception executing the command
+        error = subprocess.CalledProcessError(returncode=255, cmd="ls")
+        mock_shell.side_effect = error
+
+        cpus = parser.get_cpuinfo_node(testbed, node_2)
+
+        self.assertEquals(0, len(cpus))
+        self.assertEqual(mock_shell.call_count, 3)
+
+        # When the testbed has an unknown protocol
+        testbed = Testbed("name1",
+                            True,
+                            Testbed.slurm_category,
+                            "xxx",
+                            "user@server",
+                            ['slurm'])
+        testbed.nodes = [node_2]
+
+        cpus = parser.get_cpuinfo_node(testbed, node_2)
+
+        self.assertEquals(0, len(cpus))
+        self.assertEqual(mock_shell.call_count, 3)
+
+        # We verify that we raised the right errors
+        # Checking that we are logging the correct messages
+        l.check(
+            ('root', 'ERROR', 'Exception trying to get the node cpu info'),
+            ('root', 'INFO', 'Tesbed protocol: xxx not supported to get node information')
+            )
+        l.uninstall() # We uninstall the capture of the logger

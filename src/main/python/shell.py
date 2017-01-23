@@ -10,15 +10,20 @@
 # SSH tools to execute commands
 
 import subprocess
+import logging
 
 def _execute_command(command):
     """
     It just executes the give command and returns the output
     """
 
-    output = subprocess.check_output(command)
-    return output
-
+    try:
+        output = subprocess.check_output(command)
+        return output
+    except subprocess.CalledProcessError as e:
+        logging.error("Trying to execute command: " + str(command))
+        logging.error('Error: %s', str(e))
+        raise e
 
 def execute_command(command, server='', params=[]):
     """
@@ -27,19 +32,24 @@ def execute_command(command, server='', params=[]):
     it is exected it is possible to connect to the server without it
     """
 
-    params.insert(0, command)
+    try:
+        params.insert(0, command)
 
-    if server != '':
-        command = ""
-        for param in params:
-            command = command + " " + param
+        if server != '':
+            command = ""
+            for param in params:
+                command = command + " " + param
 
-        command = command[1:]
-        params = [ "ssh", server, command]
+            command = command[1:]
+            params = [ "ssh", server, command]
 
-    if len(params) == 1:
-        output = _execute_command(params[0])
-    else:
-        output = _execute_command(params)
+        if len(params) == 1:
+            output = _execute_command(params[0])
+        else:
+            output = _execute_command(params)
 
-    return output
+        return output
+
+    except subprocess.CalledProcessError as e:
+        logging.error("Trying to execute command at server " + server)
+        raise e
