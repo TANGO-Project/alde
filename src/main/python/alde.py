@@ -31,7 +31,7 @@ class Config(object):
             'func': 'slurm:check_nodes_in_db_for_on_line_testbeds',
             'args': (),
             'trigger': 'interval',
-            'seconds': 30
+            'seconds': 30 # TODO increase this after the debugging ends
         }
     ]
 

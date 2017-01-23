@@ -12,8 +12,9 @@ import unittest.mock as mock
 import slurm
 from model.models import Testbed
 from sqlalchemy_mapping_tests.mapping_tests import MappingTest
-from model.models import Testbed, Node
+from model.models import Testbed, Node, CPU
 from model.base import db
+from testfixtures import LogCapture
 
 class SlurmTests(MappingTest):
     """
@@ -113,11 +114,10 @@ class SlurmTests(MappingTest):
 
         self.assertEquals(0,len(nodes))
 
-
-    @mock.patch('slurm.get_nodes_testbed')
-    def test_check_nodes_in_db_for_on_line_testbeds(self, mock_get_nodes):
+    def _create_initial_db_data(self):
         """
-        Test the correct work of this function
+        This method creates some initial data in the db that is employed by
+        some of the tests here.
         """
 
         # We add two testbeds to the db
@@ -130,11 +130,24 @@ class SlurmTests(MappingTest):
 
         # We add some nodes to Testbed_1
         node_1 = Node("node_1", True)
-        testbed.nodes = [ node_1, Node("node_2", True) ]
+        node_2 = Node("node_2", True)
+        testbed.nodes = [ node_1,  node_2]
         node_1.disabled = True
 
         db.session.add(testbed)
         db.session.commit()
+
+        return testbed, node_1, node_2
+
+    @mock.patch('slurm.get_nodes_testbed')
+    def test_check_nodes_in_db_for_on_line_testbeds(self, mock_get_nodes):
+        """
+        Test the correct work of this function
+        """
+        l = LogCapture() # we cature the logger
+
+        # We store some data in the db for the test.
+        testbed, node_1, node_2 = self._create_initial_db_data()
 
         #We create the expectation to retrieve a list of nodes from slurm.
         node_3 = { 'node_name': 'node_3' }
@@ -161,3 +174,64 @@ class SlurmTests(MappingTest):
         self.assertEquals(1, len(node))
         node = node[0]
         self.assertTrue(node.disabled)
+
+        # Checking that we are logging the correct messages
+        l.check(
+            ('root', 'INFO', 'Checking node info for testbed: name1'),
+            ('root', 'INFO', 'Adding a new node: node_3 to testbed: name1'),
+            ('root', 'INFO', 'Enabling node: node_1'),
+            ('root', 'INFO', 'Disabling node: node_2')
+            )
+        l.uninstall() # We uninstall the capture of the logger
+
+    @mock.patch('linux_probes.cpu_info_parser.get_cpuinfo_node')
+    def test_update_cpu_node_information(self, mock_parser):
+        """
+        Test that the correct work of this function
+        """
+        l = LogCapture() # we cature the logger
+
+        # We store some data in the db for the test.
+        testbed, node_1, node_2 = self._create_initial_db_data()
+
+        node_3 =  Node("node_3", True)
+        testbed.nodes.append(node_3)
+
+        node_3.cpus = [CPU("Intel", "Xeon", "x86_64", "e6333", "2600Mhz", True, 2, "cache", "111")]
+
+        # So, testbed has 3 nodes, one disabled and the other ones enabled
+        db.session.commit()
+
+        cpus_result = [CPU("Intel2", "Xeon2", "x86_64", "e6333", "2600Mhz", True, 2, "cache", "111"),
+                       CPU("Intel3", "Xeon3", "x86_64", "e6333", "2600Mhz", True, 2, "cache", "111")]
+
+        mock_parser.return_value = cpus_result
+
+        slurm.update_cpu_node_information()
+
+        # We verify the results
+        self.assertEquals(0, len(db.session.query(CPU).filter_by(vendor_id="Intel").all()))
+        self.assertEquals(1, len(db.session.query(CPU).filter_by(vendor_id="Intel2").all()))
+        self.assertEquals(1, len(db.session.query(CPU).filter_by(vendor_id="Intel3").all()))
+
+        calls = [ mock.call(testbed, node_2), mock.call(testbed, node_3)]
+        mock_parser.assert_has_calls(calls)
+        self.assertEquals(2, mock_parser.call_count)
+
+        # In case an error occours retrieving the information
+        mock_parser.return_value = []
+
+        slurm.update_cpu_node_information()
+
+        calls = [ mock.call(testbed, node_2), mock.call(testbed, node_3)]
+        mock_parser.assert_has_calls(calls)
+        self.assertEquals(4, mock_parser.call_count)
+
+        # Checking that we are logging the correct messages
+        l.check(
+            ('root', 'INFO', 'Updating CPU info for node: node_2'),
+            ('root', 'INFO', 'Updating CPU info for node: node_3'),
+            ('root', 'ERROR', 'Impossible to update CPU info for node: node_2'),
+            ('root', 'ERROR', 'Impossible to update CPU info for node: node_3')
+            )
+        l.uninstall() # We uninstall the capture of the logger

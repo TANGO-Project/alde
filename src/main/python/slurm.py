@@ -10,7 +10,8 @@ import re
 import shell
 import query
 import logging
-from model.models import Testbed, Node
+import linux_probes.cpu_info_parser as parser
+from model.models import Testbed, Node, CPU
 from model.base import db
 
 def parse_sinfo_partitions(command_output):
@@ -171,3 +172,28 @@ def check_nodes_in_db_for_on_line_testbeds():
                     logging.info("Disabling node: " + node)
                     node_from_db.disabled = True
                     db.session.commit()
+
+def  update_cpu_node_information():
+    """
+    This method updates the CPU information of nodes in case of
+    on-line SLURM testbeds.
+
+    It is going to try to ssh into the node, if the node is enabled, if an
+    error occours it keeps the node information as it is. If no error occours
+    updates the entries in the db deleting the old CPU information first.
+    """
+
+    testbeds = query.get_slurm_online_testbeds()
+
+    for testbed in testbeds:
+        for node in testbed.nodes:
+            if not node.disabled:
+                cpus = parser.get_cpuinfo_node(testbed, node)
+
+                if cpus != []:
+                    logging.info("Updating CPU info for node: " + node.name)
+                    db.session.query(CPU).filter_by(node_id=node.id).delete()
+                    node.cpus = cpus
+                    db.session.commit()
+                else:
+                    logging.error("Impossible to update CPU info for node: " + node.name)
