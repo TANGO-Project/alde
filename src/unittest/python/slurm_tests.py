@@ -246,18 +246,13 @@ class SlurmTests(MappingTest):
 
         nodes_info = slurm.parse_scontrol_information(self.command_scontrol_output)
 
-        line='NodeName=nd23 Arch=x86_64 CoresPerSocket=4 CPUAlloc=0 CPUErr=0 CPUTot=8 CPULoad=0.59 Features=(null) Gres=gpu:tesla2075:2 NodeAddr=nd23 NodeHostName=nd23 Version=14.11 OS=Linux RealMemory=24018 AllocMem=0 Sockets=2 Boards=1 State=MAINT ThreadsPerCore=1 TmpDisk=0 Weight=1 BootTime=2016-09-14T08:38:02 SlurmdStartTime=2017-01-24T17:31:11 CurrentWatts=n/s LowestJoules=n/s ConsumedJoules=n/s ExtSensorsJoules=n/s ExtSensorsWatts=0 ExtSensorsTemp=n/s Reason=Node unexpectedly rebooted [slurm@2016-09-14T08:37:00]'
-
-        b = re.compile(r'(\w+)=([^=]+\s|$)')
-
-        print("B method:")
-        for k,v in b.findall(line):
-            print("key:", k)
-            print("value:", v)
-            print("")
-
-
         self.assertEquals(3, len(nodes_info))
         self.assertEquals("nd80", nodes_info[0]['NodeName'])
+        self.assertEquals("x86_64", nodes_info[0]['Arch'])
+        self.assertEquals("18", nodes_info[0]['CoresPerSocket'])
+        self.assertEquals("6850663", nodes_info[0]['RealMemory'])
+        self.assertEquals("1", nodes_info[0]['ThreadsPerCore'])
+        self.assertEquals("16", nodes_info[0]['Sockets'])
         self.assertEquals("nd23", nodes_info[1]['NodeName'])
+        self.assertEquals("gpu:tesla2075:2", nodes_info[1]['Gres'])
         self.assertEquals("nd22", nodes_info[2]['NodeName'])

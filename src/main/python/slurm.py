@@ -182,7 +182,18 @@ def parse_scontrol_information(command_output):
     of the node
     """
 
-    pass
+    nodes_info = []
+    lines = command_output.decode('utf-8').split('\n')
+
+    r = re.compile(r'(\w+)=([^=]+\s|$)')
+    for line in lines:
+        new_dict = {}
+        for k,v in r.findall(line):
+            new_dict[k] = v.strip()
+
+        nodes_info.append(new_dict)
+
+    return nodes_info
 
 def  update_cpu_node_information():
     """
