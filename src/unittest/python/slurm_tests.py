@@ -24,7 +24,7 @@ class SlurmTests(MappingTest):
     """
 
     command_output=b'PARTITION   AVAIL  TIMELIMIT  NODES  STATE NODELIST\nbullx          up   infinite      1  drain nd15\nbullx          up   infinite      9   idle nd[10-14,16-19]\npartners*      up    8:00:00      1  drain nd15\npartners*      up    8:00:00      9   idle nd[10-14,16-19]\ngpus           up   infinite      2 drain* nd[20-21]\ngpus           up   infinite      1   idle nd22\ngpu2075        up   infinite      1 maint* nd23\nB510_2.2GHz    up   infinite      2 maint* nd[36-37]\nB510_2.2GHz    up   infinite      2   idle nd[38-39]\nB510_2.6GHz    up   infinite      2 maint* nd[32-33]\nB510_2.6GHz    up   infinite      1  maint nd31\nB510_2.6GHz    up   infinite      8   idle nd[24-26,29-30,40-41,43]\nB510_2.6GHz    up   infinite      3   down nd[27-28,42]\nbullion        up   infinite      1  alloc nd76\nbullion_S      up   infinite      1  alloc nd80\n'
-    command_scontrol_output=b'NodeName=nd80 Arch=x86_64 CoresPerSocket=18 CPUAlloc=288 CPUErr=0 CPUTot=288 CPULoad=128.35 Features=(null) Gres=(null) NodeAddr=nd80 NodeHostName=nd80 Version=14.11 OS=Linux RealMemory=6850663 AllocMem=0 Sockets=16 Boards=1 State=ALLOCATED ThreadsPerCore=1 TmpDisk=0 Weight=1 BootTime=2016-11-15T14:39:36 SlurmdStartTime=2017-01-10T08:43:22 CurrentWatts=4208 LowestJoules=4522674 ConsumedJoules=7611934651 ExtSensorsJoules=n/s ExtSensorsWatts=0 ExtSensorsTemp=n/s\nNodeName=nd23 Arch=x86_64 CoresPerSocket=4 CPUAlloc=0 CPUErr=0 CPUTot=8 CPULoad=0.59 Features=(null) Gres=gpu:tesla2075:2 NodeAddr=nd23 NodeHostName=nd23 Version=14.11 OS=Linux RealMemory=24018 AllocMem=0 Sockets=2 Boards=1 State=MAINT ThreadsPerCore=1 TmpDisk=0 Weight=1 BootTime=2016-09-14T08:38:02 SlurmdStartTime=2017-01-24T17:31:11 CurrentWatts=n/s LowestJoules=n/s ConsumedJoules=n/s ExtSensorsJoules=n/s ExtSensorsWatts=0 ExtSensorsTemp=n/s Reason=Node unexpectedly rebooted [slurm@2016-09-14T08:37:00]\nNodeName=nd22 Arch=x86_64 CoresPerSocket=4 CPUAlloc=0 CPUErr=0 CPUTot=8 CPULoad=0.67 Features=(null) Gres=gpu:tesla2050:2 NodeAddr=nd22 NodeHostName=nd22 Version=14.11 OS=Linux RealMemory=24018 AllocMem=0 Sockets=2 Boards=1 State=MAINT ThreadsPerCore=1 TmpDisk=0 Weight=1 BootTime=2016-09-14T08:38:05 SlurmdStartTime=2017-01-24T17:33:47 CurrentWatts=n/s LowestJoules=n/s ConsumedJoules=n/s ExtSensorsJoules=n/s ExtSensorsWatts=0 ExtSensorsTemp=n/s'
+    command_scontrol_output=b'NodeName=nd80 Arch=x86_64 CoresPerSocket=18 CPUAlloc=288 CPUErr=0 CPUTot=288 CPULoad=128.35 Features=(null) Gres=(null) NodeAddr=nd80 NodeHostName=nd80 Version=14.11 OS=Linux RealMemory=6850663 AllocMem=0 Sockets=16 Boards=1 State=ALLOCATED ThreadsPerCore=1 TmpDisk=0 Weight=1 BootTime=2016-11-15T14:39:36 SlurmdStartTime=2017-01-10T08:43:22 CurrentWatts=4208 LowestJoules=4522674 ConsumedJoules=7611934651 ExtSensorsJoules=n/s ExtSensorsWatts=0 ExtSensorsTemp=n/s\nNodeName=nd23 Arch=x86_64 CoresPerSocket=4 CPUAlloc=0 CPUErr=0 CPUTot=8 CPULoad=0.59 Features=(null) Gres=gpu:tesla2075:2 NodeAddr=nd23 NodeHostName=nd23 Version=14.11 OS=Linux RealMemory=24018 AllocMem=0 Sockets=2 Boards=1 State=MAINT ThreadsPerCore=1 TmpDisk=0 Weight=1 BootTime=2016-09-14T08:38:02 SlurmdStartTime=2017-01-24T17:31:11 CurrentWatts=n/s LowestJoules=n/s ConsumedJoules=n/s ExtSensorsJoules=n/s ExtSensorsWatts=0 ExtSensorsTemp=n/s Reason=Node unexpectedly rebooted [slurm@2016-09-14T08:37:00]\nNodeName=nd22 Arch=x86_64 CoresPerSocket=4 CPUAlloc=0 CPUErr=0 CPUTot=8 CPULoad=0.67 Features=(null) Gres=gpu:tesla2050:2 NodeAddr=nd22 NodeHostName=nd22 Version=14.11 OS=Linux RealMemory=24018 AllocMem=0 Sockets=2 Boards=1 State=MAINT ThreadsPerCore=1 TmpDisk=0 Weight=1 BootTime=2016-09-14T08:38:05 SlurmdStartTime=2017-01-24T17:33:47 CurrentWatts=n/s LowestJoules=n/s ConsumedJoules=n/s ExtSensorsJoules=n/s ExtSensorsWatts=0 ExtSensorsTemp=n/s\n'
 
     example1 = {
                 'partition_state': 'drain',
@@ -246,7 +246,7 @@ class SlurmTests(MappingTest):
 
         nodes_info = slurm.parse_scontrol_information(self.command_scontrol_output)
 
-        self.assertEquals(3, len(nodes_info))
+        self.assertEquals(4, len(nodes_info))
         self.assertEquals("nd80", nodes_info[0]['NodeName'])
         self.assertEquals("x86_64", nodes_info[0]['Arch'])
         self.assertEquals("18", nodes_info[0]['CoresPerSocket'])
@@ -276,7 +276,7 @@ class SlurmTests(MappingTest):
         mock_shell.return_value = self.command_scontrol_output
         nodes_info = slurm.get_node_information(testbed)
 
-        self.assertEquals(3, len(nodes_info))
+        self.assertEquals(4, len(nodes_info))
         self.assertEquals("nd80", nodes_info[0]['NodeName'])
         self.assertEquals("x86_64", nodes_info[0]['Arch'])
         self.assertEquals("18", nodes_info[0]['CoresPerSocket'])
@@ -293,7 +293,7 @@ class SlurmTests(MappingTest):
         mock_shell.return_value = self.command_scontrol_output
         nodes_info = slurm.get_node_information(testbed)
 
-        self.assertEquals(3, len(nodes_info))
+        self.assertEquals(4, len(nodes_info))
         self.assertEquals("nd80", nodes_info[0]['NodeName'])
         self.assertEquals("x86_64", nodes_info[0]['Arch'])
         self.assertEquals("18", nodes_info[0]['CoresPerSocket'])

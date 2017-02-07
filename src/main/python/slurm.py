@@ -274,9 +274,12 @@ def update_node_information():
 
         for node_info in nodes_info:
 
-            node = db.session.query(Node).filter_by(testbed_id=testbed.id, name=node_info['NodeName']).first()
+            if 'NodeName' in node_info:
+                node = db.session.query(Node).filter_by(
+                            testbed_id=testbed.id,
+                            name=node_info['NodeName']).first()
 
-            if node:
-                logging.info("Updating information for node: " + node.name + " if necessary")
-                node.state = node_info['State']
-                db.session.commit()
+                if node and 'State' in node_info:
+                    logging.info("Updating information for node: " + node.name + " if necessary")
+                    node.state = node_info['State']
+                    db.session.commit()
