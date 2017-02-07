@@ -311,3 +311,49 @@ class SlurmTests(MappingTest):
         nodes = slurm.get_node_information(testbed)
 
         self.assertEquals(0,len(nodes))
+
+    @mock.patch('shell.execute_command')
+    def test_update_node_information(self, mock_shell):
+        """
+        Test that the correct work of this function
+        """
+        l = LogCapture() # we cature the logger
+        command = "scontrol"
+        params = ["-o", "--all", "show", "node"]
+
+        # We store some data in the db for the test.
+        # We add two testbeds to the db
+        testbed = Testbed("name1",
+                            True,
+                            Testbed.slurm_category,
+                            Testbed.protocol_ssh,
+                            "user@server",
+                            ['slurm'])
+
+        # We add some nodes to Testbed_1
+        node_1 = Node("nd80", True)
+        node_2 = Node("nd23", True)
+        testbed.nodes = [ node_1,  node_2]
+        node_1.disabled = True
+
+        db.session.add(testbed)
+        db.session.commit()
+
+        # We mock the command call
+        mock_shell.return_value = self.command_scontrol_output
+
+        slurm.update_node_information()
+
+        # We verify the results
+        self.assertEquals('ALLOCATED', db.session.query(Node).filter_by(name='nd80').first().state)
+        self.assertEquals('MAINT', db.session.query(Node).filter_by(name='nd23').first().state)
+
+        mock_shell.assert_called_with(command=command, server="user@server", params=params)
+        self.assertEquals(1, mock_shell.call_count)
+
+        # Checking that we are logging the correct messages
+        l.check(
+            ('root', 'INFO', 'Updating information for node: nd80 if necessary'),
+            ('root', 'INFO', 'Updating information for node: nd23 if necessary')
+            )
+        l.uninstall() # We uninstall the capture of the logger

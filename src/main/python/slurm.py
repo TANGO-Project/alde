@@ -243,6 +243,7 @@ def get_node_information(testbed):
     params = ["-o", "--all", "show", "node"]
 
     if testbed.category == Testbed.slurm_category:
+
         if testbed.protocol == Testbed.protocol_local:
             output = shell.execute_command(command=command, params=params)
         elif testbed.protocol == Testbed.protocol_ssh:
@@ -253,5 +254,29 @@ def get_node_information(testbed):
             return []
 
         return parse_scontrol_information(output)
+
     else:
         return []
+
+
+def update_node_information():
+    """
+    This function gets all the testbed that are SLURM and have been
+    configured to retrieve all information automatically and
+    update the node information if necessary
+    """
+
+    testbeds = query.get_slurm_online_testbeds()
+
+    for testbed in testbeds:
+
+        nodes_info = get_node_information(testbed)
+
+        for node_info in nodes_info:
+
+            node = db.session.query(Node).filter_by(testbed_id=testbed.id, name=node_info['NodeName']).first()
+
+            if node:
+                logging.info("Updating information for node: " + node.name + " if necessary")
+                node.state = node_info['State']
+                db.session.commit()

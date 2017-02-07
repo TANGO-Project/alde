@@ -126,6 +126,7 @@ class Node(db.Model):
     name = db.Column(db.String)
     information_retrieved = db.Column(db.Boolean)
     disabled = db.Column(db.Boolean)
+    state = db.Column(db.String)
     testbed_id = db.Column(db.Integer, db.ForeignKey('testbeds.id'))
     testbed = db.relationship("Testbed", back_populates="nodes")
     cpus = db.relationship("CPU", order_by=CPU.id, back_populates="node")

@@ -35,7 +35,7 @@ class Config(object):
         },
         {
             'id': 'update_node_cpu_info',
-            'func': 'slurm:update_cpu_node_information',
+            'func': 'slurm:update_node_information',
             'args': (),
             'trigger': 'interval',
             'seconds': 30 # TODO increase this after the debugging ends
