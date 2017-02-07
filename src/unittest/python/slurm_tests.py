@@ -256,3 +256,58 @@ class SlurmTests(MappingTest):
         self.assertEquals("nd23", nodes_info[1]['NodeName'])
         self.assertEquals("gpu:tesla2075:2", nodes_info[1]['Gres'])
         self.assertEquals("nd22", nodes_info[2]['NodeName'])
+
+    @mock.patch('slurm.shell.execute_command')
+    def test_get_node_information(self, mock_shell):
+        """
+        It verifies the correct work of the function get_nodes_testbed
+        """
+        command = "scontrol"
+        params = ["-o", "--all", "show", "node"]
+
+        # It checks first if it is type SLURM
+        testbed = Testbed('x', 'false', 'xxx', 'protocol', 'xxx')
+
+        nodes = slurm.get_node_information(testbed)
+        self.assertEquals(0, len(nodes))
+
+        # We create a testbed with local access
+        testbed = Testbed('x', 'false', Testbed.slurm_category, Testbed.protocol_local, 'xxx')
+        mock_shell.return_value = self.command_scontrol_output
+        nodes_info = slurm.get_node_information(testbed)
+
+        self.assertEquals(3, len(nodes_info))
+        self.assertEquals("nd80", nodes_info[0]['NodeName'])
+        self.assertEquals("x86_64", nodes_info[0]['Arch'])
+        self.assertEquals("18", nodes_info[0]['CoresPerSocket'])
+        self.assertEquals("6850663", nodes_info[0]['RealMemory'])
+        self.assertEquals("1", nodes_info[0]['ThreadsPerCore'])
+        self.assertEquals("16", nodes_info[0]['Sockets'])
+        self.assertEquals("nd23", nodes_info[1]['NodeName'])
+        self.assertEquals("gpu:tesla2075:2", nodes_info[1]['Gres'])
+        self.assertEquals("nd22", nodes_info[2]['NodeName'])
+        mock_shell.assert_called_with(command=command, params=params)
+
+        # We create a testbe with ssh access
+        testbed = Testbed('x', 'false', Testbed.slurm_category, Testbed.protocol_ssh , "user@ssh.com")
+        mock_shell.return_value = self.command_scontrol_output
+        nodes_info = slurm.get_node_information(testbed)
+
+        self.assertEquals(3, len(nodes_info))
+        self.assertEquals("nd80", nodes_info[0]['NodeName'])
+        self.assertEquals("x86_64", nodes_info[0]['Arch'])
+        self.assertEquals("18", nodes_info[0]['CoresPerSocket'])
+        self.assertEquals("6850663", nodes_info[0]['RealMemory'])
+        self.assertEquals("1", nodes_info[0]['ThreadsPerCore'])
+        self.assertEquals("16", nodes_info[0]['Sockets'])
+        self.assertEquals("nd23", nodes_info[1]['NodeName'])
+        self.assertEquals("gpu:tesla2075:2", nodes_info[1]['Gres'])
+        self.assertEquals("nd22", nodes_info[2]['NodeName'])
+        mock_shell.assert_called_with(command=command, server="user@ssh.com", params=params)
+
+        # Testbed with unknown protocol should return empty String
+        # We create a testbe with ssh access
+        testbed = Testbed('x', True, Testbed.slurm_category, "xxx" , "user@ssh.com")
+        nodes = slurm.get_node_information(testbed)
+
+        self.assertEquals(0,len(nodes))

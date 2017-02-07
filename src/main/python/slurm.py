@@ -219,3 +219,39 @@ def  update_cpu_node_information():
                     db.session.commit()
                 else:
                     logging.error("Impossible to update CPU info for node: " + node.name)
+
+def get_node_information():
+    """
+    This function gets the nodes object information, from that information
+    it determines if the testbed it is of the category SLURM.
+
+    If it is SLURM, it will determine if it connects via ssh.
+
+        If it connects via ssh it will get the node info executing the command
+        via ssh
+
+        If it is not ssh, it will execute directly the sinfo command in console.
+
+    If it is not type SLURM it will just return an empty list
+
+    The command to be executed is:
+
+    scontrol -o  --all show node
+    """
+
+    command = "scontrol"
+    params = ["-o", "--all", "show", "node"]
+
+    if testbed.category == Testbed.slurm_category:
+        if testbed.protocol == Testbed.protocol_local:
+            output = shell.execute_command(command=command, params=params)
+        elif testbed.protocol == Testbed.protocol_ssh:
+            output = shell.execute_command(command=command,
+                                           server=testbed.endpoint,
+                                           params=params)
+        else:
+            return []
+
+        return parse_scontrol_information(output)
+    else:
+        return []

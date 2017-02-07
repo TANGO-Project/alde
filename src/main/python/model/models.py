@@ -59,6 +59,7 @@ class CPU(Processor, db.Model):
     cores = db.Column(db.Integer)
     cache = db.Column(db.String)
     flags = db.Column(db.String)
+    threads_per_core = db.Column(db.Integer)
     node_id = db.Column(db.Integer, db.ForeignKey('nodes.id'))
     node = db.relationship("Node", back_populates="cpus")
 
