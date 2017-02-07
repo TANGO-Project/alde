@@ -137,6 +137,16 @@ Now, remember, each time you need to start to develop, initalize the virtualenv:
 $ source venv/bin/activate
 ```
 
+## Using ALDE
+
+
+
+Adding a new SLURM type testbed that you can connect via SSH protocol
+
+```
+curl localhost:5000/api/v1/testbeds -X POST -H'Content-type: application/json' -d'{ "name": "slurm_testbed", "on_line": true, "category": "SLURM", "protocol": "SSH", "endpoint": "user@ssh.com"}'
+```
+
 ## Build status from Travis-CI
 
 [![Build Status](https://travis-ci.org/TANGO-Project/alde.svg?branch=master)](https://travis-ci.org/TANGO-Project/alde)

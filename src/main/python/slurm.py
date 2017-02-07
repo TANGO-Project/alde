@@ -173,6 +173,17 @@ def check_nodes_in_db_for_on_line_testbeds():
                     node_from_db.disabled = True
                     db.session.commit()
 
+def parse_scontrol_information(command_output):
+    """
+    This function will parse all info of the command
+    scontrol -o  --all show node
+
+    This will be used to get information and live stats of the status_code
+    of the node
+    """
+
+    pass
+
 def  update_cpu_node_information():
     """
     This method updates the CPU information of nodes in case of
