@@ -220,7 +220,7 @@ def  update_cpu_node_information():
                 else:
                     logging.error("Impossible to update CPU info for node: " + node.name)
 
-def get_node_information():
+def get_node_information(testbed):
     """
     This function gets the nodes object information, from that information
     it determines if the testbed it is of the category SLURM.
