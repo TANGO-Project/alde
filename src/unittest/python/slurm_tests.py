@@ -13,7 +13,7 @@ import slurm
 import re
 from model.models import Testbed
 from sqlalchemy_mapping_tests.mapping_tests import MappingTest
-from model.models import Testbed, Node, CPU
+from model.models import Testbed, Node, CPU, Memory
 from model.base import db
 from testfixtures import LogCapture
 
@@ -345,8 +345,17 @@ class SlurmTests(MappingTest):
         slurm.update_node_information()
 
         # We verify the results
-        self.assertEquals('ALLOCATED', db.session.query(Node).filter_by(name='nd80').first().state)
-        self.assertEquals('MAINT', db.session.query(Node).filter_by(name='nd23').first().state)
+        node_80 = db.session.query(Node).filter_by(name='nd80').first()
+        node_23 = db.session.query(Node).filter_by(name='nd23').first()
+        self.assertEquals('ALLOCATED', node_80.state)
+        self.assertEquals(1, len(node_80.memories))
+        self.assertEquals(Memory.MEGABYTE, node_80.memories[0].units)
+        self.assertEquals(6850663, node_80.memories[0].size)
+
+        self.assertEquals('MAINT', node_23.state)
+        self.assertEquals(1, len(node_23.memories))
+        self.assertEquals(Memory.MEGABYTE, node_23.memories[0].units)
+        self.assertEquals(24018, node_23.memories[0].size)
 
         mock_shell.assert_called_with(command=command, server="user@server", params=params)
         self.assertEquals(1, mock_shell.call_count)
@@ -354,6 +363,8 @@ class SlurmTests(MappingTest):
         # Checking that we are logging the correct messages
         l.check(
             ('root', 'INFO', 'Updating information for node: nd80 if necessary'),
-            ('root', 'INFO', 'Updating information for node: nd23 if necessary')
+            ('root', 'INFO', 'Updating memory information for node: nd80'),
+            ('root', 'INFO', 'Updating information for node: nd23 if necessary'),
+            ('root', 'INFO', 'Updating memory information for node: nd23')
             )
         l.uninstall() # We uninstall the capture of the logger

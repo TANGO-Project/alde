@@ -15,6 +15,10 @@ class Memory(db.Model):
     Lifecycle Deployment Engine
     """
 
+    KILOBYTE = "kilobyte"
+    MEGABYTE = "megabyte"
+    GIGABYTE = "gigabyte"
+
     # SQLAlchemy mapping code
     __tablename__ = 'memories'
     id = db.Column(db.Integer, primary_key=True)

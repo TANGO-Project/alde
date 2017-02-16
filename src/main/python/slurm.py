@@ -11,7 +11,7 @@ import shell
 import query
 import logging
 import linux_probes.cpu_info_parser as parser
-from model.models import Testbed, Node, CPU
+from model.models import Testbed, Node, CPU, Memory
 from model.base import db
 
 def parse_sinfo_partitions(command_output):
@@ -282,4 +282,11 @@ def update_node_information():
                 if node and 'State' in node_info:
                     logging.info("Updating information for node: " + node.name + " if necessary")
                     node.state = node_info['State']
+                    db.session.commit()
+
+                if node and 'RealMemory' in node_info:
+                    logging.info("Updating memory information for node: " + node.name)
+                    db.session.query(Memory).filter_by(node_id=node.id).delete()
+                    memory = Memory(size=node_info['RealMemory'], units=Memory.MEGABYTE)
+                    node.memories = [ memory ]
                     db.session.commit()
