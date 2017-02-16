@@ -1,0 +1,20 @@
+[
+  {
+    "model_code_slurm": "tesla2075",
+    "vendor_id": "Nvidia",
+    "model_name": "Nvidia TESLA C2075",
+    "cores": 448,
+    "core_type": "cuda",
+    "bus": "PCIe x16 Gen 2",
+    "memory_type": "GDDR5 ECC",
+    "memory_size": 6144,
+    "memory_units": "megabyte",
+    "cuda_compute_ability": "2.0",
+    "chip_model": "GF100",
+    "microarchitecture": "Fermi",
+    "core_clock": 575,
+    "core_clock_units": "MHz",
+    "base_clock": 1150,
+    "base_clock_units": "MHz"
+  }
+]
