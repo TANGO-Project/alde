@@ -11,6 +11,7 @@ import shell
 import query
 import logging
 import linux_probes.cpu_info_parser as parser
+import inventory
 from model.models import Testbed, Node, CPU, Memory
 from model.base import db
 
@@ -290,3 +291,35 @@ def update_node_information():
                     memory = Memory(size=node_info['RealMemory'], units=Memory.MEGABYTE)
                     node.memories = [ memory ]
                     db.session.commit()
+
+def parse_gre_field_info(gre):
+    """
+    This function will parse the GRE field of the scontrol output to know
+    if this specific node of slurm has any kind of special hardware attached
+    to it such as GPUs, Xeon Phis, etc...
+
+    gre field has format like this: gpu:tesla2050:2,bandwidth:lustre:no_consume:4G
+
+    This function will return a dictionary with the relevant information
+    """
+
+    resources = {}
+
+    for resource in gre.split(','):
+
+        resource_info = gre.split(':')
+
+        if resource_info[0] == 'gpu':
+            gpu_model = inventory.find_gpu_slurm(resource_info[1])
+
+            if gpu_model:
+                gpus = []
+                if 3 in resource_info:
+                    for i in range(resource_info[2]):
+                        gpus.append(copy.copy(gpu_model))
+                else:
+                    gpus.append(gpu_model)
+
+                resources['gpu'] = gpus
+
+    return resources
