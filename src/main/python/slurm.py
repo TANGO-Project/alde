@@ -13,7 +13,7 @@ import query
 import logging
 import linux_probes.cpu_info_parser as parser
 import inventory
-from model.models import Testbed, Node, CPU, Memory
+from model.models import Testbed, Node, CPU, GPU, Memory
 from model.base import db
 
 def parse_sinfo_partitions(command_output):
@@ -293,6 +293,14 @@ def update_node_information():
                     node.memories = [ memory ]
                     db.session.commit()
 
+                if node and 'Gres' in node_info:
+                    resources = parse_gre_field_info(node_info['Gres'])
+                    if 'gpu' in resources:
+                        db.session.query(GPU).filter_by(node_id=node.id).delete()
+                        logging.info("Updating gpu information for node: " + node.name)
+                        node.gpus = resources['gpu']
+                        db.session.commit()
+
 def parse_gre_field_info(gre):
     """
     This function will parse the GRE field of the scontrol output to know
@@ -322,7 +330,7 @@ def parse_gre_field_info(gre):
 
                 if len(resource_info) == 3:
                     for i in range(int(resource_info[2])):
-                        gpus.append(copy.copy(gpu_model))
+                        gpus.append(copy.deepcopy(gpu_model))
                 else:
                     gpus.append(gpu_model)
 

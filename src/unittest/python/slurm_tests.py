@@ -352,11 +352,17 @@ class SlurmTests(MappingTest):
         self.assertEquals(1, len(node_80.memories))
         self.assertEquals(Memory.MEGABYTE, node_80.memories[0].units)
         self.assertEquals(6850663, node_80.memories[0].size)
+        self.assertEquals(0,len(node_80.gpus))
 
         self.assertEquals('MAINT', node_23.state)
         self.assertEquals(1, len(node_23.memories))
         self.assertEquals(Memory.MEGABYTE, node_23.memories[0].units)
         self.assertEquals(24018, node_23.memories[0].size)
+        self.assertEquals(2,len(node_23.gpus))
+        self.assertEquals('Nvidia', node_23.gpus[0].vendor_id)
+        self.assertEquals('Nvidia TESLA C2075', node_23.gpus[0].model_name)
+        self.assertEquals('Nvidia', node_23.gpus[1].vendor_id)
+        self.assertEquals('Nvidia TESLA C2075', node_23.gpus[1].model_name)
 
         mock_shell.assert_called_with(command=command, server="user@server", params=params)
         self.assertEquals(1, mock_shell.call_count)
@@ -366,7 +372,8 @@ class SlurmTests(MappingTest):
             ('root', 'INFO', 'Updating information for node: nd80 if necessary'),
             ('root', 'INFO', 'Updating memory information for node: nd80'),
             ('root', 'INFO', 'Updating information for node: nd23 if necessary'),
-            ('root', 'INFO', 'Updating memory information for node: nd23')
+            ('root', 'INFO', 'Updating memory information for node: nd23'),
+            ('root', 'INFO', 'Updating gpu information for node: nd23')
             )
         l.uninstall() # We uninstall the capture of the logger
 
