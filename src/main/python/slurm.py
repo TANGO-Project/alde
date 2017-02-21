@@ -8,6 +8,7 @@
 
 import re
 import shell
+import copy
 import query
 import logging
 import linux_probes.cpu_info_parser as parser
@@ -307,15 +308,20 @@ def parse_gre_field_info(gre):
 
     for resource in gre.split(','):
 
-        resource_info = gre.split(':')
+        resource_info = resource.split(':')
 
         if resource_info[0] == 'gpu':
             gpu_model = inventory.find_gpu_slurm(resource_info[1])
 
             if gpu_model:
-                gpus = []
-                if 3 in resource_info:
-                    for i in range(resource_info[2]):
+
+                if 'gpu' in resources:
+                    gpus = resources['gpu']
+                else:
+                    gpus = []
+
+                if len(resource_info) == 3:
+                    for i in range(int(resource_info[2])):
                         gpus.append(copy.copy(gpu_model))
                 else:
                     gpus.append(gpu_model)

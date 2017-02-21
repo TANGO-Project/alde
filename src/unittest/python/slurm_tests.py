@@ -11,6 +11,7 @@ import unittest
 import unittest.mock as mock
 import slurm
 import re
+import inventory
 from model.models import Testbed
 from sqlalchemy_mapping_tests.mapping_tests import MappingTest
 from model.models import Testbed, Node, CPU, Memory
@@ -369,9 +370,31 @@ class SlurmTests(MappingTest):
             )
         l.uninstall() # We uninstall the capture of the logger
 
-    def test_parse_gre_field_info(gre):
+    def test_parse_gre_field_info(self):
         """
-        Checks this function
+        Checks this function works correctly
         """
 
-        self.fail()
+        # We overwrite first the url of the inventory file db
+        inventory.GPU_FILE = "./src/main/python/gpu_cards_list.json"
+
+        # Test starts here
+        gre_text_example='gpu:tesla2075:2,bandwidth:lustre:no_consume:4G'
+        resources = slurm.parse_gre_field_info(gre_text_example)
+
+        self.assertEquals(2, len(resources['gpu']))
+        self.assertEquals('Nvidia', resources['gpu'][0].vendor_id)
+        self.assertEquals('Nvidia TESLA C2075', resources['gpu'][0].model_name)
+        self.assertEquals('Nvidia', resources['gpu'][1].vendor_id)
+        self.assertEquals('Nvidia TESLA C2075', resources['gpu'][1].model_name)
+
+        gre_text_example='cpu:xxx1:1,gpu:tesla870,gpu:tesla2075:2,bandwidth:lustre:no_consume:4G'
+        resources = slurm.parse_gre_field_info(gre_text_example)
+
+        self.assertEquals(3, len(resources['gpu']))
+        self.assertEquals('Nvidia', resources['gpu'][0].vendor_id)
+        self.assertEquals('Nvidia TESLA C870', resources['gpu'][0].model_name)
+        self.assertEquals('Nvidia', resources['gpu'][1].vendor_id)
+        self.assertEquals('Nvidia TESLA C2075', resources['gpu'][1].model_name)
+        self.assertEquals('Nvidia', resources['gpu'][2].vendor_id)
+        self.assertEquals('Nvidia TESLA C2075', resources['gpu'][2].model_name)
