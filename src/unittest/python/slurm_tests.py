@@ -405,3 +405,10 @@ class SlurmTests(MappingTest):
         self.assertEquals('Nvidia TESLA C2075', resources['gpu'][1].model_name)
         self.assertEquals('Nvidia', resources['gpu'][2].vendor_id)
         self.assertEquals('Nvidia TESLA C2075', resources['gpu'][2].model_name)
+
+        gre_text_example='gpu:teslak20:2'
+        resources = slurm.parse_gre_field_info(gre_text_example)
+        self.assertEquals('Nvidia', resources['gpu'][0].vendor_id)
+        self.assertEquals('K20 GPU Accelerator', resources['gpu'][0].model_name)
+        self.assertEquals('Nvidia', resources['gpu'][1].vendor_id)
+        self.assertEquals('K20 GPU Accelerator', resources['gpu'][1].model_name)

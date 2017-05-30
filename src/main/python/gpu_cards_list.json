@@ -34,5 +34,21 @@
         "core_clock_units": "MHz",
         "base_clock": 1350,
         "base_clock_units": "MHz"
+    },
+    {
+        "model_code_slurm": "teslak20",
+        "vendor_id": "Nvidia",
+        "model_name": "K20 GPU Accelerator",
+        "cores": 2496,
+        "core_type": "cuda",
+        "bus": "PCIe",
+        "memory_type": "GDDR5",
+        "memory_size": 5120,
+        "memory_units": "megabyte",
+        "cuda_compute_ability": "3.5",
+        "chip_model": "GK110",
+        "microarchitecture": "Kepler",
+        "base_clock": 706,
+        "base_clock_units": "MHz"
     }
 ]
