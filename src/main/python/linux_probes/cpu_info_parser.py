@@ -48,6 +48,13 @@ def parse_cpu_info(cpu_info):
                       cores=int(data['cpu cores']),
                       cache=data['cache size'],
                       flags=data['flags'])
+            cpu.physical_id = int(data['physical id'])
+            cpu.siblings = int(data['siblings'])
+            cpu.stepping = int(data['stepping'])
+            cpu.microcode = data['microcode']
+            cpu.fpu_exception = data['fpu_exception'] == 'yes'
+            cpu.wp = data['wp'] == 'yes'
+            cpu.bogomips = data['bogomips']
             cpus.append(cpu)
 
     return cpus

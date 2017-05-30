@@ -27,6 +27,7 @@ class CpuInfoParserTests(unittest.TestCase):
 
         self.assertEquals(8, len(cpus))
 
+        i = 0
         for cpu in cpus:
             self.assertEquals('GenuineIntel', cpu.vendor_id)
             self.assertEquals('Intel(R) Xeon(R) CPU           E5520  @ 2.27GHz',
@@ -39,6 +40,14 @@ class CpuInfoParserTests(unittest.TestCase):
             self.assertEquals('8192 KB', cpu.cache)
             self.assertEquals('fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx rdtscp lm constant_tsc arch_perfmon pebs bts rep_good xtopology nonstop_tsc aperfmperf pni dtes64 monitor ds_cpl vmx est tm2 ssse3 cx16 xtpr pdcm dca sse4_1 sse4_2 popcnt lahf_lm ida dts tpr_shadow vnmi flexpriority ept vpid',
                                cpu.flags)
+            self.assertEquals(i // 4, cpu.physical_id)
+            self.assertEquals(4, cpu.siblings)
+            self.assertEquals(5, cpu.stepping)
+            self.assertEquals('17', cpu.microcode)
+            self.assertTrue(cpu.fpu_exception)
+            self.assertTrue(cpu.wp)
+            self.assertEquals('453', cpu.bogomips[0:3])
+            i = i + 1
 
     @mock.patch("shell.execute_command")
     def test_get_cpuinfo_node(self, mock_shell):

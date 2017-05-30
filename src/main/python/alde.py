@@ -40,6 +40,13 @@ class Config(object):
             'trigger': 'interval',
             'seconds': 30 # TODO increase this after the debugging ends
         },
+                {
+            'id': 'update_cpu_node_info',
+            'func': 'slurm:update_cpu_node_information',
+            'args': (),
+            'trigger': 'interval',
+            'seconds': 60 # TODO increase this after the debugging ends
+        }
     ]
 
     SCHEDULER_API_ENABLED = True
