@@ -39,8 +39,8 @@ class AldeV1Tests(TestCase):
         db.create_all()
 
         # We store some Applications in the db for the tests
-        application_1 = Application("AppName_1", "Path_1")
-        application_2 = Application("AppName_2", "Path_2")
+        application_1 = Application("AppName_1")
+        application_2 = Application("AppName_2")
         db.session.add(application_1)
         db.session.add(application_2)
 
@@ -81,16 +81,13 @@ class AldeV1Tests(TestCase):
         application = applications[0]
         self.assertEquals(1, application['id'])
         self.assertEquals('AppName_1', application['name'])
-        self.assertEquals('Path_1', application['path_to_code'])
         application = applications[1]
         self.assertEquals(2, application['id'])
         self.assertEquals('AppName_2', application['name'])
-        self.assertEquals('Path_2', application['path_to_code'])
 
         # POST
         data={
-                'name' : 'AppName_3',
-                'path_to_code' : 'Path_3'
+                'name' : 'AppName_3'
             }
 
         response = self.client.post('/api/v1/applications',
@@ -99,7 +96,6 @@ class AldeV1Tests(TestCase):
 
         self.assertEquals(201, response.status_code)
         self.assertEquals('AppName_3', response.json['name'])
-        self.assertEquals('Path_3', response.json['path_to_code'])
         self.assertEquals(3, response.json['id'])
         # We check that we only have three applicions
         response = self.client.get("/api/v1/applications")
@@ -110,7 +106,6 @@ class AldeV1Tests(TestCase):
 
         self.assertEquals(200, response.status_code)
         self.assertEquals('AppName_1', response.json['name'])
-        self.assertEquals('Path_1', response.json['path_to_code'])
         self.assertEquals(1, response.json['id'])
 
         # DELETE

@@ -20,7 +20,7 @@ class ApplicationMappingTest(MappingTest):
         """It test basic CRUD operations of an Application Class"""
 
         # We verify that the object is not in the db after creating
-        application = Application("AppName", "Path")
+        application = Application("AppName")
         self.assertIsNone(application.id)
 
         # We store the object in the db
@@ -30,7 +30,6 @@ class ApplicationMappingTest(MappingTest):
         application = db.session.query(Application).filter_by(name='AppName').first()
         self.assertIsNotNone(application.id)
         self.assertEquals("AppName", application.name)
-        self.assertEquals("Path", application.path_to_code)
 
         # We check that we can update the application
         application.name = 'pepito'
@@ -38,7 +37,6 @@ class ApplicationMappingTest(MappingTest):
         application_2 = db.session.query(Application).filter_by(name='pepito').first()
         self.assertEquals(application.id, application_2.id)
         self.assertEquals("pepito", application.name)
-        self.assertEquals("Path", application.path_to_code)
 
         # We check the deletion
         db.session.delete(application_2)
