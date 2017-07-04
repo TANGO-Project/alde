@@ -147,6 +147,10 @@ Adding a new SLURM type testbed that you can connect via SSH protocol
 curl localhost:5000/api/v1/testbeds -X POST -H'Content-type: application/json' -d'{ "name": "slurm_testbed", "on_line": true, "category": "SLURM", "protocol": "SSH", "endpoint": "user@ssh.com"}'
 ```
 
+## Tests with Singularity
+
+1. Install Singularity - [View doc](SingularityTests.md)
+
 ## Build status from Travis-CI
 
 [![Build Status](https://travis-ci.org/TANGO-Project/alde.svg?branch=master)](https://travis-ci.org/TANGO-Project/alde)
