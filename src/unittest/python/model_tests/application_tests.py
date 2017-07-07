@@ -7,7 +7,7 @@
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
 import unittest
-from model.application import Application, ExecutionScript
+from model.models import Application, ExecutionScript
 
 class ApplicationTest(unittest.TestCase):
     """

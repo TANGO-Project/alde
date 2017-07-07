@@ -7,7 +7,7 @@
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
 from sqlalchemy_mapping_tests.mapping_tests import MappingTest
-from model.application import Application
+from model.models import Application
 from model.base import db
 
 class ApplicationMappingTest(MappingTest):

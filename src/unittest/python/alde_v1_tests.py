@@ -9,8 +9,7 @@
 from flask import Flask
 from flask_testing import TestCase
 from model.base import db
-from model.application import Application
-from model.models import Testbed, Node
+from model.models import Application, Testbed, Node
 import alde
 import json
 
