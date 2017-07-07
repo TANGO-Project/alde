@@ -7,7 +7,7 @@
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
 from sqlalchemy_mapping_tests.mapping_tests import MappingTest
-from model.models import ExecutionScript
+from model.models import ExecutionScript, Testbed
 from model.base import db
 
 class ExecutionScriptMappingTest(MappingTest):
@@ -44,3 +44,24 @@ class ExecutionScriptMappingTest(MappingTest):
         db.session.delete(execution_script_2)
         count = db.session.query(ExecutionScript).filter_by(command='ls').count()
         self.assertEquals(0, count)
+
+    def test_relation_with_testbed(self):
+        """It check it is possible to relate the application with the testbed"""
+
+        # We create first a testbed and commit it to the db
+        testbed = Testbed("name", True, "slurm", "ssh", "user@server", ['slurm'])
+
+        db.session.add(testbed)
+        db.session.commit()
+
+        # We create an execution script
+        execution_script = ExecutionScript("ls", "slurm:sbatch", "-x1")
+        execution_script.testbed = testbed
+
+        db.session.add(execution_script)
+        db.session.commit()
+
+        # We retrieve the execution script from the db
+        execution_script = db.session.query(ExecutionScript).filter_by(command='ls').first()
+        self.assertEquals("name", execution_script.testbed.name)
+        self.assertEquals(testbed.id, execution_script.testbed.id)
