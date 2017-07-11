@@ -12,7 +12,7 @@ import unittest.mock as mock
 import shell
 import subprocess
 import linux_probes.cpu_info_parser as parser
-from model.models import Node, Testbed
+from models import Node, Testbed
 from testfixtures import LogCapture
 
 class CpuInfoParserTests(unittest.TestCase):

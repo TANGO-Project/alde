@@ -7,7 +7,7 @@
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
 import unittest
-from model.models import Processor, GPU, CPU, MCP, Memory
+from models import Processor, GPU, CPU, MCP, Memory
 
 class ProcessorTest(unittest.TestCase):
     """ Check the correct work of the Processor model class and Initializes

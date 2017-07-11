@@ -13,7 +13,7 @@ import query
 import logging
 import linux_probes.cpu_info_parser as parser
 import inventory
-from model.models import db, Testbed, Node, CPU, GPU, Memory
+from models import db, Testbed, Node, CPU, GPU, Memory
 
 def parse_sinfo_partitions(command_output):
     """

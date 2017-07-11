@@ -11,7 +11,7 @@ import re
 import shell
 import subprocess
 import logging
-from model.models import CPU, Testbed, Node
+from models import CPU, Testbed, Node
 
 architectures={ 'GenuineIntel': 'x86_64'}
 

@@ -7,7 +7,7 @@
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
 import json
-from model.models import GPU
+from models import GPU
 
 GPU_FILE = "gpu_cards_list.json"
 

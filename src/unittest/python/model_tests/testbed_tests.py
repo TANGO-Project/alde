@@ -8,7 +8,7 @@
 # the LICENSE.TXT file for more information
 
 import unittest
-from model.models import Testbed, Node
+from models import Testbed, Node
 
 class TestbedTest(unittest.TestCase):
     """Check the correct work of the different mthods in the Testbed class

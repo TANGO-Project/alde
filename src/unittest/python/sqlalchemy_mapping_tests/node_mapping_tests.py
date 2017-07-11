@@ -7,7 +7,7 @@
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
 from sqlalchemy_mapping_tests.mapping_tests import MappingTest
-from model.models import db, Node, CPU, GPU, Memory
+from models import db, Node, CPU, GPU, Memory
 
 class NodeMappingTest(MappingTest):
     """

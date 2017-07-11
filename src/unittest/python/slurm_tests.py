@@ -12,9 +12,9 @@ import unittest.mock as mock
 import slurm
 import re
 import inventory
-from model.models import Testbed
+from models import Testbed
 from sqlalchemy_mapping_tests.mapping_tests import MappingTest
-from model.models import db, Testbed, Node, CPU, Memory
+from models import db, Testbed, Node, CPU, Memory
 from testfixtures import LogCapture
 
 class SlurmTests(MappingTest):

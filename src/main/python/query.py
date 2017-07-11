@@ -7,7 +7,7 @@
 #
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
-from model.models import db, Testbed
+from models import db, Testbed
 
 def get_slurm_online_testbeds():
     """
