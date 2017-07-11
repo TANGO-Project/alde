@@ -140,6 +140,10 @@ def create_app_v1(sql_db_url, port):
                        methods=['GET', 'POST', 'DELETE'],
                        url_prefix=url_prefix_v1)
 
+    manager.create_api(ExecutionScript,
+                      methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
+                      url_prefix=url_prefix_v1)
+
     # Create the REST methods for a Testbed
     manager.create_api(Testbed,
                        methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],

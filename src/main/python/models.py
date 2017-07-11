@@ -24,8 +24,8 @@ class ExecutionScript(db.Model):
     parameters = db.Column(db.String)
     application_id = db.Column(db.Integer, db.ForeignKey('applications.id'))
     application = db.relationship("Application", back_populates=("execution_scripts"))
-    #testbed_id = db.Column(db.Integer, db.ForeignKey('testbeds.id'))
-    #testbed = db.relationship("Testbed")
+    testbed_id = db.Column(db.Integer, db.ForeignKey('testbeds.id'))
+    testbed = db.relationship("Testbed")
 
     def __init__(self, command, execution_type, parameters):
         """Initialize basic parameters of the class"""

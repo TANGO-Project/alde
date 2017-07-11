@@ -8,7 +8,7 @@
 
 from flask import Flask
 from flask_testing import TestCase
-from models import db, Application, Testbed, Node
+from models import db, ExecutionScript, Application, Testbed, Node
 import alde
 import json
 
@@ -39,6 +39,15 @@ class AldeV1Tests(TestCase):
         # We store some Applications in the db for the tests
         application_1 = Application("AppName_1")
         application_2 = Application("AppName_2")
+
+        # Adding executing scripts
+        execution_script_1 = ExecutionScript("ls", "slurm:sbatch", "-X")
+        execution_script_2 = ExecutionScript("ls2", "slurm:sbatch2", "-X2")
+        application_2.execution_scripts = [
+                execution_script_1,
+                execution_script_2 ]
+
+
         db.session.add(application_1)
         db.session.add(application_2)
 
@@ -195,6 +204,81 @@ class AldeV1Tests(TestCase):
         self.assertEquals("slurm", testbed['category'])
         self.assertEquals("ssh", testbed['protocol'])
         self.assertEquals("user@server", testbed['endpoint'])
+
+    def test_execution_script_rest_api(self):
+        """
+        It tests all supported REST methods for an ExeuctionScript works
+        as expected.
+        """
+
+        # GET
+        response = self.client.get("/api/v1/execution_scripts")
+
+        # We verify the respongse to the GET
+        self.assertEquals(200, response.status_code)
+        execution_scripts = response.json['objects']
+        execution_script = execution_scripts[0]
+        self.assertEquals("ls", execution_script['command'])
+        self.assertEquals("slurm:sbatch", execution_script['execution_type'])
+        self.assertEquals("-X", execution_script['parameters'])
+        execution_script = execution_scripts[1]
+        self.assertEquals("ls2", execution_script['command'])
+        self.assertEquals("slurm:sbatch2", execution_script['execution_type'])
+        self.assertEquals("-X2", execution_script['parameters'])
+
+        # POST
+        data={
+                'command': 'ls3', 
+                'execution_type': 'slurm:sbatch3', 
+                'parameters': '-X3', 
+            }
+
+        response = self.client.post("/api/v1/execution_scripts",
+                                      data=json.dumps(data),
+                                      content_type='application/json')
+
+        self.assertEquals(201, response.status_code)
+        execution_script = response.json
+        self.assertEquals("ls3", execution_script['command'])
+        self.assertEquals("slurm:sbatch3", execution_script['execution_type'])
+        self.assertEquals("-X3", execution_script['parameters'])
+        # We check that we only have three testbeds
+        response = self.client.get("/api/v1/execution_scripts")
+        self.assertEquals(3, len(response.json['objects']))
+
+        # GET Specific identity
+        response = self.client.get("/api/v1/execution_scripts/3")
+        self.assertEquals(200, response.status_code)
+        execution_script = response.json
+        self.assertEquals("ls3", execution_script['command'])
+        self.assertEquals("slurm:sbatch3", execution_script['execution_type'])
+        self.assertEquals("-X3", execution_script['parameters'])
+
+        # DELETE
+        response = self.client.delete("/api/v1/execution_scripts/3")
+
+        self.assertEquals(204, response.status_code)
+        # We check we only have two entities in the db
+        response = self.client.get("/api/v1/execution_scripts")
+        self.assertEquals(2, len(response.json['objects']))
+
+        # PUT
+        data={"command": "Foobar"}
+
+        response = self.client.put("api/v1/execution_scripts/2",
+                                    data=json.dumps(data),
+                                    content_type='application/json')
+
+        self.assertEquals(200, response.status_code)
+        execution_script = response.json
+        self.assertEquals("Foobar", execution_script['command'])
+        self.assertEquals("slurm:sbatch2", execution_script['execution_type'])
+        self.assertEquals("-X2", execution_script['parameters'])
+        response = self.client.get("/api/v1/execution_scripts/2")
+        self.assertEquals(200, response.status_code)
+        execution_script = response.json
+        self.assertEquals("Foobar", execution_script['command'])
+
 
     def test_node_rest_api(self):
         """
