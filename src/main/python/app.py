@@ -14,7 +14,7 @@ import configparser
 import alde # pragma: no cover
 import logging # pragma: no cover
 from logging.config import fileConfig # pragma: no cover
-from model.base import db # pragma: no cover
+from model.models import db # pragma: no cover
 
 # Loading logger configuration
 fileConfig('logging_config.ini') # pragma: no cover

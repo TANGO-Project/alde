@@ -10,8 +10,7 @@ import flask
 import flask_restless
 import slurm
 from flask_apscheduler import APScheduler
-from model.base import db
-from model.models import Application, Testbed, Node, Memory, CPU, MCP, GPU
+from model.models import db, Application, ExecutionScript, Testbed, Node, Memory, CPU, MCP, GPU
 
 url_prefix_v1='/api/v1'
 accepted_message = { 'create' : True, 'reason' : ''}

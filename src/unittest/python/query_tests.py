@@ -9,8 +9,7 @@
 
 
 from sqlalchemy_mapping_tests.mapping_tests import MappingTest
-from model.models import Testbed
-from model.base import db
+from model.models import db, Testbed
 import query
 
 class QueryTests(MappingTest):

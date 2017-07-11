@@ -8,7 +8,7 @@
 
 from flask import Flask
 from flask_testing import TestCase
-from model.base import db
+from model.models import db
 
 class MappingTest(TestCase):
      """

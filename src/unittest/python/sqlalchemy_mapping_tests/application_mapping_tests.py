@@ -7,8 +7,7 @@
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
 from sqlalchemy_mapping_tests.mapping_tests import MappingTest
-from model.models import Application, ExecutionScript
-from model.base import db
+from model.models import db, Application, ExecutionScript
 
 class ApplicationMappingTest(MappingTest):
     """

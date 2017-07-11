@@ -14,8 +14,7 @@ import re
 import inventory
 from model.models import Testbed
 from sqlalchemy_mapping_tests.mapping_tests import MappingTest
-from model.models import Testbed, Node, CPU, Memory
-from model.base import db
+from model.models import db, Testbed, Node, CPU, Memory
 from testfixtures import LogCapture
 
 class SlurmTests(MappingTest):
