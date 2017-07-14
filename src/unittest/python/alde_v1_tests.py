@@ -556,7 +556,7 @@ class AldeV1Tests(TestCase):
         self.assertEquals(404, response.status_code)
 
     @mock.patch('executor.execute_application')
-    def test_patch_execution_script_preprocessor(self):
+    def test_patch_execution_script_preprocessor(self, mock_execute_application):
         """
         Verifies the correct work of the function.
         """
@@ -611,7 +611,6 @@ class AldeV1Tests(TestCase):
 
         self.assertEquals(403, response.status_code)
         print(response.json)
-        execution_script = response.json
         self.assertEquals(
           'Testbed does not allow on-line connection',
           response.json['message'])
