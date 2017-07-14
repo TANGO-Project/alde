@@ -26,6 +26,7 @@ class ExecutionScript(db.Model):
     application = db.relationship("Application", back_populates=("execution_scripts"))
     testbed_id = db.Column(db.Integer, db.ForeignKey('testbeds.id'))
     testbed = db.relationship("Testbed")
+    launch_execution=False
 
     def __init__(self, command, execution_type, parameters):
         """Initialize basic parameters of the class"""

@@ -11,6 +11,8 @@ from flask_testing import TestCase
 from models import db, ExecutionScript, Application, Testbed, Node
 import alde
 import json
+import unittest.mock as mock
+import executor
 
 class AldeV1Tests(TestCase):
     """
@@ -552,3 +554,80 @@ class AldeV1Tests(TestCase):
                                      content_type='application/json')
 
         self.assertEquals(404, response.status_code)
+
+    @mock.patch('executor.execute_application')
+    def test_patch_execution_script_preprocessor(self):
+        """
+        Verifies the correct work of the function.
+        """
+
+        # First we verify that nothing happens if launch_execution = False
+        data = {'launch_execution': False}
+
+        response = self.client.patch("/api/v1/execution_scripts/1",
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        self.assertEquals(200, response.status_code)
+        execution_script = response.json
+        self.assertEquals("ls", execution_script['command'])
+        self.assertEquals("slurm:sbatch", execution_script['execution_type'])
+        self.assertEquals("-X", execution_script['parameters'])
+
+        """
+        If the execution_script has not assigned a testbed we give an error
+        returning a 409 Conflict in the resource
+        """
+        data = {'launch_execution': True}
+
+        response = self.client.patch("/api/v1/execution_scripts/1",
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        self.assertEquals(409, response.status_code)
+        print(response.json)
+        execution_script = response.json
+        self.assertEquals(
+          'No testbed configured to execute the application',
+          response.json['message'])
+
+        """
+        Now we have an off-line testbed testbed to submit the execution
+        """
+        testbed = Testbed("name", False, "slurm", "ssh", "user@server", ['slurm'])
+
+        db.session.add(testbed)
+        db.session.commit()
+
+        execution_script = db.session.query(ExecutionScript).filter_by(id=1).first()
+        execution_script.testbed = testbed
+        db.session.commit()
+
+        data = {'launch_execution': True}
+
+        response = self.client.patch("/api/v1/execution_scripts/1",
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        self.assertEquals(403, response.status_code)
+        print(response.json)
+        execution_script = response.json
+        self.assertEquals(
+          'Testbed does not allow on-line connection',
+          response.json['message'])
+
+        """
+        Now we are able to launch the execution
+        """
+        testbed.on_line = True
+        db.session.commit()
+
+        data = {'launch_execution': True}
+
+        response = self.client.patch("/api/v1/execution_scripts/1",
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        self.assertEquals(200, response.status_code)
+
+        mock_execute_application.assert_called_with(execution_script)

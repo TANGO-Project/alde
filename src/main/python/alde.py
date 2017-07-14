@@ -9,6 +9,8 @@
 import flask
 import flask_restless
 import slurm
+import logging
+import executor
 from flask_apscheduler import APScheduler
 from models import db, Application, ExecutionScript, Testbed, Node, Memory, CPU, MCP, GPU
 
@@ -106,7 +108,7 @@ def put_testbed_preprocessor(instance_id=None, data=None, **kw):
 def post_testbed_preprocessor(data=None, **kw):
     """
     It checks the data in the testbed payload to check if it is possible to
-    add nodes to if necessary
+    add nodes to if necessaryexi
     """
 
     if 'nodes' in data :
@@ -116,6 +118,30 @@ def post_testbed_preprocessor(data=None, **kw):
             raise flask_restless.ProcessingException(
                                             description=create['reason'],
                                             code=405)
+
+def patch_execution_script_preprocessor(instance_id=None, data=None, **kw):
+    """
+    It is going to start the execution of an application in the selected testbed
+    """
+
+    if 'launch_execution' in data :
+        if data['launch_execution']:
+
+            execution_script = db.session.query(ExecutionScript).filter_by(id=instance_id).first()
+
+            if not execution_script.testbed:
+                raise flask_restless.ProcessingException(
+                                            description='No testbed configured to execute the application',
+                                            code=409)
+
+            elif not execution_script.testbed.on_line:
+                raise flask_restless.ProcessingException(
+                                            description='Testbed does not allow on-line connection',
+                                            code=403)
+
+            else:
+                executor.execute_application(execution_script)
+
 
 def create_app_v1(sql_db_url, port):
     """
@@ -142,6 +168,9 @@ def create_app_v1(sql_db_url, port):
 
     manager.create_api(ExecutionScript,
                       methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
+                      preprocessors={
+                            'PATCH_SINGLE': [patch_execution_script_preprocessor]
+                        },
                       url_prefix=url_prefix_v1)
 
     # Create the REST methods for a Testbed
