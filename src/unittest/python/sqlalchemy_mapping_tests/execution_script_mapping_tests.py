@@ -7,7 +7,7 @@
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
 from sqlalchemy_mapping_tests.mapping_tests import MappingTest
-from models import db, ExecutionScript, Testbed
+from models import db, ExecutionScript, Testbed, Execution
 
 class ExecutionScriptMappingTest(MappingTest):
     """
@@ -64,3 +64,44 @@ class ExecutionScriptMappingTest(MappingTest):
         execution_script = db.session.query(ExecutionScript).filter_by(command='ls').first()
         self.assertEquals("name", execution_script.testbed.name)
         self.assertEquals(testbed.id, execution_script.testbed.id)
+
+    def test_relation_with_execution(self):
+        """
+        Validates the 1 to n relation with Execution
+        """
+
+        # We create an execution
+        execution_script = ExecutionScript("ls", "slurm:sbatch", "-X")
+
+        # We create several executions
+        execution_script.executions = [
+            Execution("command1", "execution_type1", "parameters1", "status1"),
+            Execution("command2", "execution_type2", "parameters2", "status2"),
+            Execution("command3", "execution_type3", "parameters3", "status3")]
+
+        # We save everything to the db
+        db.session.add(execution_script)
+        db.session.commit()
+
+        # We retrieve the execution_script from the db and verify it contains all executions
+        execution_script = db.session.query(ExecutionScript).filter_by(command="ls").first()
+
+        self.assertEquals(3, len(execution_script.executions))
+        self.assertEquals("command1", execution_script.executions[0].command)
+        self.assertEquals("command2", execution_script.executions[1].command)
+        self.assertEquals("command3", execution_script.executions[2].command)
+
+        # lets delte a execution directly
+        db.session.delete(execution_script.executions[0])
+        db.session.commit()
+
+        execution_script = db.session.query(ExecutionScript).filter_by(command="ls").first()
+        self.assertEquals(2, len(execution_script.executions))
+        self.assertEquals("command2", execution_script.executions[0].command)
+        self.assertEquals("command3", execution_script.executions[1].command)
+
+        # It should be only two executions in the db
+        executions = db.session.query(Execution).all()
+        self.assertEquals(2, len(executions))
+        self.assertEquals("command2", executions[0].command)
+        self.assertEquals("command3", executions[1].command)
