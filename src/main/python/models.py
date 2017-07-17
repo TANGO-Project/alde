@@ -10,6 +10,30 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+class Execution(db.Model):
+    """
+    Objet that represents the execution of an application with its
+    different states
+    """
+
+    # SQLAlchemy mapping code
+    __tablename__ = 'executions'
+    id = db.Column(db.Integer, primary_key=True)
+    command = db.Column(db.String)
+    execution_type = db.Column(db.String)
+    parameters = db.Column(db.String)
+    status = db.Column(db.String)
+    output = db.Column(db.String)
+
+    def __init__(self, command, execution_type, parameters, status):
+        """Initiaze basic parameters of the class"""
+
+        self.command = command
+        self.execution_type = execution_type
+        self.parameters = parameters
+        self.status = status
+
+
 class ExecutionScript(db.Model):
     """
     Object that represetns all the information for executing an
