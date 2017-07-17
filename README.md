@@ -4,11 +4,17 @@
 
 Application Lifecycle Deployment Engine (ALDE) is a component of the European Project TANGO (http://tango-project.eu ).
 
-## REST API documentation
+## Description
 
-The Application Lifecycle Deployment Engine offers a REST API, it is documented here: ( https://jsapi.apiary.io/previews/applicationlifecycledeploymentengine/reference/0/testbed )
+ALDE is responsible for the workload scheduling and the management of the application life-cycle while it is executed. ALDE will take the application source code, packetize for different heterogenous architectures configurations and, if possible, deploy it via a TANGO Device Supervisor and manage the application execution. 
 
-## How to contribute to ALDE
+More in detail each one of the previous steps:
+
+* **Compilation** - ALDE is able to compile the application in different configurations depending of the selected heterogenous architectures. The result will be a set of binaries optimal compiled for specific hardware architectures.
+* **Packetization** - ALDE, once the application has been compiled, can packetize it. For the moment it only supports typical tar.gz files and [Docker](https://www.docker.com/) and [Singularity](http://singularity.lbl.gov/) containers.
+* **Deployment** - ALDE is able to automatically deploy an application into a TANGO compatible Device Supervisor. It will launch the execution and monitor it. It will also support adaptations interactions if used in combination with the [TANGO Self-Adaptation Manager](https://github.com/TANGO-Project/self-adaptation-manager).
+
+## Installation Guide
 
 ALDE has been implemented using python3. To develop to ALDE we recommend to employ [Python Virtualenv]( http://docs.python-guide.org/en/latest/dev/virtualenvs/ ):
 
@@ -137,15 +143,25 @@ Now, remember, each time you need to start to develop, initalize the virtualenv:
 $ source venv/bin/activate
 ```
 
-## Using ALDE
-
-
+## Usage Guide
 
 Adding a new SLURM type testbed that you can connect via SSH protocol
 
 ```
 curl localhost:5000/api/v1/testbeds -X POST -H'Content-type: application/json' -d'{ "name": "slurm_testbed", "on_line": true, "category": "SLURM", "protocol": "SSH", "endpoint": "user@ssh.com"}'
 ```
+
+
+## Relation to other TANGO components
+
+
+
+## REST API documentation
+
+The Application Lifecycle Deployment Engine offers a REST API, it is documented here: ( https://jsapi.apiary.io/previews/applicationlifecycledeploymentengine/reference/0/testbed )
+
+## How to contribute to ALDE
+
 
 ## Build status from Travis-CI
 

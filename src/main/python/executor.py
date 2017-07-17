@@ -6,8 +6,9 @@
 #
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
+from models import db, Execution
 
-
+execute_status_submitted = "SUBMITTED"
 
 def execute_application(execution_script):
 	"""
@@ -15,4 +16,12 @@ def execute_application(execution_script):
 	using the execution script configuration.
 	"""
 
-	pass
+	# We create the execution
+	execution = Execution(execution_script.command,
+						  execution_script.execution_type,
+						  execution_script.parameters,
+						  execute_status_submitted)
+	
+	execution_script.executions.append(execution)
+
+	db.session.commit()
