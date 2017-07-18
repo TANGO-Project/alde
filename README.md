@@ -4,6 +4,8 @@
 
 Application Lifecycle Deployment Engine (ALDE) is a component of the European Project TANGO (http://tango-project.eu ).
 
+ALDE is distributed under a [Apache License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+
 ## Description
 
 ALDE is responsible for the workload scheduling and the management of the application life-cycle while it is executed. ALDE will take the application source code, packetize for different heterogenous architectures configurations and, if possible, deploy it via a TANGO Device Supervisor and manage the application execution. 
@@ -18,9 +20,7 @@ More in detail each one of the previous steps:
 
 This guide it is divided into two different guides, one specific to create an environment for development and another one to just run and use ALDE.
 
-ALDE is distributed under a [Apache License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
-
-### Installation for devopment
+### Installation for development
 
 #### Requirements
 
