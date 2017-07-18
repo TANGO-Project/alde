@@ -16,7 +16,20 @@ More in detail each one of the previous steps:
 
 ## Installation Guide
 
-ALDE has been implemented using python3. To develop to ALDE we recommend to employ [Python Virtualenv]( http://docs.python-guide.org/en/latest/dev/virtualenvs/ ):
+This guide it is divided into two different guides, one specific to create an environment for development and another one to just run and use ALDE.
+
+### Installation for devopment
+
+#### Requirements
+
+To develop for ALDE we need to install two pieces of software:
+
+* [Python 3.6 or higher](https://www.python.org).
+* [Virtualenv](https://virtualenv.pypa.io/en/stable/).
+
+#### Installation and configuration procedure
+
+To develop ALDE it is necessary to create a [Python Virtualenv](http://docs.python-guide.org/en/latest/dev/virtualenvs/) (depending on your installation of Python pip3 command can be called pip):
 
 ```
 $ pip3 install virtualenv
@@ -141,6 +154,20 @@ Now, remember, each time you need to start to develop, initalize the virtualenv:
 
 ```
 $ source venv/bin/activate
+```
+
+### Installation for running the service
+
+In this case, we are going to detail how to run the application directly using Python. It is possible to run it behind a proxy or webserver, to do so, please, check [this guides](http://flask.pocoo.org/docs/0.12/deploying/).
+
+#### Configuring the service
+
+ALDE employs a [SQLite][https://www.sqlite.org/] database server that needs to be configured together with the port were the service it is going to be listen. That configuration can be done editing the file alde_configuration.ini that contains these two variables:
+
+```dosini
+[DEFAULT]
+SQL_LITE_URL = sqlite:////tmp/test.db
+PORT = 5000
 ```
 
 ## Usage Guide
