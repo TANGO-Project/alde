@@ -18,6 +18,8 @@ More in detail each one of the previous steps:
 
 This guide it is divided into two different guides, one specific to create an environment for development and another one to just run and use ALDE.
 
+ALDE is distributed under a [Apache License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+
 ### Installation for devopment
 
 #### Requirements
