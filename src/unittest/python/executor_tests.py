@@ -9,7 +9,7 @@
 import executor
 import unittest.mock as mock
 from sqlalchemy_mapping_tests.mapping_tests import MappingTest
-from models import db, Execution, ExecutionScript
+from models import db, Execution, ExecutionScript, Testbed
 
 class ExecutorTests(MappingTest):
 	"""
@@ -56,3 +56,40 @@ class ExecutorTests(MappingTest):
 		self.assertEquals("-x1", execution.parameters)
 		self.assertEquals(executor.execute_status_failed, execution.status)
 		self.assertEquals("No support for execurtion type: xxx", execution.output)
+
+	def test_execute_application_type_slurm_sbatch(self):
+		"""
+		It verifies that the application type slurm sbatch is executed
+		"""
+
+		# First we verify that the testbed is of type SLURM to be able
+		# to execute it, in this case it should give an error since it is
+		# not of type slurm
+
+		execution = Execution("ls", "slurm:sbatch", "-X", executor.execute_status_submitted)
+		testbed = Testbed("name", True, "xxxx", "ssh", "user@server", ['slurm'])
+		execution_script = ExecutionScript("ls", "slurm:sbatch", "-x1")
+		execution.execution_script=execution_script
+		execution_script.testbed = testbed
+
+		executor.execute_application_type_slurm_sbatch(execution)
+
+		self.assertEquals("ls", execution.command)
+		self.assertEquals("slurm:sbatch", execution.execution_type)
+		self.assertEquals("-X", execution.parameters)
+		self.assertEquals(executor.execute_status_failed, execution.status)
+		self.assertEquals("Testbed does not support slurm:sbatch applications", execution.output)
+
+		# If the testbed is off-line, execution isn't allowed also
+		testbed.category = Testbed.slurm_category
+		testbed.on_line = False
+		execution.status = executor.execute_status_submitted
+
+		executor.execute_application_type_slurm_sbatch(execution)
+
+		self.assertEquals("ls", execution.command)
+		self.assertEquals("slurm:sbatch", execution.execution_type)
+		self.assertEquals("-X", execution.parameters)
+		self.assertEquals(executor.execute_status_failed, execution.status)
+		self.assertEquals("Testbed is off-line", execution.output)
+
