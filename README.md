@@ -4,6 +4,8 @@
 
 Application Lifecycle Deployment Engine (ALDE) is a component of the European Project TANGO (http://tango-project.eu ).
 
+ALDE is distributed under a [Apache License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+
 ## Description
 
 ALDE is responsible for the workload scheduling and the management of the application life-cycle while it is executed. ALDE will take the application source code, packetize for different heterogenous architectures configurations and, if possible, deploy it via a TANGO Device Supervisor and manage the application execution. 
@@ -16,11 +18,21 @@ More in detail each one of the previous steps:
 
 ## Installation Guide
 
-### Development environment
+This guide it is divided into two different guides, one specific to create an environment for development and another one to just run and use ALDE.
 
-In case you want do create a devopment environment to contribute the development of ALDE, please follow the next steps.
+### Installation for development
 
-ALDE has been implemented using python3. To develop to ALDE we recommend to employ [Python Virtualenv]( http://docs.python-guide.org/en/latest/dev/virtualenvs/ ):
+#### Requirements
+
+To develop for ALDE we need to install two pieces of software:
+
+* [Python 3.6 or higher](https://www.python.org).
+* [Virtualenv](https://virtualenv.pypa.io/en/stable/).
+
+#### Installation and configuration procedure
+
+To develop ALDE it is necessary to create a [Python Virtualenv](http://docs.python-guide.org/en/latest/dev/virtualenvs/) (depending on your installation of Python pip3 command can be called pip):
+
 
 ```
 $ pip3 install virtualenv
@@ -147,7 +159,76 @@ Now, remember, each time you need to start to develop, initalize the virtualenv:
 $ source venv/bin/activate
 ```
 
+#### Build status from Travis-CI
+
+[![Build Status](https://travis-ci.org/TANGO-Project/alde.svg?branch=master)](https://travis-ci.org/TANGO-Project/alde)
+
+#### SonarQube reports:
+
+SonarQube ( http://www.sonarqube.org/ ) reports for this project are available at: https://sonarqube.com/dashboard?id=tango%3Aalde
+
+### Installation for running the service
+
+In this case, we are going to detail how to run the application directly using Python. It is possible to run it behind a proxy or webserver, to do so, please, check [this guides](http://flask.pocoo.org/docs/0.12/deploying/).
+
+#### Configuring the service
+
+ALDE employs a [SQLite](https://www.sqlite.org/) database server that needs to be configured together with the port were the service it is going to be listen. That configuration can be done editing the file alde_configuration.ini that contains these two variables:
+
+```dosini
+[DEFAULT]
+SQL_LITE_URL = sqlite:////tmp/test.db
+PORT = 5000
+```
+
+To install it, it is necessary to execute the following command:
+
+```
+python setup.py install
+```
+
+To launch the service we need to execute:
+
+```
+$ python app.py 
+2017-07-18 09:16:02,812 root         INFO     Loading configuration
+[]
+<Section: DEFAULT>
+2017-07-18 09:16:02,813 root         INFO     Starting ALDE
+/Users/davidgp/Documents/trabajo/TANGO/repositorios/alde/venv/lib/python3.6/site-packages/flask_sqlalchemy/__init__.py:839: FSADeprecationWarning: SQLALCHEMY_TRACK_MODIFICATIONS adds significant overhead and will be disabled by default in the future.  Set it to True or False to suppress this warning.
+  'SQLALCHEMY_TRACK_MODIFICATIONS adds significant overhead and '
+2017-07-18 09:16:02,937 apscheduler.scheduler INFO     Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2017-07-18 09:16:02,937 apscheduler.scheduler INFO     Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2017-07-18 09:16:02,938 apscheduler.scheduler INFO     Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2017-07-18 09:16:02,940 apscheduler.scheduler INFO     Added job "check_nodes_in_db_for_on_line_testbeds" to job store "default"
+2017-07-18 09:16:02,940 apscheduler.scheduler INFO     Added job "update_node_info" to job store "default"
+2017-07-18 09:16:02,940 apscheduler.scheduler INFO     Added job "update_cpu_node_info" to job store "default"
+2017-07-18 09:16:02,940 apscheduler.scheduler INFO     Scheduler started
+2017-07-18 09:16:02,986 werkzeug     INFO      * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+```
+
+After it we could verify it works just by execution the following (in this example we are using [Curl](https://curl.haxx.se/) but you could use another REST/http client):
+
+```
+$ curl localhost:5000/api/v1/testbeds
+{
+  "num_results": 0, 
+  "objects": [], 
+  "page": 1, 
+  "total_pages": 0
+}
+
+```
+
 ## Usage Guide
+
+Although a CLI client is planned, for the moment ALDE offers a REST interface.
+
+### REST API documentation
+
+The rest api is fully documented here: ( https://jsapi.apiary.io/previews/applicationlifecycledeploymentengine/reference/0/testbed )
+
+### Example scenarios
 
 Adding a new SLURM type testbed that you can connect via SSH protocol
 
@@ -155,22 +236,12 @@ Adding a new SLURM type testbed that you can connect via SSH protocol
 curl localhost:5000/api/v1/testbeds -X POST -H'Content-type: application/json' -d'{ "name": "slurm_testbed", "on_line": true, "category": "SLURM", "protocol": "SSH", "endpoint": "user@ssh.com"}'
 ```
 
+TODO comment about how to configure the testbed and compile and execute an application
 
 ## Relation to other TANGO components
 
+ALDE can be used as an standalone tool in TANGO, it will allow to compile application for different targeted heterogenous architectures in an optimize way and with different configurations of heterogenous devices, but its fully potential it is with other TANGO components:
 
-
-## REST API documentation
-
-The Application Lifecycle Deployment Engine offers a REST API, it is documented here: ( https://jsapi.apiary.io/previews/applicationlifecycledeploymentengine/reference/0/testbed )
-
-## How to contribute to ALDE
-
-
-## Build status from Travis-CI
-
-[![Build Status](https://travis-ci.org/TANGO-Project/alde.svg?branch=master)](https://travis-ci.org/TANGO-Project/alde)
-
-## SonarQube reports:
-
-SonarQube ( http://www.sonarqube.org/ ) reports for this project are available at: https://sonarqube.com/dashboard?id=tango%3Aalde
+* **Programming model and IDE tools** - TANGO Programming Model can connect with ALDE to submit the code for compilation and packetization. Also it could be intereact with ALDE to submit the application directly to a TANGO compatible device supervisor.
+* **Device Supervisor** - ALDE can interact with a on-line testbed that has installed a TANGO device supervisor on it. This will allow to automatically deploy diferent configurations of the application and execute it, monitoring the execution and extract back the results.
+* **Self-Adaptation Manager** - ALDE will provide intefaces for the Self-Adaptation Manager to change the configuration of an application to optimize its execution in a TANGO compatible testbed.
