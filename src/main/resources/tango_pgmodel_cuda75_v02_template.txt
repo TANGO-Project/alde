@@ -1,0 +1,39 @@
+BootStrap: docker
+From: rsucasas/tango-pgmodel-cuda75-v02:latest
+
+%setup
+	echo "[setup] - rsucasas/tango-pgmodel-cuda75-v02:latest -"
+	mkdir -p $SINGULARITY_ROOTFS/home/#APP_FOLDER#
+	cp -a #FOLDER_LOCATION# $SINGULARITY_ROOTFS/home/#APP_FOLDER#
+
+# Files that are included from the host
+# %files
+
+# After the base OS is built, these commands are run inside the container
+%post
+	echo '[post] Building application ...'
+	export PATH=$PATH:/opt/TANGO/TANGO_ProgrammingModel/COMPSs/Runtime/scripts/user
+	export PATH=$PATH:/opt/TANGO/TANGO_ProgrammingModel/OmpSs/mcxx/bin
+	export CLASSPATH=$CLASSPATH:/opt/TANGO/TANGO_ProgrammingModel/COMPSs/Runtime/compss-engine.jar
+	export PATH=$PATH:/opt/TANGO/TANGO_ProgrammingModel/COMPSs/Bindings/c/bin
+	export PYTHONPATH=$PYTHONPATH:/opt/TANGO/TANGO_ProgrammingModel/COMPSs/Bindings/python/
+	export PATH=/opt/TANGO/TANGO_ProgrammingModel/OmpSs/mcxx/bin/:$PATH
+	export LDFLAGS="-L/usr/lib/x86_64-linux-gnu -L/usr/local/cuda-7.5/lib64"
+	export LIBS=-lcudart
+	export CPPFLAGS=-I/usr/include
+	export PATH=$PATH:/usr/local/cuda-7.5/bin/
+	export PATH=$PATH:/opt/TANGO/TANGO_ProgrammingModel/COMPSs/Runtime/scripts/user
+	export TARGET=/usr/src/app/#APP_FOLDER#/target
+	export LD_LIBRARY_PATH=/opt/TANGO/TANGO_ProgrammingModel/COMPSs/Bindings/c/../bindings-common/lib
+	export WITH_OMPSS=1
+	export WITH_CUDA=1
+	export GS_HOME=/opt/TANGO/TANGO_ProgrammingModel/COMPSs/Bindings/c
+	export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+	cd /home/#APP_FOLDER#
+	#BUILD_COMMAND#
+
+# What to do when the container is run
+%runscript
+	echo '[runscript] Runnig application (1) ...'
+	#RUN_COMMAND#
+
