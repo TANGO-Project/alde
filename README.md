@@ -16,6 +16,10 @@ More in detail each one of the previous steps:
 
 ## Installation Guide
 
+### Development environment
+
+In case you want do create a devopment environment to contribute the development of ALDE, please follow the next steps.
+
 ALDE has been implemented using python3. To develop to ALDE we recommend to employ [Python Virtualenv]( http://docs.python-guide.org/en/latest/dev/virtualenvs/ ):
 
 ```
