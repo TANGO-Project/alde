@@ -21,13 +21,14 @@ class AldeV1Tests(TestCase):
 
     SQLALCHEMY_DATABASE_URI = "sqlite://"
     TESTING = True
+    APP_FOLDER = "/tmp/app_folder"
 
     def create_app(self):
         """
         It initializes the application
         """
 
-        app = alde.create_app_v1(self.SQLALCHEMY_DATABASE_URI, 5101)
+        app = alde.create_app_v1(self.SQLALCHEMY_DATABASE_URI, 5101, self.APP_FOLDER)
 
         return app
 

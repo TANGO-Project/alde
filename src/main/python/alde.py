@@ -143,7 +143,7 @@ def patch_execution_script_preprocessor(instance_id=None, data=None, **kw):
                 executor.execute_application(execution_script)
 
 
-def create_app_v1(sql_db_url, port):
+def create_app_v1(sql_db_url, port, app_folder):
     """
     It creates the Flask REST app service
     """
@@ -153,6 +153,7 @@ def create_app_v1(sql_db_url, port):
     app.config['DEBUG'] = True
     app.config['SQLALCHEMY_DATABASE_URI'] = sql_db_url
     app.config['LIVESERVER_PORT'] = port
+    app.config['UPLOAD_FOLDER'] = app_folder
     app.config['PRESERVE_CONTEXT_ON_EXCEPTION'] = False
     app.config.from_object(Config())
     db.init_app(app)
