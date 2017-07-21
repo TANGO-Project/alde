@@ -21,3 +21,4 @@ class AppTests(unittest.TestCase):
 
         self.assertEquals('sqlite:////tmp/test.db', conf['SQL_LITE_URL'])
         self.assertEquals('5000', conf['PORT'])
+        self.assertEquals('/tmp/alde_apps', conf['APP_UPLOAD_FOLDER'])
