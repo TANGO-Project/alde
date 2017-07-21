@@ -148,7 +148,7 @@ def create_app_v1(sql_db_url, port, app_folder):
     It creates the Flask REST app service
     """
 
-    # We create the Flask App
+    # We create the Flask Apo
     app = flask.Flask(__name__)
     app.config['DEBUG'] = True
     app.config['SQLALCHEMY_DATABASE_URI'] = sql_db_url
