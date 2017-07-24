@@ -6,6 +6,18 @@ Application Lifecycle Deployment Engine (ALDE) is a component of the European Pr
 
 ## [Install on Linux](http://singularity.lbl.gov/install-linux)
 
+### Prerequisites in Ubuntu 16.04
+
+To be able to install this tool, please, make sure the following packages are installed first:
+
+```bash
+$ sudo apt-get update
+...
+$ sudo apt-get install gcc python make
+```
+
+### Installation
+
 ```bash
 VERSION=2.3.1
 wget https://github.com/singularityware/singularity/releases/download/$VERSION/singularity-$VERSION.tar.gz
