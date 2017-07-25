@@ -8,18 +8,42 @@
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more informations
 
 import file_upload.upload as upload
-import unittest.mock as mock
-import uuid
-from sqlalchemy_mapping_tests.mapping_tests import MappingTest
+import urllib
+import http.client, urllib.parse
+import alde
 from models import db, Application
+from flask import Flask
+from flask_testing import LiveServerTestCase
 
-class ApplicationMappingTest(MappingTest):
+class ApplicationMappingTest(LiveServerTestCase):
 	"""
 	Series of tests to validate the correct work of upload an application
 	source code
 	"""
 
-	filename_uuid = uuid.uuid4()
+	SQLALCHEMY_DATABASE_URI = "sqlite://"
+	TESTING = True
+
+	def create_app(self):
+		"""
+		It initializes flask_testing
+		"""
+
+		app = alde.create_app_v1(self.SQLALCHEMY_DATABASE_URI, 0, "/tmp/apps")
+		app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+		app.config['TESTING'] = self.TESTING
+		db.create_all()
+
+		# We register the upload url
+		upload_prefix = alde.url_prefix_v1 + "/upload"
+		app.register_blueprint(upload.upload_blueprint, url_prefix=upload_prefix)
+
+		# We create the application and we store it in the db
+		application = Application("AppName")
+		db.session.add(application)
+		db.session.commit()
+
+		return app
 
 	def test_allowed_files(self):
 		"""
@@ -32,9 +56,12 @@ class ApplicationMappingTest(MappingTest):
 		self.assertTrue(upload.allowed_file("asdf.zip"))
 		self.assertTrue(upload.allowed_file("asdf.zIp"))
 
-	@mock.patch("uuid.uuid4")
-	@mock.patch("flask.request")
-	def test_upload(self, uuid_mock, request_mock):
+	def test_server_is_up_and_running(self):
+		response = urllib.request.urlopen(self.get_server_url() + "/api/v1/testbeds")
+		print(response)
+		self.assertEqual(response.code, 200)
+
+	def test_upload(self):
 		"""
 		Verifies that the correct verification steps are performed when
 		trying to upload a file via POST method
@@ -43,18 +70,15 @@ class ApplicationMappingTest(MappingTest):
 		# We verify that if the application does not exists we don't get anything
 		error_message = upload.upload_application("asdf")
 		self.assertEquals("Application with id: asdf does not exists in the database", error_message)
-		uuid_mock.assert_not_called()
 
-		# We prepare the mocks for the next test
-		uuid_mock.return_value = self.filename_uuid
-		#type(request_mock.return_value).files = mock.PropertyMock(return_value=None)
+		# We verify that if no file in the payload we get an error
+		params = urllib.parse.urlencode({'@number': 12524, '@type': 'issue', '@action': 'show'})
+		headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
+		server_url = self.get_server_url()[7:]
+		conn = http.client.HTTPConnection(server_url)
+		conn.request("POST", "/api/v1/upload/1", params, headers)
+		response = conn.getresponse()
+		data = response.read()
+		conn.close()
 
-		# We create the application and we store it in the db
-		application = Application("AppName")
-		db.session.add(application)
-		db.session.commit()
-
-		message = upload.upload_application(1)
-		self.assertEquals("No file specified", message)
-		#print(message)
-		uuid_mock.assert_called()
+		self.assertEquals(b'No file specified', data)

@@ -13,7 +13,7 @@
 import configparser
 import alde # pragma: no cover
 import logging # pragma: no cover
-from file_upload.upload import upload
+import file_upload.upload as upload
 from logging.config import fileConfig # pragma: no cover
 from models import db # pragma: no cover
 
@@ -58,7 +58,7 @@ def main(): # pragma: no cover
 
     # We register the upload url
     upload_prefix = alde.url_prefix_v1 + "/upload"
-    app.register_blueprint(upload, url_prefix=upload_prefix)
+    app.register_blueprint(upload.upload_blueprint, url_prefix=upload_prefix)
 
     app.run(use_reloader=False)
 

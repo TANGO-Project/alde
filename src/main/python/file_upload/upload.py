@@ -12,7 +12,7 @@ import uuid
 from flask import Blueprint, request
 from models import db, Application
 
-upload = Blueprint('upload', __name__)
+upload_blueprint = Blueprint('upload', __name__)
 
 UPLOAD_FOLDER = '/tmp/apps'
 ALLOWED_EXTENSIONS = set(['zip'])
@@ -21,7 +21,7 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@upload.route('/<app_id>', methods=['POST'])
+@upload_blueprint.route('/<app_id>', methods=['POST'])
 def upload_application(app_id):
 
 	application = db.session.query(Application).filter_by(id=app_id).first()
@@ -32,7 +32,6 @@ def upload_application(app_id):
 		# We define a filename
 		filename_uuid = uuid.uuid4()
 
-		print(request)
 		if 'file' not in request.files:
 	 		return "No file specified"
 	# 	file = request.files['file']
