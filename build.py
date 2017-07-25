@@ -34,6 +34,7 @@ def initialize(project):
     project.build_depends_on('mockito')
     project.build_depends_on('Flask-Testing')
     project.build_depends_on('testfixtures')
+    project.build_depends_on('requests')
     project.depends_on('python-dateutil')
     project.depends_on('sqlalchemy')
     project.depends_on('Flask')

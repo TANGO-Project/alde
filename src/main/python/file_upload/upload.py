@@ -33,14 +33,15 @@ def upload_application(app_id):
 		filename_uuid = uuid.uuid4()
 
 		if 'file' not in request.files:
-	 		return "No file specified"
-	# 	file = request.files['file']
-	# 	# if user does not select file, browser also
-	# 	# submit a empty part without filename
-	# 	if file.filename == '':
-	# 		#flash('No selected file')
-	# 		return "No file specified"
-	# 	if file and allowed_file(file.filename):
-	# 		filename = file.filename
-	# 		file.save(os.path.join(UPLOAD_FOLDER, filename))
-	# 		return app_id
+			return "No file specified"
+		print(request.files)
+		file = request.files['file']
+		
+		if file.filename == '':
+			return "No file specified"
+		if file and allowed_file(file.filename):
+			filename = file.filename
+			file.save(os.path.join(UPLOAD_FOLDER, filename))
+			return "file upload for app with id: " + str(app_id)
+		else:
+			return "file type not supported"

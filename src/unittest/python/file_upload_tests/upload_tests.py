@@ -11,9 +11,16 @@ import file_upload.upload as upload
 import urllib
 import http.client, urllib.parse
 import alde
+import requests
+import os
+import tempfile
 from models import db, Application
 from flask import Flask
 from flask_testing import LiveServerTestCase
+
+def write_lamb(outfile_path):
+    with open(outfile_path, 'w') as outfile:
+        outfile.write("Mary had a little lamb.\n")
 
 class ApplicationMappingTest(LiveServerTestCase):
 	"""
@@ -82,3 +89,27 @@ class ApplicationMappingTest(LiveServerTestCase):
 		conn.close()
 
 		self.assertEquals(b'No file specified', data)
+
+		# Now we pass the file, not supported one... 
+		outfile_path = tempfile.mkstemp(suffix='.txt')[1]
+		try:
+			write_lamb(outfile_path)
+			files = {'file': open(outfile_path, 'rb')}
+			r = requests.post(self.get_server_url() + "/api/v1/upload/1", files=files)
+			self.assertEquals("file type not supported", r.text.splitlines()[-1])
+		finally:
+			# NOTE: To retain the tempfile if the test fails, remove
+			# the try-finally clauses
+			os.remove(outfile_path)
+
+		# Now we pass the file supported 
+		outfile_path = tempfile.mkstemp(suffix='.zip')[1]
+		try:
+			write_lamb(outfile_path)
+			files = {'file': open(outfile_path, 'rb')}
+			r = requests.post(self.get_server_url() + "/api/v1/upload/1", files=files)
+			self.assertEquals("file upload for app with id: 1", r.text.splitlines()[-1])
+		finally:
+			# NOTE: To retain the tempfile if the test fails, remove
+			# the try-finally clauses
+			os.remove(outfile_path)
