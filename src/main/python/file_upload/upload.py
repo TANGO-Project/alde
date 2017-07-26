@@ -11,10 +11,10 @@ import os
 import uuid
 from flask import Blueprint, request
 from models import db, Application
+from flask import current_app as app
 
 upload_blueprint = Blueprint('upload', __name__)
 
-UPLOAD_FOLDER = '/tmp/apps'
 ALLOWED_EXTENSIONS = set(['zip'])
 
 def allowed_file(filename):
@@ -25,6 +25,7 @@ def allowed_file(filename):
 def upload_application(app_id):
 
 	application = db.session.query(Application).filter_by(id=app_id).first()
+	upload_folder = app.config['APP_FOLDER']
 
 	if not application:
 		return "Application with id: " + str(app_id) + " does not exists in the database"
@@ -41,7 +42,7 @@ def upload_application(app_id):
 			return "No file specified"
 		if file and allowed_file(file.filename):
 			filename = file.filename
-			file.save(os.path.join(UPLOAD_FOLDER, filename))
+			file.save(os.path.join(upload_folder, filename))
 			return "file upload for app with id: " + str(app_id)
 		else:
 			return "file type not supported"
