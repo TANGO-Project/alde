@@ -9,14 +9,15 @@
 
 import file_upload.upload as upload
 import urllib
-import http.client, urllib.parse
 import alde
 import requests
 import os
 import tempfile
+import json
 from models import db, Application
 from flask import Flask
 from flask_testing import LiveServerTestCase
+from uuid import UUID
 
 def write_lamb(outfile_path):
     with open(outfile_path, 'w') as outfile:
@@ -65,7 +66,6 @@ class ApplicationMappingTest(LiveServerTestCase):
 
 	def test_server_is_up_and_running(self):
 		response = urllib.request.urlopen(self.get_server_url() + "/api/v1/testbeds")
-		print(response)
 		self.assertEqual(response.code, 200)
 
 	def test_upload(self):
@@ -78,24 +78,26 @@ class ApplicationMappingTest(LiveServerTestCase):
 		error_message = upload.upload_application("asdf")
 		self.assertEquals("Application with id: asdf does not exists in the database", error_message)
 
-		# We verify that if no file in the payload we get an error
-		params = urllib.parse.urlencode({'@number': 12524, '@type': 'issue', '@action': 'show'})
-		headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
-		server_url = self.get_server_url()[7:]
-		conn = http.client.HTTPConnection(server_url)
-		conn.request("POST", "/api/v1/upload/1", params, headers)
-		response = conn.getresponse()
-		data = response.read()
-		conn.close()
+		# We miss executable_type param
+		r = requests.post(self.get_server_url() + "/api/v1/upload/1")
+		self.assertEquals("It is necessary to specify a compilation_type query param", r.text.splitlines()[-1])
 
-		self.assertEquals(b'No file specified', data)
+		# We miss compilation_script param
+		params = { 'compilation_type': '1111' }
+		r = requests.post(self.get_server_url() + "/api/v1/upload/1", params=params)
+		self.assertEquals("It is necessary to specify a compilation_script query param", r.text.splitlines()[-1])
+
+		# We don't pass a file
+		params = { 'compilation_type': '1111', 'compilation_script': 'issue'}
+		r = requests.post(self.get_server_url() + "/api/v1/upload/1", params=params)
+		self.assertEquals("No file specified", r.text.splitlines()[-1])
 
 		# Now we pass the file, not supported one... 
 		outfile_path = tempfile.mkstemp(suffix='.txt')[1]
 		try:
 			write_lamb(outfile_path)
 			files = {'file': open(outfile_path, 'rb')}
-			r = requests.post(self.get_server_url() + "/api/v1/upload/1", files=files)
+			r = requests.post(self.get_server_url() + "/api/v1/upload/1", params=params, files=files)
 			self.assertEquals("file type not supported", r.text.splitlines()[-1])
 		finally:
 			# NOTE: To retain the tempfile if the test fails, remove
@@ -107,9 +109,21 @@ class ApplicationMappingTest(LiveServerTestCase):
 		try:
 			write_lamb(outfile_path)
 			files = {'file': open(outfile_path, 'rb')}
-			r = requests.post(self.get_server_url() + "/api/v1/upload/1", files=files)
+			r = requests.post(self.get_server_url() + "/api/v1/upload/1", params=params, files=files)
 			self.assertEquals("file upload for app with id: 1", r.text.splitlines()[-1])
 		finally:
 			# NOTE: To retain the tempfile if the test fails, remove
 			# the try-finally clauses
 			os.remove(outfile_path)
+
+		r = requests.get(self.get_server_url() + "/api/v1/applications/1")
+		application = json.loads(r.text)
+		self.assertEquals(1, len(application['executables']))
+		self.assertEquals('1111', application['executables'][0]['compilation_type'])
+		self.assertEquals('issue', application['executables'][0]['compilation_script'])
+		filename = application['executables'][0]['source_code_file'][:-4]
+
+		try:
+			val = UUID(filename, version=4)
+		except ValueError:
+			self.fail("Filname is not uuid4 complaint: " + filename)

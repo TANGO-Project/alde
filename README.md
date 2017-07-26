@@ -160,6 +160,8 @@ $ source venv/bin/activate
 ```
 
 
+
+
 #### Tests with Singularity
 
 1. Install Singularity - [View doc](SingularityTests.md)
@@ -235,7 +237,56 @@ The rest api is fully documented here: ( https://jsapi.apiary.io/previews/applic
 
 ### Example scenarios
 
-Adding a new SLURM type testbed that you can connect via SSH protocol
+#### Creating an application
+
+Listing all applications available:
+
+```
+curl http://localhost:5000/api/v1/applications
+```
+
+Creating an application
+
+```
+$ curl -X POST -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/applications -d'{ "name": "my_app" }'
+{
+  "executables": [],
+  "execution_scripts": [],
+  "id": 1,
+  "name": "my_app"
+}
+```
+
+Uploading zip file with the source code of the application. Pay attention to the two variables: compilation_type and compilation_script
+
+```
+$ curl -X POST -F "file=@sing_alde.zip" http://localhost:5000/api/v1/upload/1?compilation_type=singularity:pm\&compilation_script=compilation.sh
+file upload for app with id: 1
+```
+
+Seeing the status of the compilation (executable section):
+
+```
+$ curl http://localhost:5000/api/v1/applications/1
+{
+  "executables": [
+    {
+      "application_id": 1,
+      "compilation_script": "compilation.sh",
+      "compilation_type": "singularity:pm",
+      "executable_file": null,
+      "id": 1,
+      "source_code_file": "f5a8e16b-6c36-4092-97cb-6081374d9b29.zip",
+      "status": "NOT_COMPILED"
+    }
+  ],
+  "execution_scripts": [],
+  "id": 1,
+  "name": "my_app"
+}
+```
+
+#### Adding a new SLURM type testbed that you can connect via SSH protocol
 
 ```
 curl localhost:5000/api/v1/testbeds -X POST -H'Content-type: application/json' -d'{ "name": "slurm_testbed", "on_line": true, "category": "SLURM", "protocol": "SSH", "endpoint": "user@ssh.com"}'

@@ -10,6 +10,37 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+class Executable(db.Model):
+    """
+    This entity represents the executable of an Application, it should include the source
+    code from where the application was compiled together with the compilation script
+
+    Execution script will be set later on when the testbed where the execution is going
+    to happen is defined.
+    """
+
+    __status_not_compiled__ = 'NOT_COMPILED'
+
+    # SQLAlchemy mapping code
+    __tablename__ = 'executables'
+    id = db.Column(db.Integer, primary_key=True)
+    source_code_file = db.Column(db.String)
+    executable_file = db.Column(db.String)
+    compilation_script = db.Column(db.String)
+    compilation_type = db.Column(db.String)
+    application_id = db.Column(db.Integer, db.ForeignKey('applications.id'))
+    application = db.relationship("Application", back_populates=("executables"))
+    status = db.Column(db.String)
+
+    def __init__(self, source_code_file, compilation_script, compilation_type):
+        """Inititaze basic parameters of the class"""
+
+        self.source_code_file = source_code_file
+        self.compilation_type = compilation_type
+        self.compilation_script = compilation_script
+        self.status = self.__status_not_compiled__
+
+
 class Execution(db.Model):
     """
     Objet that represents the execution of an application with its
@@ -74,7 +105,7 @@ class Application(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     execution_scripts = db.relationship("ExecutionScript", order_by=ExecutionScript.id, back_populates="application")
-
+    executables = db.relationship("Executable", order_by=Executable.id, back_populates="application")
 
     def __init__(self, name):
         """Initializes the basic parameters of the class"""

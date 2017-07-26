@@ -10,7 +10,7 @@
 import os
 import uuid
 from flask import Blueprint, request
-from models import db, Application
+from models import db, Application, Executable
 from flask import current_app as app
 
 upload_blueprint = Blueprint('upload', __name__)
@@ -27,8 +27,15 @@ def upload_application(app_id):
 	application = db.session.query(Application).filter_by(id=app_id).first()
 	upload_folder = app.config['APP_FOLDER']
 
+	compilation_type = request.args.get('compilation_type')
+	compilation_script = request.args.get('compilation_script')
+
 	if not application:
 		return "Application with id: " + str(app_id) + " does not exists in the database"
+	elif not compilation_type:
+		return "It is necessary to specify a compilation_type query param"
+	elif not compilation_script:
+		return "It is necessary to specify a compilation_script query param"
 	else:
 		# We define a filename
 		filename_uuid = uuid.uuid4()
@@ -41,8 +48,14 @@ def upload_application(app_id):
 		if file.filename == '':
 			return "No file specified"
 		if file and allowed_file(file.filename):
-			filename = file.filename
+			filename = str(uuid.uuid4()) + ".zip"
 			file.save(os.path.join(upload_folder, filename))
+
+			# We store the compilation/executable information in the db
+			executable = Executable(filename, compilation_script, compilation_type)
+			application.executables.append(executable)
+			db.session.commit()
+
 			return "file upload for app with id: " + str(app_id)
 		else:
 			return "file type not supported"
