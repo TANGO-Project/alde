@@ -1,0 +1,8 @@
+[
+	{
+		"type": "SINGULARITY:PM",
+		"connection_type": "SSH" ,
+		"connection_url": "ubuntu@localhost:2222" ,
+		"singularity_template": "templates/compilation/singularity_pm.def"
+	}
+]
