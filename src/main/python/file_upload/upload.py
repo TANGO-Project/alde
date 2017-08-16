@@ -9,7 +9,6 @@
 
 import os
 import uuid
-import compilation.compiler as compiler
 from flask import Blueprint, request
 from models import db, Application, Executable
 from flask import current_app as app
@@ -56,9 +55,6 @@ def upload_application(app_id):
 			executable = Executable(filename, compilation_script, compilation_type)
 			application.executables.append(executable)
 			db.session.commit()
-
-			# We start the compilation process
-			compiler.start_compilation_thread(application, executable)
 
 			return "file upload for app with id: " + str(app_id)
 		else:

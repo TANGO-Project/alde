@@ -1,4 +1,4 @@
-# Builder script for the Application Lifecycle Deployment Engine
+# Creates a nvidia GPU database... 
 #
 # This is being developed for the TANGO Project: http://tango-project.eu
 #

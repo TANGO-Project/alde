@@ -20,6 +20,9 @@ class Executable(db.Model):
     """
 
     __status_not_compiled__ = 'NOT_COMPILED'
+    __status_compiling__ = 'COMPILING'
+    __status_error_type__ = 'ERROR: UNKNOW TYPE'
+
 
     # SQLAlchemy mapping code
     __tablename__ = 'executables'
