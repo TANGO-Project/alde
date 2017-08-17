@@ -75,3 +75,16 @@ class ShellTests(unittest.TestCase):
             ('root', 'ERROR', 'Trying to execute command at server ')
             )
         l.uninstall() # We uninstall the capture of the logger
+
+    @mock.patch('shell.subprocess')
+    def test_scp_file(self, mock_subprocess):
+        """
+        Test that the command to scp a file is correctly done
+        """
+
+        shell.scp_file('/path/file', 'user@host', 'destination_path')
+
+        # We verify that the right params are passed to the mock_subproces
+        mock_subprocess.check_output.assert_called_with(['scp', 
+                                                          '/path/file', 
+                                                          'user@host:destination_path'])

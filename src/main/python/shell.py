@@ -53,3 +53,17 @@ def execute_command(command, server='', params=[]):
     except subprocess.CalledProcessError as e:
         logging.error("Trying to execute command at server " + server)
         raise e
+
+def scp_file(filename, server, destination=''):
+    """
+    It copies a file to a remote server. 
+    The filename should be the complete path of the file
+    """
+
+    # Building the command
+    params = []
+    params.append('scp')
+    params.append(filename)
+    params.append(server + ':' + destination)
+
+    output = _execute_command(params)
