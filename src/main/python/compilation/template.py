@@ -6,6 +6,14 @@
 #
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
+import os
+import uuid
+from flask import current_app as app
+
+_build_command = "{#BUILD_COMMAND#}"
+_folder_location = "{#FOLDER_LOCATION#}"
+_app_foler = "{#APP_FOLDER#}"
+
 def update_template(template, build_command, folder_location='/home/tango', app_folder='application'):
 	"""
 	It updates a template changing the following variables:
@@ -14,4 +22,25 @@ def update_template(template, build_command, folder_location='/home/tango', app_
 	- app_folder
 	"""
 
-	pass
+	# Read in the file
+	with open(template, 'r') as file :
+		filedata = file.read()
+
+	# Replace the target string
+	filedata = filedata.replace(_build_command, build_command)
+	filedata = filedata.replace(_folder_location, folder_location)
+	filedata = filedata.replace(_app_foler, app_folder)	
+
+	# We generate an uuid filename
+	upload_folder = app.config['APP_FOLDER']
+	print(upload_folder)
+	filename_uuid = uuid.uuid4()
+	filename = str(filename_uuid) + ".def"
+	filename = os.path.join(upload_folder, filename)
+
+	# Write the file out again
+	with open(filename, 'w') as file :
+  		file.write(filedata)
+
+
+	return filename
