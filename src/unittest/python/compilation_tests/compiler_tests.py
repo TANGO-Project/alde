@@ -67,7 +67,7 @@ class CompilerTests(MappingTest):
 
 		config.COMPILATION_CONFIG_FILE = "./src/main/python/compilation_config.json"
 
-		mock_random_folder.return_value('dest_folder')
+		mock_random_folder.return_value = 'dest_folder'
 
 		executable = Executable('test.zip', 'xxxx', 'xxxx')
 		
