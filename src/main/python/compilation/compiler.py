@@ -8,8 +8,10 @@
 
 from models import db, Executable
 import shell
+import os
 import uuid
 import compilation.config as config
+from flask import current_app as app
 
 def return_not_compiled_executables():
 	"""
@@ -49,7 +51,6 @@ def compile_singularity_pm(executable):
 	configuration = config.find_compilation_config('SINGULARITY:PM')
 
 	# TODO Upload the file to the compilation VM
-	#      - ssh into the VM and create a folder there
 	#      - upload the zip file
 	#      - unzip the zip file
 
@@ -69,6 +70,19 @@ def compile_singularity_pm(executable):
 	# TODO automate this process in the app configuration as a task
 
 	pass
+
+def upload_zip_file_application(executable, connection_url, destination_folder):
+	"""
+	It uploads the zip file of the application to the selected 
+	destination folder
+	"""
+
+	upload_folder = app.config['APP_FOLDER']
+
+	filename = os.path.join(upload_folder, executable.source_code_file)
+	destination = os.path.join('.', destination_folder)
+
+	shell.scp_file(filename, connection_url, destination)
 
 def create_random_folder(connection_url):
 	"""

@@ -33,7 +33,7 @@ def update_template(template, build_command, folder_location='/home/tango', app_
 
 	# We generate an uuid filename
 	upload_folder = app.config['APP_FOLDER']
-	print(upload_folder)
+
 	filename_uuid = uuid.uuid4()
 	filename = str(filename_uuid) + ".def"
 	filename = os.path.join(upload_folder, filename)

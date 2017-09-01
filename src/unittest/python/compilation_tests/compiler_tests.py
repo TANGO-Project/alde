@@ -11,6 +11,7 @@ from models import db, Executable
 import compilation.compiler as compiler
 import compilation.config as config
 import unittest.mock as mock
+import os
 from uuid import UUID
 
 class CompilerTests(MappingTest):
@@ -83,3 +84,19 @@ class CompilerTests(MappingTest):
 
 		mock_shell_excute.assert_called_with("mkdir", "server@xxxx:2222", [ destination_folder ])
 
+	@mock.patch('compilation.compiler.shell.scp_file')
+	@mock.patch('compilation.compiler.app')
+	def test_upload_zip_file_application(self, mock_app, mock_scp):
+		""" 
+		Test the function of uploading a zip file of the application 
+		to the selected testbed in an specific folder
+		"""
+
+		# We configure the variable of the mock
+		mock_app.config = {'APP_FOLDER': '/tmp'}
+
+		executable = Executable('test.zip', 'xxxx', 'xxxx')
+
+		compiler.upload_zip_file_application(executable, 'asd@asdf.com', 'dest_folder')
+
+		mock_scp.assert_called_with(os.path.join('/tmp', 'test.zip'), 'asd@asdf.com', './dest_folder')
