@@ -43,4 +43,14 @@ def compile_singularity_pm(executable):
 	TANGO Programming Model
 	"""
 
+	# TODO first we need to create the template, I need the parameters
+
+	# TODO I need to add this template in the db
+
+	# TODO upload file and template and build the container
+
+	# TODO download the container and keep it in the db information
+
+	# TODO automate this process in the app configuration as a task
+
 	pass
