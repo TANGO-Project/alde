@@ -18,8 +18,10 @@ class ExecutableTest(unittest.TestCase):
 		"""Test the initialization of the object"""
 
 		executable = Executable("source", "script", "type")
+		executable.singularity_app_folder = "app_folder"
 
 		self.assertEquals("source", executable.source_code_file)
 		self.assertEquals("script", executable.compilation_script)
 		self.assertEquals("type", executable.compilation_type)
 		self.assertEquals("NOT_COMPILED", executable.status)
+		self.assertEquals("app_folder", executable.singularity_app_folder)

@@ -32,9 +32,11 @@ class ExecutableMappingTest(MappingTest):
 
 		# We check that we can update the Executable
 		executable.executable_file = 'pepito'
+		executable.singularity_app_folder = "app_folder"
 		db.session.commit()
 		executable = db.session.query(Executable).filter_by(id=executable.id).first()
 		self.assertEquals('pepito', executable.executable_file)
+		self.assertEquals('app_folder', executable.singularity_app_folder)
 
 		# We check that we can delete the Executable
 		db.session.delete(executable)

@@ -31,6 +31,7 @@ class Executable(db.Model):
     executable_file = db.Column(db.String)
     compilation_script = db.Column(db.String)
     compilation_type = db.Column(db.String)
+    sigularity_app_folder = db.Column(db.String)
     application_id = db.Column(db.Integer, db.ForeignKey('applications.id'))
     application = db.relationship("Application", back_populates=("executables"))
     status = db.Column(db.String)

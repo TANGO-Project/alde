@@ -7,6 +7,8 @@
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
 from models import db, Executable
+import shell
+import uuid
 import compilation.config as config
 
 def return_not_compiled_executables():
@@ -43,14 +45,41 @@ def compile_singularity_pm(executable):
 	TANGO Programming Model
 	"""
 
+	# First we load the configuration config
+	configuration = config.find_compilation_config('SINGULARITY:PM')
+
+	# TODO Upload the file to the compilation VM
+	#      - ssh into the VM and create a folder there
+	#      - upload the zip file
+	#      - unzip the zip file
+
+	compilation_folder = create_random_folder(configuration['connection_url'])
+
 	# TODO first we need to create the template, I need the parameters
+	#      - create the new template
+	#      - upload the template to the compiler VM
+	#      - Register the tempalte into the db so it is stored for reference
 
-	# TODO I need to add this template in the db
-
-	# TODO upload file and template and build the container
+	# TODO build the container
+	#      - Build the container
 
 	# TODO download the container and keep it in the db information
+	#      - Download the containers (I need to determine where the container is)
 
 	# TODO automate this process in the app configuration as a task
 
 	pass
+
+def create_random_folder(connection_url):
+	"""
+	It creates a random folder via ssh into a server and
+	returns its localiton
+	"""
+
+	# We generate a UUID for the folder
+	folder_name = str(uuid.uuid4())
+
+	# We create the folder
+	shell.execute_command('mkdir', connection_url, [ folder_name ])
+
+	return folder_name

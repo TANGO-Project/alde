@@ -11,6 +11,7 @@ from models import db, Executable
 import compilation.compiler as compiler
 import compilation.config as config
 import unittest.mock as mock
+from uuid import UUID
 
 class CompilerTests(MappingTest):
 	"""
@@ -57,3 +58,28 @@ class CompilerTests(MappingTest):
 
 		# We verify the mock was called:
 		mock_compiler.assert_called_with(executable_2)
+
+	@mock.patch("compilation.compiler.create_random_folder")
+	def test_compile_singularity_pm(self, mock_random_folder):
+		""" Test that the right workflow is managed to create a container """
+
+		config.COMPILATION_CONFIG_FILE = "./src/main/python/compilation_config.json"
+		
+		compiler.compile_singularity_pm(None) # TODO Create a executable when the method evolvers.
+
+		# We verify that a random folder was created
+		mock_random_folder.assert_called_with('ubuntu@localhost:2222')
+
+	@mock.patch("compilation.compiler.shell.execute_command")
+	def test_create_random_folder(self, mock_shell_excute):
+		""" Test the creation of a random folder in a server """
+
+		destination_folder = compiler.create_random_folder('server@xxxx:2222')
+
+		try:
+			val = UUID(destination_folder, version=4)
+		except ValueError:
+			self.fail("Filname is not uuid4 complaint: " + destination_folder)
+
+		mock_shell_excute.assert_called_with("mkdir", "server@xxxx:2222", [ destination_folder ])
+
