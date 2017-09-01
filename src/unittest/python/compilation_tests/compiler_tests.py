@@ -60,16 +60,23 @@ class CompilerTests(MappingTest):
 		# We verify the mock was called:
 		mock_compiler.assert_called_with(executable_2)
 
+	@mock.patch("compilation.compiler.upload_zip_file_application")
 	@mock.patch("compilation.compiler.create_random_folder")
-	def test_compile_singularity_pm(self, mock_random_folder):
+	def test_compile_singularity_pm(self, mock_random_folder, mock_upload_zip):
 		""" Test that the right workflow is managed to create a container """
 
 		config.COMPILATION_CONFIG_FILE = "./src/main/python/compilation_config.json"
+
+		mock_random_folder.return_value('dest_folder')
+
+		executable = Executable('test.zip', 'xxxx', 'xxxx')
 		
-		compiler.compile_singularity_pm(None) # TODO Create a executable when the method evolvers.
+		compiler.compile_singularity_pm(executable) # TODO Create a executable when the method evolvers.
 
 		# We verify that a random folder was created
 		mock_random_folder.assert_called_with('ubuntu@localhost:2222')
+		mock_upload_zip.assert_called_with(executable, 'ubuntu@localhost:2222', 'dest_folder')
+
 
 	@mock.patch("compilation.compiler.shell.execute_command")
 	def test_create_random_folder(self, mock_shell_excute):
