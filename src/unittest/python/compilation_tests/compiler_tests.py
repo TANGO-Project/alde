@@ -77,6 +77,19 @@ class CompilerTests(MappingTest):
 		mock_random_folder.assert_called_with('ubuntu@localhost:2222')
 		mock_upload_zip.assert_called_with(executable, 'ubuntu@localhost:2222', 'dest_folder')
 
+	@mock.patch("compilation.compiler.shell.execute_command")
+	def test_unzip_src(self, mock_shell_execute):
+		"""
+		It verifies the workflow of unziping the zip file
+		"""
+
+		executable = Executable('test.zip', 'xxxx', 'xxxx')
+
+		compiler.unzip_src(executable, 'asd@asdf.com', '/home/pepito')
+
+		zip_file = os.path.join('/home/pepito', 'test.zip')
+
+		mock_shell_execute.assert_called_with('unzip', 'asd@asdf.com', [ zip_file ])
 
 	@mock.patch("compilation.compiler.shell.execute_command")
 	def test_create_random_folder(self, mock_shell_excute):

@@ -52,7 +52,6 @@ def compile_singularity_pm(executable):
 	connection_url = configuration['connection_url']
 
 	# TODO Upload the file to the compilation VM
-	#      - upload the zip file
 	#      - unzip the zip file
 
 	compilation_folder = create_random_folder(connection_url)
@@ -72,6 +71,14 @@ def compile_singularity_pm(executable):
 	# TODO automate this process in the app configuration as a task
 
 	pass
+
+def unzip_src(executable, connection_url, destination_folder):
+	"""
+	It unzips the selected zip file in the selected location for compiling
+	"""
+
+	zip_file = os.path.join(destination_folder, executable.source_code_file)
+	shell.execute_command('unzip', connection_url, [ zip_file ])
 
 def upload_zip_file_application(executable, connection_url, destination_folder):
 	"""
