@@ -49,12 +49,14 @@ def compile_singularity_pm(executable):
 
 	# First we load the configuration config
 	configuration = config.find_compilation_config('SINGULARITY:PM')
+	connection_url = configuration['connection_url']
 
 	# TODO Upload the file to the compilation VM
 	#      - upload the zip file
 	#      - unzip the zip file
 
-	compilation_folder = create_random_folder(configuration['connection_url'])
+	compilation_folder = create_random_folder(connection_url)
+	upload_zip_file_application(executable, connection_url, compilation_folder)
 
 	# TODO first we need to create the template, I need the parameters
 	#      - create the new template
