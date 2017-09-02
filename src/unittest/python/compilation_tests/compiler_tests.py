@@ -84,6 +84,26 @@ class CompilerTests(MappingTest):
 		# We verify that the src file is uncrompress
 		mock_unzip_src.assert_called_with(executable, 'ubuntu@localhost:2222', 'dest_folder')
 
+	@mock.patch('compilation.compiler.shell.scp_file')
+	@mock.patch('compilation.template.update_template')
+	def test_create_singularity_template(self, mock_template, mock_scp):
+		"""
+		It test the correct work of the function craete singularity template
+		"""
+
+		configuration = { 'singularity_template': 'sing_template'}
+		executable = Executable('test.zip', 'comp_script', 'xxxx')
+
+		mock_template.return_value = 'sing_template'
+
+		template = compiler.create_singularity_template(configuration, executable, 'asdf@asdf.com', 'comp_folder')
+
+		self.assertEquals('sing_template', template)
+
+		mock_template.assert_called_with('sing_template', 'comp_script', 'comp_folder')
+		mock_scp.assert_called_with('sing_template', 'asdf@asdf.com', '.')
+
+
 	@mock.patch("compilation.compiler.shell.execute_command")
 	def test_unzip_src(self, mock_shell_execute):
 		"""

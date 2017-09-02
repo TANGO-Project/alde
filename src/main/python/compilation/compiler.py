@@ -11,6 +11,7 @@ import shell
 import os
 import uuid
 import compilation.config as config
+import compilation.template as template
 from flask import current_app as app
 
 def return_not_compiled_executables():
@@ -60,8 +61,9 @@ def compile_singularity_pm(executable):
 
 	# TODO first we need to create the template, I need the parameters
 	#      - create the new template
+	#			- We create the new template in the template folder
+	#           - We take the tempalte from the template directory
 	#      - upload the template to the compiler VM
-	#      - Register the tempalte into the db so it is stored for reference
 
 	# TODO build the container
 	#      - Build the container
@@ -72,6 +74,20 @@ def compile_singularity_pm(executable):
 	# TODO automate this process in the app configuration as a task
 
 	pass
+
+def create_singularity_template(configuration, executable, connection_url, compilation_folder):
+	"""
+	It creates the template, returns its name and it uploads 
+	it to the singularity compilation node
+	"""
+
+	singularity_pm_template = configuration['singularity_template']
+
+	output_template = template.update_template(singularity_pm_template, executable.compilation_script, compilation_folder)
+
+	shell.scp_file(output_template, connection_url, '.')
+
+	return output_template
 
 def unzip_src(executable, connection_url, destination_folder):
 	"""
