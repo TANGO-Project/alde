@@ -23,7 +23,7 @@ class ConfigTests(unittest.TestCase):
 		from a json-list stored file
 		"""
 
-		config.COMPILATION_CONFIG_FILE = "./src/main/python/compilation_config.json"
+		config.COMPILATION_CONFIG_FILE = "compilation_config.json"
 
 		configuration = config.find_compilation_config('SINGULARITY:PM')
 		self.assertEquals(configuration['connection_type'], 'SSH')

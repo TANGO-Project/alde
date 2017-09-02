@@ -41,7 +41,7 @@ class CompilerTests(MappingTest):
 		""" Test the compilation procedures """
 
 		# Changing the config file path for the running of the test.
-		config.COMPILATION_CONFIG_FILE = "./src/main/python/compilation_config.json"
+		config.COMPILATION_CONFIG_FILE = "compilation_config.json"
 
 		executable_1 = Executable("source1", "script1", "type1")
 		executable_2 = Executable("source2", "script2", "SINGULARITY:PM")
@@ -60,12 +60,16 @@ class CompilerTests(MappingTest):
 		# We verify the mock was called:
 		mock_compiler.assert_called_with(executable_2)
 
+	@mock.patch("compilation.compiler.unzip_src")
 	@mock.patch("compilation.compiler.upload_zip_file_application")
 	@mock.patch("compilation.compiler.create_random_folder")
-	def test_compile_singularity_pm(self, mock_random_folder, mock_upload_zip):
+	def test_compile_singularity_pm(self, 
+									mock_random_folder, 
+									mock_upload_zip,
+									mock_unzip_src):
 		""" Test that the right workflow is managed to create a container """
 
-		config.COMPILATION_CONFIG_FILE = "./src/main/python/compilation_config.json"
+		config.COMPILATION_CONFIG_FILE = "compilation_config.json"
 
 		mock_random_folder.return_value = 'dest_folder'
 
@@ -75,7 +79,10 @@ class CompilerTests(MappingTest):
 
 		# We verify that a random folder was created
 		mock_random_folder.assert_called_with('ubuntu@localhost:2222')
+		# We verfiy that the src file is uploaded to the random folder
 		mock_upload_zip.assert_called_with(executable, 'ubuntu@localhost:2222', 'dest_folder')
+		# We verify that the src file is uncrompress
+		mock_unzip_src.assert_called_with(executable, 'ubuntu@localhost:2222', 'dest_folder')
 
 	@mock.patch("compilation.compiler.shell.execute_command")
 	def test_unzip_src(self, mock_shell_execute):

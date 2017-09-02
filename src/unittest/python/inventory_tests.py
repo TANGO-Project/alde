@@ -22,7 +22,7 @@ class InventoryTests(unittest.TestCase):
         This test verifies that we can find the right GPU from a json-list
         stored in a file
         """
-        inventory.GPU_FILE = "./src/main/python/gpu_cards_list.json"
+        inventory.GPU_FILE = "gpu_cards_list.json"
 
         gpu = inventory.find_gpu_slurm("tesla2075")
         self.assertEquals("Nvidia", gpu.vendor_id)

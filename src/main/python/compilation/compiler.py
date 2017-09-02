@@ -47,15 +47,16 @@ def compile_singularity_pm(executable):
 	TANGO Programming Model
 	"""
 
+	# TODO add log information to all this process
+
 	# First we load the configuration config
 	configuration = config.find_compilation_config('SINGULARITY:PM')
 	connection_url = configuration['connection_url']
 
-	# TODO Upload the file to the compilation VM
-	#      - unzip the zip file
-
+	# We upload an unzip the src to the compilation node
 	compilation_folder = create_random_folder(connection_url)
 	upload_zip_file_application(executable, connection_url, compilation_folder)
+	unzip_src(executable, connection_url, compilation_folder)
 
 	# TODO first we need to create the template, I need the parameters
 	#      - create the new template

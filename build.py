@@ -14,6 +14,7 @@ use_plugin("python.unittest")
 #use_plugin("python.coverage")
 use_plugin("python.install_dependencies")
 use_plugin("python.distutils")
+use_plugin("pypi:pybuilder_smart_copy_resources")
 #use_plugin("python.sonarqube")
 
 default_task = ["clean", "publish"]
@@ -27,6 +28,15 @@ coverage_allow_non_imported_modules = "True"
 coverage_exceptions = [ 'alde.py' ]
 
 # Resources to be copied
+@init
+def set_properties(project):
+    project.set_property("smart_copy_resources_basedir", ".")
+    project.set_property("smart_copy_resources", {
+        "alde_configuration.ini": "target/dist/alde-1.0.dev0/",
+        "compilation_config.json": "target/dist/alde-1.0.dev0/",
+        "logging_config.ini": "target/dist/alde-1.0.dev0/",
+        "gpu_cards_list.json": "target/dist/alde-1.0.dev0/",
+    })
 
 
 @init

@@ -382,7 +382,7 @@ class SlurmTests(MappingTest):
         """
 
         # We overwrite first the url of the inventory file db
-        inventory.GPU_FILE = "./src/main/python/gpu_cards_list.json"
+        inventory.GPU_FILE = "gpu_cards_list.json"
 
         # Test starts here
         gre_text_example='gpu:tesla2075:2,bandwidth:lustre:no_consume:4G'
