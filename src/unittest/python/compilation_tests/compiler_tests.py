@@ -60,6 +60,7 @@ class CompilerTests(MappingTest):
 		# We verify the mock was called:
 		mock_compiler.assert_called_with(executable_2)
 
+	@mock.patch('compilation.compiler.create_singularity_image')
 	@mock.patch('compilation.compiler.create_singularity_template')
 	@mock.patch("compilation.compiler.unzip_src")
 	@mock.patch("compilation.compiler.upload_zip_file_application")
@@ -68,7 +69,8 @@ class CompilerTests(MappingTest):
 									mock_random_folder, 
 									mock_upload_zip,
 									mock_unzip_src,
-									mock_create_sing_template):
+									mock_create_sing_template,
+									mock_image):
 		""" Test that the right workflow is managed to create a container """
 
 		config.COMPILATION_CONFIG_FILE = "compilation_config.json"
@@ -88,6 +90,23 @@ class CompilerTests(MappingTest):
 		mock_unzip_src.assert_called_with(executable, 'ubuntu@localhost:2222', 'dest_folder')
 		# We verify that the creation of the template is done
 		mock_create_sing_template.assert_called_with(configuration, executable, 'ubuntu@localhost:2222', 'dest_folder')
+		# We verify that the image was created
+		mock_image.assert_called_with(configuration, 'ubuntu@localhost:2222')
+
+	@mock.patch('compilation.compiler.shell.execute_command')
+	def test_create_singularity_template(self, mock_shell):
+		"""
+		It test the correct work of the funciton:
+		create_singularity_template
+		"""
+
+		config.COMPILATION_CONFIG_FILE = "compilation_config.json"
+		configuration = config.find_compilation_config('SINGULARITY:PM')
+
+		compiler.create_singularity_template(configuration, 'asdf@asdf.com')
+
+		mock_shell.assert_called_with('singularity', 'asdf@asdf.com', [ 'create', '--size', '40960', 'singularity_pm.img'])
+
 
 	@mock.patch('compilation.compiler.shell.scp_file')
 	@mock.patch('compilation.template.update_template')

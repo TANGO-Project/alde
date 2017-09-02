@@ -14,6 +14,8 @@ import compilation.config as config
 import compilation.template as template
 from flask import current_app as app
 
+_singularity_pm_image_ = 'singularity_pm.img'
+
 def return_not_compiled_executables():
 	"""
 	It looks in the db for all the not compiled executables
@@ -61,10 +63,10 @@ def compile_singularity_pm(executable):
 
 	# We create the new template and upload it to the compilation VM
 	create_singularity_template(configuration, executable, connection_url, compilation_folder)
-	
 
 	# TODO build the container
 	#      - Build the container
+	create_singularity_image(configuration, connection_url)
 
 	# TODO download the container and keep it in the db information
 	#      - Download the containers (I need to determine where the container is)
@@ -72,6 +74,15 @@ def compile_singularity_pm(executable):
 	# TODO automate this process in the app configuration as a task
 
 	pass
+
+def create_singularity_image(configuration, connection_url):
+	"""
+	Creating the image in the compilation node
+	"""
+
+	image_size = configuration['singularity_image_size']
+
+	shell.execute_command('singularity', connection_url, [ 'create', '--size', image_size, _singularity_pm_image_ ])
 
 def create_singularity_template(configuration, executable, connection_url, compilation_folder):
 	"""
