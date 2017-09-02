@@ -36,6 +36,7 @@ def set_properties(project):
         "compilation_config.json": "target/dist/alde-1.0.dev0/",
         "logging_config.ini": "target/dist/alde-1.0.dev0/",
         "gpu_cards_list.json": "target/dist/alde-1.0.dev0/",
+        "templates/compilation/*": "target/dist/alde-1.0.dev0/templates/compilation"
     })
 
 

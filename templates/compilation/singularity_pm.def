@@ -4,7 +4,7 @@ From: rsucasas/tango-pgmodel-cuda75-v02:latest
 %setup
 	echo "[setup] - rsucasas/tango-pgmodel-cuda75-v02:latest -"
 	mkdir -p $SINGULARITY_ROOTFS/home/#APP_FOLDER#
-	cp -a #FOLDER_LOCATION# $SINGULARITY_ROOTFS/home/#APP_FOLDER#
+	cp -a {#FOLDER_LOCATION#} $SINGULARITY_ROOTFS/home/{#APP_FOLDER#}
 
 # Files that are included from the host
 # %files
@@ -29,8 +29,8 @@ From: rsucasas/tango-pgmodel-cuda75-v02:latest
 	export WITH_CUDA=1
 	export GS_HOME=/opt/TANGO/TANGO_ProgrammingModel/COMPSs/Bindings/c
 	export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-	cd /home/#APP_FOLDER#
-	#BUILD_COMMAND#
+	cd /home/{#APP_FOLDER#}
+	{#BUILD_COMMAND#}
 
 # What to do when the container is run
 %runscript
