@@ -59,11 +59,9 @@ def compile_singularity_pm(executable):
 	upload_zip_file_application(executable, connection_url, compilation_folder)
 	unzip_src(executable, connection_url, compilation_folder)
 
-	# TODO first we need to create the template, I need the parameters
-	#      - create the new template
-	#			- We create the new template in the template folder
-	#           - We take the tempalte from the template directory
-	#      - upload the template to the compiler VM
+	# We create the new template and upload it to the compilation VM
+	create_singularity_template(configuration, executable, connection_url, compilation_folder)
+	
 
 	# TODO build the container
 	#      - Build the container

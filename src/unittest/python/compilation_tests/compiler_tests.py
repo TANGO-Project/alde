@@ -60,16 +60,19 @@ class CompilerTests(MappingTest):
 		# We verify the mock was called:
 		mock_compiler.assert_called_with(executable_2)
 
+	@mock.patch('compilation.compiler.create_singularity_template')
 	@mock.patch("compilation.compiler.unzip_src")
 	@mock.patch("compilation.compiler.upload_zip_file_application")
 	@mock.patch("compilation.compiler.create_random_folder")
 	def test_compile_singularity_pm(self, 
 									mock_random_folder, 
 									mock_upload_zip,
-									mock_unzip_src):
+									mock_unzip_src,
+									mock_create_sing_template):
 		""" Test that the right workflow is managed to create a container """
 
 		config.COMPILATION_CONFIG_FILE = "compilation_config.json"
+		configuration = config.find_compilation_config('SINGULARITY:PM')
 
 		mock_random_folder.return_value = 'dest_folder'
 
@@ -83,6 +86,8 @@ class CompilerTests(MappingTest):
 		mock_upload_zip.assert_called_with(executable, 'ubuntu@localhost:2222', 'dest_folder')
 		# We verify that the src file is uncrompress
 		mock_unzip_src.assert_called_with(executable, 'ubuntu@localhost:2222', 'dest_folder')
+		# We verify that the creation of the template is done
+		mock_create_sing_template.assert_called_with(configuration, executable, 'ubuntu@localhost:2222', 'dest_folder')
 
 	@mock.patch('compilation.compiler.shell.scp_file')
 	@mock.patch('compilation.template.update_template')
