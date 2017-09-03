@@ -95,6 +95,8 @@ def create_singularity_image(configuration, connection_url, image_file):
 	Creating the image in the compilation node
 	"""
 
+	image_size = configuration['singularity_image_size']
+
 	shell.execute_command('singularity', connection_url, [ 'create', '--size', image_size, image_file ])
 
 def create_singularity_template(configuration, executable, connection_url, compilation_folder):
@@ -117,7 +119,7 @@ def unzip_src(executable, connection_url, destination_folder):
 	"""
 
 	zip_file = os.path.join(destination_folder, executable.source_code_file)
-	shell.execute_command('unzip', connection_url, [ zip_file ])
+	shell.execute_command('unzip', connection_url, [ zip_file, '-d', destination_folder ])
 
 def upload_zip_file_application(executable, connection_url, destination_folder, upload_folder):
 	"""

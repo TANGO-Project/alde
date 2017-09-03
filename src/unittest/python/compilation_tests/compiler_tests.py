@@ -109,7 +109,7 @@ class CompilerTests(MappingTest):
 
 	@mock.patch('compilation.compiler.shell.scp_file')
 	@mock.patch('compilation.compiler.shell.execute_command')
-	def test_create_singularity_image(self, mock_shell, mock_scp):
+	def test_build_singularity_container(self, mock_shell, mock_scp):
 		"""
 		It test the correct work of the function
 		create_singularity_image
@@ -127,9 +127,8 @@ class CompilerTests(MappingTest):
 		except ValueError:
 			self.fail("Filname is not uuid4 complaint: " + filename)
 
-
 	@mock.patch('compilation.compiler.shell.execute_command')
-	def test_create_singularity_template(self, mock_shell):
+	def test_create_singularity_image(self, mock_shell):
 		"""
 		It test the correct work of the funciton:
 		create_singularity_template
@@ -138,9 +137,10 @@ class CompilerTests(MappingTest):
 		config.COMPILATION_CONFIG_FILE = "compilation_config.json"
 		configuration = config.find_compilation_config('SINGULARITY:PM')
 
-		compiler.create_singularity_template(configuration, 'asdf@asdf.com', 'singularity_pm.img')
+		compiler.create_singularity_image(configuration, 'asdf@asdf.com', 'singularity_pm.img')
 
-		mock_shell.assert_called_with('singularity', 'asdf@asdf.com', [ 'create', '--size', '40960', 'singularity_pm.img'])
+		mock_shell.assert_called_with('singularity', 'asdf@asdf.com', [ 'create', '--size', '4096', 'singularity_pm.img'])
+
 
 
 	@mock.patch('compilation.compiler.shell.scp_file')
@@ -175,7 +175,7 @@ class CompilerTests(MappingTest):
 
 		zip_file = os.path.join('/home/pepito', 'test.zip')
 
-		mock_shell_execute.assert_called_with('unzip', 'asd@asdf.com', [ zip_file ])
+		mock_shell_execute.assert_called_with('unzip', 'asd@asdf.com', [ zip_file, '-d', '/home/pepito'])
 
 	@mock.patch("compilation.compiler.shell.execute_command")
 	def test_create_random_folder(self, mock_shell_excute):
