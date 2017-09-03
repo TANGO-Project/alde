@@ -166,6 +166,7 @@ $ source venv/bin/activate
 
 1. Install Singularity - [View doc](SingularityTests.md)
 
+
 #### Build status from Travis-CI
 
 [![Build Status](https://travis-ci.org/TANGO-Project/alde.svg?branch=master)](https://travis-ci.org/TANGO-Project/alde)
@@ -260,7 +261,7 @@ $ curl -X POST -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/
 Uploading zip file with the source code of the application. Pay attention to the two variables: compilation_type and compilation_script
 
 ```
-$ curl -X POST -F "file=@sing_alde.zip" http://localhost:5000/api/v1/upload/1?compilation_type=singularity:pm\&compilation_script=compilation.sh
+$ curl -X POST -F "file=@test.zip" http://localhost:5000/api/v1/upload/1?compilation_type=SINGULARITY:PM\&compilation_script=build.sh
 file upload for app with id: 1
 ```
 

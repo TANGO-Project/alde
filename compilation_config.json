@@ -4,6 +4,6 @@
 		"connection_type": "SSH" ,
 		"connection_url": "ubuntu@localhost:2222" ,
 		"singularity_template": "templates/compilation/singularity_pm.def",
-		"singularity_image_size": "40960"
+		"singularity_image_size": "4096"
 	}
 ]

@@ -40,6 +40,13 @@ def execute_command(command, server='', params=[]):
             for param in params:
                 command = command + " " + param
 
+            if ":" in server:
+                connection = server.split(":")
+                server = connection[0]
+                port = connection[1]
+
+                command = command + " -p " + port
+
             command = command[1:]
             params = [ "ssh", server, command]
 
@@ -63,6 +70,14 @@ def scp_file(local_filename, server, remote_filename='', upload=True):
     # Building the command
     params = []
     params.append('scp')
+
+    if ":" in server:
+        connection = server.split(":")
+        server = connection[0]
+        port = connection[1]
+
+        params.append('-P')
+        params.append(port)
 
     if upload :
         params.append(local_filename)

@@ -18,6 +18,24 @@ class ShellTests(unittest.TestCase):
     """
 
     @mock.patch('shell.subprocess')
+    def test_check_port_notation(self, mock_subprocess):
+        """
+        It checks taht we are parsing correctly the : for extracting the
+        port and adding it as a parameter
+        """
+
+        shell.execute_command(command = "ls",
+                              server="pepito@ssh.com:2222",
+                              params=["-la", "."])
+
+        # We verify that the right params are passed to the mock_subprocess
+        mock_subprocess.check_output.assert_called_with(["ssh",
+                                                         "pepito@ssh.com",
+                                                         "ls -la . -p 2222"])
+
+
+
+    @mock.patch('shell.subprocess')
     def test_non_ssh_command(self, mock_subprocess):
         """ test that a command is executed without using ssh """
 
@@ -86,6 +104,15 @@ class ShellTests(unittest.TestCase):
 
         # We verify that the right params are passed to the mock_subproces
         mock_subprocess.check_output.assert_called_with(['scp', 
+                                                          '/path/file', 
+                                                          'user@host:destination_path'])
+
+        shell.scp_file('/path/file', 'user@host:5000', 'destination_path')
+
+        # We verify that the right params are passed to the mock_subproces
+        mock_subprocess.check_output.assert_called_with(['scp',
+                                                          '-P',
+                                                          '5000',
                                                           '/path/file', 
                                                           'user@host:destination_path'])
 
