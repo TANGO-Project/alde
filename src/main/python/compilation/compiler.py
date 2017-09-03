@@ -66,13 +66,11 @@ def compile_singularity_pm(executable):
 
 	# We create the image and we build the container
 	create_singularity_image(configuration, connection_url, _singularity_pm_image_)
-	build_singularity_container(connection_url, output_template, _singularity_pm_image_)
+	image_file = build_singularity_container(connection_url, output_template, _singularity_pm_image_)
 
 	# TODO download the container and keep it in the db information
-	#      - Download the containers (I need to determine where the container is)
+	#      - Update the db information
 
-	# TODO update the executable information with all this
-	
 
 	# TODO automate this process in the app configuration as a task
 
@@ -86,14 +84,19 @@ def build_singularity_container(connection_url, template, image_file):
 	sudo singularity bootstrap test.img docker.def
 	"""
 
+	upload_folder = app.config['APP_FOLDER']
+	img_file_name = str(uuid.uuid4()) + '.img'
+	local_filename = os.path.join(upload_folder, img_file_name)
+
 	shell.execute_command('sudo', connection_url, ['singularity', 'bootstrap', image_file, template ])
+	shell.scp_file(local_filename, connection_url, image_file, False)
+
+	return local_filename
 
 def create_singularity_image(configuration, connection_url, image_file):
 	"""
 	Creating the image in the compilation node
 	"""
-
-	image_size = configuration['singularity_image_size']
 
 	shell.execute_command('singularity', connection_url, [ 'create', '--size', image_size, image_file ])
 

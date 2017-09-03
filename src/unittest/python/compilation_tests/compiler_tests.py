@@ -98,16 +98,29 @@ class CompilerTests(MappingTest):
 		# We verify that the container was build
 		mock_build.assert_called_with('ubuntu@localhost:2222', 'template.def', 'singularity_pm.img')
 
+	@mock.patch('compilation.compiler.app')
+	@mock.patch('compilation.compiler.shell.scp_file')
 	@mock.patch('compilation.compiler.shell.execute_command')
-	def test_create_singularity_image(self, mock_shell):
+	def test_create_singularity_image(self, mock_shell, mock_scp, mock_app):
 		"""
 		It test the correct work of the function
 		create_singularity_image
 		"""
 
-		compiler.build_singularity_container('asdf@asdf.com', 'test.def', 'image.img')
+		# We configure the variable of the mock
+		mock_app.config = {'APP_FOLDER': '/tmp'}
+
+		filename = compiler.build_singularity_container('asdf@asdf.com', 'test.def', 'image.img')
 
 		mock_shell.assert_called_with('sudo', 'asdf@asdf.com', ['singularity', 'bootstrap', 'image.img', 'test.def'])
+		mock_scp.assert_called_with(filename, 'asdf@asdf.com', 'image.img', False)
+
+		filename = filename[5:-4]
+
+		try:
+			val = UUID(filename, version=4)
+		except ValueError:
+			self.fail("Filname is not uuid4 complaint: " + filename)
 
 
 	@mock.patch('compilation.compiler.shell.execute_command')
