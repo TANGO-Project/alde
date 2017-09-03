@@ -99,7 +99,7 @@ def create_singularity_image(configuration, connection_url, image_file):
 
 	image_size = configuration['singularity_image_size']
 
-	shell.execute_command('singularity', connection_url, [ 'create', '--size', image_size, image_file ])
+	shell.execute_command('singularity', connection_url, [ 'create', '-F', '--size', image_size, image_file ])
 
 def create_singularity_template(configuration, executable, connection_url, compilation_folder):
 	"""

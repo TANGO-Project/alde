@@ -3,8 +3,8 @@ From: rsucasas/tango-pgmodel-cuda75-v02:latest
 
 %setup
 	echo "[setup] - rsucasas/tango-pgmodel-cuda75-v02:latest -"
-	mkdir -p $SINGULARITY_ROOTFS/home/#APP_FOLDER#
-	cp -a {#FOLDER_LOCATION#} $SINGULARITY_ROOTFS/home/{#APP_FOLDER#}
+	mkdir -p $SINGULARITY_ROOTFS/home/{#APP_FOLDER#}
+	cp -a {#FOLDER_LOCATION#}/* $SINGULARITY_ROOTFS/home/{#APP_FOLDER#}
 
 # Files that are included from the host
 # %files

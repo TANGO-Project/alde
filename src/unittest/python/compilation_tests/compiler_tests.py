@@ -139,7 +139,7 @@ class CompilerTests(MappingTest):
 
 		compiler.create_singularity_image(configuration, 'asdf@asdf.com', 'singularity_pm.img')
 
-		mock_shell.assert_called_with('singularity', 'asdf@asdf.com', [ 'create', '--size', '4096', 'singularity_pm.img'])
+		mock_shell.assert_called_with('singularity', 'asdf@asdf.com', [ 'create', '-F', '--size', '4096', 'singularity_pm.img'])
 
 
 
