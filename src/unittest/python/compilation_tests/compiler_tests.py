@@ -115,7 +115,7 @@ class CompilerTests(MappingTest):
 		create_singularity_image
 		"""
 
-		filename = compiler.build_singularity_container('asdf@asdf.com', 'test.def', 'image.img', '/tmp')
+		filename = compiler.build_singularity_container('asdf@asdf.com', '/test/test.def', 'image.img', '/tmp')
 
 		mock_shell.assert_called_with('sudo', 'asdf@asdf.com', ['singularity', 'bootstrap', 'image.img', 'test.def'])
 		mock_scp.assert_called_with(filename, 'asdf@asdf.com', 'image.img', False)

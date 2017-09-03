@@ -85,6 +85,8 @@ def build_singularity_container(connection_url, template, image_file, upload_fol
 	img_file_name = str(uuid.uuid4()) + '.img'
 	local_filename = os.path.join(upload_folder, img_file_name)
 
+	template = os.path.basename(template)
+
 	shell.execute_command('sudo', connection_url, ['singularity', 'bootstrap', image_file, template ])
 	shell.scp_file(local_filename, connection_url, image_file, False)
 
