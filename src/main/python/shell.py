@@ -54,16 +54,21 @@ def execute_command(command, server='', params=[]):
         logging.error("Trying to execute command at server " + server)
         raise e
 
-def scp_file(filename, server, destination=''):
+def scp_file(local_filename, server, remote_filename='', upload=True):
     """
     It copies a file to a remote server. 
-    The filename should be the complete path of the file
+    The local_filename should be the complete path of the file
     """
 
     # Building the command
     params = []
     params.append('scp')
-    params.append(filename)
-    params.append(server + ':' + destination)
+
+    if upload :
+        params.append(local_filename)
+        params.append(server + ':' + remote_filename)
+    else :
+        params.append(server + ':' + remote_filename)
+        params.append(local_filename)
 
     output = _execute_command(params)

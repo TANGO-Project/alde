@@ -88,3 +88,10 @@ class ShellTests(unittest.TestCase):
         mock_subprocess.check_output.assert_called_with(['scp', 
                                                           '/path/file', 
                                                           'user@host:destination_path'])
+
+        shell.scp_file('/path/file', 'user@host', 'destination_path', False)
+
+        # We verify that the right params are passed to the mock_subproces
+        mock_subprocess.check_output.assert_called_with(['scp', 
+                                                          'user@host:destination_path',
+                                                          '/path/file'])
