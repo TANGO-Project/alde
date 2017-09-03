@@ -80,8 +80,11 @@ class CompilerTests(MappingTest):
 
 		mock_random_folder.return_value = 'dest_folder'
 		mock_create_sing_template.return_value = 'template.def'
+		mock_build.return_value = '/tmp/image.img'
 
-		executable = Executable('test.zip', 'xxxx', 'xxxx')
+		executable = Executable("test.zip", "xxxx", "xxxx")
+		db.session.add(executable)
+		db.session.commit()
 		
 		compiler.compile_singularity_pm(executable) # TODO Create a executable when the method evolvers.
 
@@ -97,6 +100,13 @@ class CompilerTests(MappingTest):
 		mock_image.assert_called_with(configuration, 'ubuntu@localhost:2222', 'singularity_pm.img')
 		# We verify that the container was build
 		mock_build.assert_called_with('ubuntu@localhost:2222', 'template.def', 'singularity_pm.img')
+
+		executable = db.session.query(Executable).filter_by(status=Executable. __status_compiled__).first()
+
+		self.assertEquals('test.zip', executable.source_code_file)
+		self.assertEquals('COMPILED', executable.status)
+		self.assertEquals('/tmp/image.img', executable.singularity_image_file)
+
 
 	@mock.patch('compilation.compiler.app')
 	@mock.patch('compilation.compiler.shell.scp_file')

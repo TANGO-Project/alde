@@ -21,6 +21,7 @@ class Executable(db.Model):
 
     __status_not_compiled__ = 'NOT_COMPILED'
     __status_compiling__ = 'COMPILING'
+    __status_compiled__ = 'COMPILED'
     __status_error_type__ = 'ERROR: UNKNOW TYPE'
 
 
@@ -31,7 +32,8 @@ class Executable(db.Model):
     executable_file = db.Column(db.String)
     compilation_script = db.Column(db.String)
     compilation_type = db.Column(db.String)
-    sigularity_app_folder = db.Column(db.String)
+    singularity_app_folder = db.Column(db.String)
+    singularity_image_file = db.Column(db.String)
     application_id = db.Column(db.Integer, db.ForeignKey('applications.id'))
     application = db.relationship("Application", back_populates=("executables"))
     status = db.Column(db.String)

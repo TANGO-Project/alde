@@ -35,11 +35,14 @@ def compile_executables():
 	perform this tasks.
 	"""
 
+	# TODO schedule this funtion
+
 	executables = return_not_compiled_executables()
 
 	for executable in executables:
 		if  executable.compilation_type == "SINGULARITY:PM":
 			executable.status = Executable.__status_compiling__
+			db.session.commit()
 			compile_singularity_pm(executable)
 		else:
 			executable.status = Executable.__status_error_type__
@@ -68,13 +71,9 @@ def compile_singularity_pm(executable):
 	create_singularity_image(configuration, connection_url, _singularity_pm_image_)
 	image_file = build_singularity_container(connection_url, output_template, _singularity_pm_image_)
 
-	# TODO download the container and keep it in the db information
-	#      - Update the db information
-
-
-	# TODO automate this process in the app configuration as a task
-
-	pass
+	executable.singularity_image_file = image_file
+	executable.status = Executable.__status_compiled__ 
+	db.session.commit()
 
 def build_singularity_container(connection_url, template, image_file):
 	"""
