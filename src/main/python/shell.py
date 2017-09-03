@@ -40,15 +40,21 @@ def execute_command(command, server='', params=[]):
             for param in params:
                 command = command + " " + param
 
+            params = []
+            params.append('ssh')
+
             if ":" in server:
                 connection = server.split(":")
                 server = connection[0]
                 port = connection[1]
 
-                command = command + " -p " + port
+                params.append('-p')
+                params.append(port)
+
+            params.append(server)
 
             command = command[1:]
-            params = [ "ssh", server, command]
+            params.append(command)
 
         if len(params) == 1:
             output = _execute_command(params[0])

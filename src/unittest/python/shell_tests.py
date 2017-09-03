@@ -30,8 +30,10 @@ class ShellTests(unittest.TestCase):
 
         # We verify that the right params are passed to the mock_subprocess
         mock_subprocess.check_output.assert_called_with(["ssh",
+                                                         "-p",
+                                                         "2222",
                                                          "pepito@ssh.com",
-                                                         "ls -la . -p 2222"])
+                                                         "ls -la ."])
 
 
 
