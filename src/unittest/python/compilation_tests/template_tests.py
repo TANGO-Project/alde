@@ -18,8 +18,7 @@ class TemplateTests(unittest.TestCase):
 	configuration works as expected
 	"""
 
-	@mock.patch('compilation.template.app')
-	def test_update_template_variables(self, mock_app):
+	def test_update_template_variables(self):
 		"""
 		It checks that we are able to update the following variables
 		of a template:
@@ -28,8 +27,7 @@ class TemplateTests(unittest.TestCase):
 		- {#BUILD_COMMAND#}
 		"""
 
-		# We configure the variable of the mock
-		mock_app.config = {'APP_FOLDER': '.'}
+		template.upload_folder="."
 
 		# We prepare the file that we are going to use for the tests
 		with open("test_update_template_variables.txt", "w") as text_file:

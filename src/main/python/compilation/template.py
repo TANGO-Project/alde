@@ -8,11 +8,11 @@
 
 import os
 import uuid
-from flask import current_app as app
 
 _build_command = "{#BUILD_COMMAND#}"
 _folder_location = "{#FOLDER_LOCATION#}"
 _app_foler = "{#APP_FOLDER#}"
+upload_folder = '/tmp' # TODO fix this ugly... ugly code
 
 def update_template(template, build_command, folder_location='/home/tango', app_folder='application'):
 	"""
@@ -32,7 +32,6 @@ def update_template(template, build_command, folder_location='/home/tango', app_
 	filedata = filedata.replace(_app_foler, app_folder)	
 
 	# We generate an uuid filename
-	upload_folder = app.config['APP_FOLDER']
 
 	filename_uuid = uuid.uuid4()
 	filename = str(filename_uuid) + ".def"
