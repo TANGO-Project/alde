@@ -62,11 +62,11 @@ def compile_singularity_pm(executable):
 	unzip_src(executable, connection_url, compilation_folder)
 
 	# We create the new template and upload it to the compilation VM
-	create_singularity_template(configuration, executable, connection_url, compilation_folder)
+	output_template = create_singularity_template(configuration, executable, connection_url, compilation_folder)
 
 	# TODO build the container
 	#      - Build the container
-	create_singularity_image(configuration, connection_url)
+	create_singularity_image(configuration, connection_url, _singularity_pm_image_)
 
 	# TODO download the container and keep it in the db information
 	#      - Download the containers (I need to determine where the container is)
@@ -75,14 +75,24 @@ def compile_singularity_pm(executable):
 
 	pass
 
-def create_singularity_image(configuration, connection_url):
+def build_singularity_container(configuration, connection_url, template, image_file):
+	"""
+	It builds a singularity container following an specific 
+	definition
+
+	sudo singularity bootstrap test.img docker.def
+	"""
+
+	pass
+
+def create_singularity_image(configuration, connection_url, image_file):
 	"""
 	Creating the image in the compilation node
 	"""
 
 	image_size = configuration['singularity_image_size']
 
-	shell.execute_command('singularity', connection_url, [ 'create', '--size', image_size, _singularity_pm_image_ ])
+	shell.execute_command('singularity', connection_url, [ 'create', '--size', image_size, image_file ])
 
 def create_singularity_template(configuration, executable, connection_url, compilation_folder):
 	"""

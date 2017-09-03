@@ -91,7 +91,15 @@ class CompilerTests(MappingTest):
 		# We verify that the creation of the template is done
 		mock_create_sing_template.assert_called_with(configuration, executable, 'ubuntu@localhost:2222', 'dest_folder')
 		# We verify that the image was created
-		mock_image.assert_called_with(configuration, 'ubuntu@localhost:2222')
+		mock_image.assert_called_with(configuration, 'ubuntu@localhost:2222', 'singularity_pm.img')
+
+	def test_create_singularity_image(self):
+		"""
+		It test the correct work of the function
+		create_singularity_image
+		"""
+
+
 
 	@mock.patch('compilation.compiler.shell.execute_command')
 	def test_create_singularity_template(self, mock_shell):
@@ -103,7 +111,7 @@ class CompilerTests(MappingTest):
 		config.COMPILATION_CONFIG_FILE = "compilation_config.json"
 		configuration = config.find_compilation_config('SINGULARITY:PM')
 
-		compiler.create_singularity_template(configuration, 'asdf@asdf.com')
+		compiler.create_singularity_template(configuration, 'asdf@asdf.com', 'singularity_pm.img')
 
 		mock_shell.assert_called_with('singularity', 'asdf@asdf.com', [ 'create', '--size', '40960', 'singularity_pm.img'])
 
