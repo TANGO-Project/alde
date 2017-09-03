@@ -19,6 +19,7 @@ accepted_message = { 'create' : True, 'reason' : ''}
 testbed_not_configured_message = { 'create' : False,
                                    'reason' : 'Testbed is configured to automatically retrieve information of nodes'}
 no_testbed = 'Testbed does not exist'
+app_upload_folder = ''
 
 class Config(object):
     """
@@ -163,6 +164,7 @@ def create_app_v1(sql_db_url, port, app_folder):
     app.config['UPLOAD_FOLDER'] = app_folder
     app.config['PRESERVE_CONTEXT_ON_EXCEPTION'] = False
     app.config['APP_FOLDER'] = app_folder
+    app_upload_folder = app_folder
     app.config.from_object(Config())
     db.init_app(app)
     db.app=app

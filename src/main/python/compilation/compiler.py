@@ -12,7 +12,6 @@ import os
 import uuid
 import compilation.config as config
 import compilation.template as template
-from flask import current_app as app
 
 _singularity_pm_image_ = 'singularity_pm.img'
 
@@ -23,7 +22,7 @@ def return_not_compiled_executables():
 
 	return db.session.query(Executable).filter_by(status=Executable.__status_not_compiled__).all()
 
-def compile_executables():
+def compile_executables(app_folder='/tmp'):
 	"""
 	From all the executables that in not compiled status it compiles one by one
 
@@ -35,7 +34,7 @@ def compile_executables():
 	perform this tasks.
 	"""
 
-	# TODO schedule this funtion
+	# TODO fix the error of not being able to read from config the context... 
 
 	executables = return_not_compiled_executables()
 
@@ -43,11 +42,11 @@ def compile_executables():
 		if  executable.compilation_type == "SINGULARITY:PM":
 			executable.status = Executable.__status_compiling__
 			db.session.commit()
-			compile_singularity_pm(executable)
+			compile_singularity_pm(executable, app_folder)
 		else:
 			executable.status = Executable.__status_error_type__
 
-def compile_singularity_pm(executable):
+def compile_singularity_pm(executable, app_folder):
 	"""
 	It compiles a singularity container of the type
 	TANGO Programming Model
@@ -61,7 +60,7 @@ def compile_singularity_pm(executable):
 
 	# We upload an unzip the src to the compilation node
 	compilation_folder = create_random_folder(connection_url)
-	upload_zip_file_application(executable, connection_url, compilation_folder)
+	upload_zip_file_application(executable, connection_url, compilation_folder, app_folder)
 	unzip_src(executable, connection_url, compilation_folder)
 
 	# We create the new template and upload it to the compilation VM
@@ -69,13 +68,13 @@ def compile_singularity_pm(executable):
 
 	# We create the image and we build the container
 	create_singularity_image(configuration, connection_url, _singularity_pm_image_)
-	image_file = build_singularity_container(connection_url, output_template, _singularity_pm_image_)
+	image_file = build_singularity_container(connection_url, output_template, _singularity_pm_image_, app_folder)
 
 	executable.singularity_image_file = image_file
 	executable.status = Executable.__status_compiled__ 
 	db.session.commit()
 
-def build_singularity_container(connection_url, template, image_file):
+def build_singularity_container(connection_url, template, image_file, upload_folder):
 	"""
 	It builds a singularity container following an specific 
 	definition
@@ -83,7 +82,6 @@ def build_singularity_container(connection_url, template, image_file):
 	sudo singularity bootstrap test.img docker.def
 	"""
 
-	upload_folder = app.config['APP_FOLDER']
 	img_file_name = str(uuid.uuid4()) + '.img'
 	local_filename = os.path.join(upload_folder, img_file_name)
 
@@ -121,13 +119,11 @@ def unzip_src(executable, connection_url, destination_folder):
 	zip_file = os.path.join(destination_folder, executable.source_code_file)
 	shell.execute_command('unzip', connection_url, [ zip_file ])
 
-def upload_zip_file_application(executable, connection_url, destination_folder):
+def upload_zip_file_application(executable, connection_url, destination_folder, upload_folder):
 	"""
 	It uploads the zip file of the application to the selected 
 	destination folder
 	"""
-
-	upload_folder = app.config['APP_FOLDER']
 
 	filename = os.path.join(upload_folder, executable.source_code_file)
 	destination = os.path.join('.', destination_folder)

@@ -51,14 +51,14 @@ class CompilerTests(MappingTest):
 		db.session.commit()
 
 		# We perform the action
-		compiler.compile_executables()
+		compiler.compile_executables('asdf')
 
 		# At the end fo the test we should have those status:
 		self.assertEquals(executable_1.status, Executable.__status_error_type__)
 		self.assertEquals(executable_2.status, Executable.__status_compiling__)
 
 		# We verify the mock was called:
-		mock_compiler.assert_called_with(executable_2)
+		mock_compiler.assert_called_with(executable_2, 'asdf')
 
 	@mock.patch('compilation.compiler.build_singularity_container')
 	@mock.patch('compilation.compiler.create_singularity_image')
@@ -86,12 +86,12 @@ class CompilerTests(MappingTest):
 		db.session.add(executable)
 		db.session.commit()
 		
-		compiler.compile_singularity_pm(executable) # TODO Create a executable when the method evolvers.
+		compiler.compile_singularity_pm(executable, 'asdf') # TODO Create a executable when the method evolvers.
 
 		# We verify that a random folder was created
 		mock_random_folder.assert_called_with('ubuntu@localhost:2222')
 		# We verfiy that the src file is uploaded to the random folder
-		mock_upload_zip.assert_called_with(executable, 'ubuntu@localhost:2222', 'dest_folder')
+		mock_upload_zip.assert_called_with(executable, 'ubuntu@localhost:2222', 'dest_folder', 'asdf')
 		# We verify that the src file is uncrompress
 		mock_unzip_src.assert_called_with(executable, 'ubuntu@localhost:2222', 'dest_folder')
 		# We verify that the creation of the template is done
@@ -99,7 +99,7 @@ class CompilerTests(MappingTest):
 		# We verify that the image was created
 		mock_image.assert_called_with(configuration, 'ubuntu@localhost:2222', 'singularity_pm.img')
 		# We verify that the container was build
-		mock_build.assert_called_with('ubuntu@localhost:2222', 'template.def', 'singularity_pm.img')
+		mock_build.assert_called_with('ubuntu@localhost:2222', 'template.def', 'singularity_pm.img', 'asdf')
 
 		executable = db.session.query(Executable).filter_by(status=Executable. __status_compiled__).first()
 
@@ -107,20 +107,15 @@ class CompilerTests(MappingTest):
 		self.assertEquals('COMPILED', executable.status)
 		self.assertEquals('/tmp/image.img', executable.singularity_image_file)
 
-
-	@mock.patch('compilation.compiler.app')
 	@mock.patch('compilation.compiler.shell.scp_file')
 	@mock.patch('compilation.compiler.shell.execute_command')
-	def test_create_singularity_image(self, mock_shell, mock_scp, mock_app):
+	def test_create_singularity_image(self, mock_shell, mock_scp):
 		"""
 		It test the correct work of the function
 		create_singularity_image
 		"""
 
-		# We configure the variable of the mock
-		mock_app.config = {'APP_FOLDER': '/tmp'}
-
-		filename = compiler.build_singularity_container('asdf@asdf.com', 'test.def', 'image.img')
+		filename = compiler.build_singularity_container('asdf@asdf.com', 'test.def', 'image.img', '/tmp')
 
 		mock_shell.assert_called_with('sudo', 'asdf@asdf.com', ['singularity', 'bootstrap', 'image.img', 'test.def'])
 		mock_scp.assert_called_with(filename, 'asdf@asdf.com', 'image.img', False)
@@ -196,18 +191,14 @@ class CompilerTests(MappingTest):
 		mock_shell_excute.assert_called_with("mkdir", "server@xxxx:2222", [ destination_folder ])
 
 	@mock.patch('compilation.compiler.shell.scp_file')
-	@mock.patch('compilation.compiler.app')
-	def test_upload_zip_file_application(self, mock_app, mock_scp):
+	def test_upload_zip_file_application(self, mock_scp):
 		""" 
 		Test the function of uploading a zip file of the application 
 		to the selected testbed in an specific folder
 		"""
 
-		# We configure the variable of the mock
-		mock_app.config = {'APP_FOLDER': '/tmp'}
-
 		executable = Executable('test.zip', 'xxxx', 'xxxx')
 
-		compiler.upload_zip_file_application(executable, 'asd@asdf.com', 'dest_folder')
+		compiler.upload_zip_file_application(executable, 'asd@asdf.com', 'dest_folder', '/tmp')
 
 		mock_scp.assert_called_with(os.path.join('/tmp', 'test.zip'), 'asd@asdf.com', './dest_folder')
