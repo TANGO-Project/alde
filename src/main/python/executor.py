@@ -14,19 +14,19 @@ execute_status_submitted = "SUBMITTED"
 execute_status_failed = "FAILED"
 
 
-def execute_application(execution_script):
+def execute_application(execution_configuration):
 	"""
 	This function executes an application in the selected testbed,
 	using the execution script configuration.
 	"""
 
 	# We create the execution
-	execution = Execution(execution_script.command,
-						  execution_script.execution_type,
-						  execution_script.parameters,
+	execution = Execution(execution_configuration.command,
+						  execution_configuration.execution_type,
+						  execution_configuration.parameters,
 						  execute_status_submitted)
 	
-	execution_script.executions.append(execution)
+	db.session.add(execution)
 
 	db.session.commit()
 
@@ -47,7 +47,7 @@ def execute_application_type_slurm_sbatch(execution):
 	for slurm sbatch
 	"""
 
-	testbed = execution.execution_script.testbed
+	testbed = execution.execution_configuration.testbed
 
 	if testbed.category is not Testbed.slurm_category:
 		# If the category is not SLURM we can not execute the app

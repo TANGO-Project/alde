@@ -64,8 +64,7 @@ class Execution(db.Model):
     parameters = db.Column(db.String)
     status = db.Column(db.String)
     output = db.Column(db.String)
-    execution_script_id = db.Column(db.Integer, db.ForeignKey('execution_scripts.id'))
-    execution_script = db.relationship("ExecutionScript", back_populates=("executions"))
+    execution_configuration_id = db.Column(db.Integer, db.ForeignKey('execution_configurations.id'))
 
     def __init__(self, command, execution_type, parameters, status):
         """Initiaze basic parameters of the class"""
@@ -76,23 +75,22 @@ class Execution(db.Model):
         self.status = status
 
 
-class ExecutionScript(db.Model):
+class ExecutionConfiguration(db.Model):
     """
     Object that represetns all the information for executing an
     application into a testbed by the ALDE
     """
 
     # SQLAlchemy mapping code
-    __tablename__ = 'execution_scripts'
+    __tablename__ = 'execution_configurations'
     id = db.Column(db.Integer, primary_key=True)
     command = db.Column(db.String)
     execution_type = db.Column(db.String)
     parameters = db.Column(db.String)
     application_id = db.Column(db.Integer, db.ForeignKey('applications.id'))
-    application = db.relationship("Application", back_populates=("execution_scripts"))
+    application = db.relationship("Application", back_populates=("execution_configurations"))
     testbed_id = db.Column(db.Integer, db.ForeignKey('testbeds.id'))
     testbed = db.relationship("Testbed")
-    executions = db.relationship("Execution", order_by=Execution.id, back_populates="execution_script")
     launch_execution=False
 
     def __init__(self, command, execution_type, parameters):
@@ -113,7 +111,7 @@ class Application(db.Model):
     __tablename__ = 'applications'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
-    execution_scripts = db.relationship("ExecutionScript", order_by=ExecutionScript.id, back_populates="application")
+    execution_configurations = db.relationship("ExecutionConfiguration", order_by=ExecutionConfiguration.id, back_populates="application")
     executables = db.relationship("Executable", order_by=Executable.id, back_populates="application")
 
     def __init__(self, name):

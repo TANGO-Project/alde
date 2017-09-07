@@ -9,7 +9,7 @@
 import executor
 import unittest.mock as mock
 from sqlalchemy_mapping_tests.mapping_tests import MappingTest
-from models import db, Execution, ExecutionScript, Testbed
+from models import db, Execution, ExecutionConfiguration, Testbed
 
 class ExecutorTests(MappingTest):
 	"""
@@ -22,16 +22,13 @@ class ExecutorTests(MappingTest):
 		Verifies that the right methods and status are set when an appplication is executed
 		"""
 
-		execution_script = ExecutionScript("ls", "slurm:sbatch", "-x1")
-		db.session.add(execution_script)
+		execution_configuration = ExecutionConfiguration("ls", "slurm:sbatch", "-x1")
+		db.session.add(execution_configuration)
 		db.session.commit()
 
-		t = executor.execute_application(execution_script)
+		t = executor.execute_application(execution_configuration)
 
-		execution_script = db.session.query(ExecutionScript).filter_by(command="ls").first()
-
-		self.assertEquals(1, len(execution_script.executions))
-		execution = execution_script.executions[0]
+		execution = db.session.query(Execution).filter_by(command="ls").first()
 		self.assertEquals("ls", execution.command)
 		self.assertEquals("slurm:sbatch", execution.execution_type)
 		self.assertEquals("-x1", execution.parameters)
@@ -42,15 +39,12 @@ class ExecutorTests(MappingTest):
 		mock_slurm_sbatch.assert_called_with(execution)
 
 		# We verify the wrong status of unrecognize execution type
-		execution_script.execution_type = "xxx"
+		execution_configuration.execution_type = "xxx"
 		db.session.commit()
 
-		executor.execute_application(execution_script)
+		executor.execute_application(execution_configuration)
 
-		execution_script = db.session.query(ExecutionScript).filter_by(command="ls").first()
-
-		self.assertEquals(2, len(execution_script.executions))
-		execution = execution_script.executions[1]
+		execution = db.session.query(Execution).filter_by(execution_type="xxx").first()
 		self.assertEquals("ls", execution.command)
 		self.assertEquals("xxx", execution.execution_type)
 		self.assertEquals("-x1", execution.parameters)
@@ -68,9 +62,9 @@ class ExecutorTests(MappingTest):
 
 		execution = Execution("ls", "slurm:sbatch", "-X", executor.execute_status_submitted)
 		testbed = Testbed("name", True, "xxxx", "ssh", "user@server", ['slurm'])
-		execution_script = ExecutionScript("ls", "slurm:sbatch", "-x1")
-		execution.execution_script=execution_script
-		execution_script.testbed = testbed
+		execution_configuration = ExecutionConfiguration("ls", "slurm:sbatch", "-x1")
+		execution.execution_configuration=execution_configuration
+		execution_configuration.testbed = testbed
 
 		executor.execute_application_type_slurm_sbatch(execution)
 

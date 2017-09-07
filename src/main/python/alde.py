@@ -12,7 +12,7 @@ import slurm
 import logging
 import executor
 from flask_apscheduler import APScheduler
-from models import db, Application, ExecutionScript, Testbed, Node, Memory, CPU, MCP, GPU
+from models import db, Application, ExecutionConfiguration, Testbed, Node, Memory, CPU, MCP, GPU
 
 url_prefix_v1='/api/v1'
 accepted_message = { 'create' : True, 'reason' : ''}
@@ -137,7 +137,7 @@ def patch_execution_script_preprocessor(instance_id=None, data=None, **kw):
     if 'launch_execution' in data :
         if data['launch_execution']:
 
-            execution_script = db.session.query(ExecutionScript).filter_by(id=instance_id).first()
+            execution_script = db.session.query(ExecutionConfiguration).filter_by(id=instance_id).first()
 
             if not execution_script.testbed:
                 raise flask_restless.ProcessingException(
@@ -179,7 +179,7 @@ def create_app_v1(sql_db_url, port, app_folder):
                        methods=['GET', 'POST', 'DELETE'],
                        url_prefix=url_prefix_v1)
 
-    manager.create_api(ExecutionScript,
+    manager.create_api(ExecutionConfiguration,
                       methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
                       preprocessors={
                             'PATCH_SINGLE': [patch_execution_script_preprocessor]

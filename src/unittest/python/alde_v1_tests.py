@@ -8,7 +8,7 @@
 
 from flask import Flask
 from flask_testing import TestCase
-from models import db, ExecutionScript, Application, Testbed, Node
+from models import db, ExecutionConfiguration, Application, Testbed, Node
 import alde
 import json
 import unittest.mock as mock
@@ -44,9 +44,9 @@ class AldeV1Tests(TestCase):
         application_2 = Application("AppName_2")
 
         # Adding executing scripts
-        execution_script_1 = ExecutionScript("ls", "slurm:sbatch", "-X")
-        execution_script_2 = ExecutionScript("ls2", "slurm:sbatch2", "-X2")
-        application_2.execution_scripts = [
+        execution_script_1 = ExecutionConfiguration("ls", "slurm:sbatch", "-X")
+        execution_script_2 = ExecutionConfiguration("ls2", "slurm:sbatch2", "-X2")
+        application_2.execution_configurations = [
                 execution_script_1,
                 execution_script_2 ]
 
@@ -222,16 +222,16 @@ class AldeV1Tests(TestCase):
         """
 
         # GET
-        response = self.client.get("/api/v1/execution_scripts")
+        response = self.client.get("/api/v1/execution_configurations")
 
         # We verify the respongse to the GET
         self.assertEquals(200, response.status_code)
-        execution_scripts = response.json['objects']
-        execution_script = execution_scripts[0]
+        execution_configurations = response.json['objects']
+        execution_script = execution_configurations[0]
         self.assertEquals("ls", execution_script['command'])
         self.assertEquals("slurm:sbatch", execution_script['execution_type'])
         self.assertEquals("-X", execution_script['parameters'])
-        execution_script = execution_scripts[1]
+        execution_script = execution_configurations[1]
         self.assertEquals("ls2", execution_script['command'])
         self.assertEquals("slurm:sbatch2", execution_script['execution_type'])
         self.assertEquals("-X2", execution_script['parameters'])
@@ -243,7 +243,7 @@ class AldeV1Tests(TestCase):
                 'parameters': '-X3', 
             }
 
-        response = self.client.post("/api/v1/execution_scripts",
+        response = self.client.post("/api/v1/execution_configurations",
                                       data=json.dumps(data),
                                       content_type='application/json')
 
@@ -253,11 +253,11 @@ class AldeV1Tests(TestCase):
         self.assertEquals("slurm:sbatch3", execution_script['execution_type'])
         self.assertEquals("-X3", execution_script['parameters'])
         # We check that we only have three testbeds
-        response = self.client.get("/api/v1/execution_scripts")
+        response = self.client.get("/api/v1/execution_configurations")
         self.assertEquals(3, len(response.json['objects']))
 
         # GET Specific identity
-        response = self.client.get("/api/v1/execution_scripts/3")
+        response = self.client.get("/api/v1/execution_configurations/3")
         self.assertEquals(200, response.status_code)
         execution_script = response.json
         self.assertEquals("ls3", execution_script['command'])
@@ -265,17 +265,17 @@ class AldeV1Tests(TestCase):
         self.assertEquals("-X3", execution_script['parameters'])
 
         # DELETE
-        response = self.client.delete("/api/v1/execution_scripts/3")
+        response = self.client.delete("/api/v1/execution_configurations/3")
 
         self.assertEquals(204, response.status_code)
         # We check we only have two entities in the db
-        response = self.client.get("/api/v1/execution_scripts")
+        response = self.client.get("/api/v1/execution_configurations")
         self.assertEquals(2, len(response.json['objects']))
 
         # PUT
         data={"command": "Foobar"}
 
-        response = self.client.put("api/v1/execution_scripts/2",
+        response = self.client.put("api/v1/execution_configurations/2",
                                     data=json.dumps(data),
                                     content_type='application/json')
 
@@ -284,7 +284,7 @@ class AldeV1Tests(TestCase):
         self.assertEquals("Foobar", execution_script['command'])
         self.assertEquals("slurm:sbatch2", execution_script['execution_type'])
         self.assertEquals("-X2", execution_script['parameters'])
-        response = self.client.get("/api/v1/execution_scripts/2")
+        response = self.client.get("/api/v1/execution_configurations/2")
         self.assertEquals(200, response.status_code)
         execution_script = response.json
         self.assertEquals("Foobar", execution_script['command'])
@@ -572,7 +572,7 @@ class AldeV1Tests(TestCase):
         # First we verify that nothing happens if launch_execution = False
         data = {'launch_execution': False}
 
-        response = self.client.patch("/api/v1/execution_scripts/1",
+        response = self.client.patch("/api/v1/execution_configurations/1",
                                      data=json.dumps(data),
                                      content_type='application/json')
 
@@ -588,7 +588,7 @@ class AldeV1Tests(TestCase):
         """
         data = {'launch_execution': True}
 
-        response = self.client.patch("/api/v1/execution_scripts/1",
+        response = self.client.patch("/api/v1/execution_configurations/1",
                                      data=json.dumps(data),
                                      content_type='application/json')
 
@@ -607,13 +607,13 @@ class AldeV1Tests(TestCase):
         db.session.add(testbed)
         db.session.commit()
 
-        execution_script = db.session.query(ExecutionScript).filter_by(id=1).first()
+        execution_script = db.session.query(ExecutionConfiguration).filter_by(id=1).first()
         execution_script.testbed = testbed
         db.session.commit()
 
         data = {'launch_execution': True}
 
-        response = self.client.patch("/api/v1/execution_scripts/1",
+        response = self.client.patch("/api/v1/execution_configurations/1",
                                      data=json.dumps(data),
                                      content_type='application/json')
 
@@ -631,7 +631,7 @@ class AldeV1Tests(TestCase):
 
         data = {'launch_execution': True}
 
-        response = self.client.patch("/api/v1/execution_scripts/1",
+        response = self.client.patch("/api/v1/execution_configurations/1",
                                      data=json.dumps(data),
                                      content_type='application/json')
 
