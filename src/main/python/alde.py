@@ -119,6 +119,8 @@ def post_testbed_preprocessor(data=None, **kw):
     add nodes to if necessaryexi
     """
 
+    print(data)
+
     if 'nodes' in data :
         create = can_create_the_node(testbed=data)
 

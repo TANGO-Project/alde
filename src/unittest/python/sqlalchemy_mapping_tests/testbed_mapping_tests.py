@@ -103,3 +103,38 @@ class TestbedMappingTest(MappingTest):
         self.assertEquals("node3", nodes[1].name)
         self.assertTrue(nodes[1].information_retrieved)
         self.assertIsNone(nodes[1].testbed)
+
+
+    def test_extra_config(self):
+        """
+        Test the storing of JSON into the entity extra_config param
+        """
+
+        testbed = Testbed("name", True, "slurm", "ssh", "user@server", ['slurm'])
+
+        db.session.add(testbed)
+
+        testbed.extra_config = { "enqueue_compss_sc_cfg": "nova.cfg" }
+
+        db.session.commit()
+
+        testbed = db.session.query(Testbed).filter_by(name='name').first()
+
+        self.assertEquals('nova.cfg', testbed.extra_config['enqueue_compss_sc_cfg'])
+
+        testbed.extra_config['pepe'] = 'pepito'
+
+        db.session.commit()
+
+        testbed = db.session.query(Testbed).filter_by(name='name').first()
+
+        self.assertEquals('nova.cfg', testbed.extra_config['enqueue_compss_sc_cfg'])
+        self.assertEquals('pepito', testbed.extra_config['pepe'])
+
+        del testbed.extra_config['pepe']
+        db.session.flush()
+        db.session.commit()
+
+        testbed = db.session.query(Testbed).filter_by(name='name').first()
+        with self.assertRaises(KeyError) as raises:
+            variable = testbed.extra_config['pepe']

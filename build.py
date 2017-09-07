@@ -53,3 +53,4 @@ def initialize(project):
     project.depends_on('Flask-SQLAlchemy')
     project.depends_on('Flask-APScheduler')
     project.depends_on('flask-uploads')
+    project.depends_on('simplejson')

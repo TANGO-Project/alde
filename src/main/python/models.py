@@ -7,6 +7,9 @@
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
 from flask_sqlalchemy import SQLAlchemy
+import simplejson
+import sqlalchemy as sqla
+from sqlalchemy.ext.mutable import MutableDict
 
 db = SQLAlchemy()
 
@@ -326,6 +329,18 @@ class Node(db.Model):
         if key in self.status.keys():
             del self.status[key]
 
+class JsonEncodedDict(sqla.TypeDecorator):
+  """Enables JSON storage by encoding and decoding on the fly."""
+  impl = sqla.String
+
+  def process_bind_param(self, value, dialect):
+    return simplejson.dumps(value)
+
+  def process_result_value(self, value, dialect):
+    return simplejson.loads(value)
+
+json_type = MutableDict.as_mutable(JsonEncodedDict)
+
 
 class Testbed(db.Model):
     """
@@ -346,10 +361,11 @@ class Testbed(db.Model):
     category = db.Column(db.String)
     protocol = db.Column(db.String)
     endpoint = db.Column(db.String)
+    extra_config = db.Column(json_type)
     #package_formats = db.Column(db.String)
     nodes = db.relationship("Node", order_by=Node.id, back_populates="testbed")
 
-    def __init__(self, name, on_line, category, protocol, endpoint, package_formats=[]):
+    def __init__(self, name, on_line, category, protocol, endpoint, package_formats=[], extra_config=None):
         """Initialize the basis attributes for the testbed class"""
 
         self.name = name
@@ -359,6 +375,7 @@ class Testbed(db.Model):
         self.endpoint = endpoint
         self.package_formats = package_formats
         self.nodes = []
+        self.extra_config = extra_config
 
     def add_node(self, node):
         """Adds a node to the list of nodes available in the testbed"""

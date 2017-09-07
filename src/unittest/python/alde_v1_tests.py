@@ -157,7 +157,11 @@ class AldeV1Tests(TestCase):
                 'on_line' : False,
                 'category' : 'embedded',
                 'protocol' : 'none',
-                'endpoint' : 'compiled_to_disk'
+                'endpoint' : 'compiled_to_disk',
+                'extra_config' : {
+                    'extra1_config' : 'config1',
+                    'extra2_config' : 'config2'
+                }
             }
 
         response = self.client.post("/api/v1/testbeds",
@@ -166,11 +170,14 @@ class AldeV1Tests(TestCase):
 
         self.assertEquals(201, response.status_code)
         testbed = response.json
+        print(testbed)
         self.assertEquals("name_3", testbed['name'])
         self.assertFalse(testbed['on_line'])
         self.assertEquals("embedded", testbed['category'])
         self.assertEquals("none", testbed['protocol'])
         self.assertEquals("compiled_to_disk", testbed['endpoint'])
+        self.assertEquals("config1", testbed['extra_config']['extra1_config'])
+        self.assertEquals("config2", testbed['extra_config']['extra2_config'])
         # We check that we only have three testbeds
         response = self.client.get("/api/v1/testbeds")
         self.assertEquals(3, len(response.json['objects']))
