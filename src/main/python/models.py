@@ -21,6 +21,10 @@ class Deployment(db.Model):
     to be executed and the status of it
     """
 
+    __status_uploaded_updated__ = 'UPLOADED_UPDATED'
+    __status_uploaded_not_updated__ = 'UPLOADED_NOT_UPDATED'
+    __status_deleted__ = 'DELETED'
+
     # SQLAlchemy mapping code
     __tablename__ = 'deployments'
     executable_id = db.Column(db.Integer, 

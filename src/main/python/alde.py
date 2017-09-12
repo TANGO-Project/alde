@@ -12,7 +12,7 @@ import slurm
 import logging
 import executor
 from flask_apscheduler import APScheduler
-from models import db, Application, ExecutionConfiguration, Testbed, Node, Memory, CPU, MCP, GPU
+from models import db, Application, ExecutionConfiguration, Testbed, Node, Memory, CPU, MCP, GPU, Deployment
 
 url_prefix_v1='/api/v1'
 accepted_message = { 'create' : True, 'reason' : ''}
@@ -179,12 +179,18 @@ def create_app_v1(sql_db_url, port, app_folder):
                        methods=['GET', 'POST', 'DELETE'],
                        url_prefix=url_prefix_v1)
 
+    # Create the REST API for Execution Configuration
     manager.create_api(ExecutionConfiguration,
                       methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
                       preprocessors={
                             'PATCH_SINGLE': [patch_execution_script_preprocessor]
                         },
                       url_prefix=url_prefix_v1)
+
+    # Create the REST APi for the deployment
+    manager.create_api(Deployment,
+                       methods=['POST'],
+                       url_prefix=url_prefix_v1)
 
     # Create the REST methods for a Testbed
     manager.create_api(Testbed,
