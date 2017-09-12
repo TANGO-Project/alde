@@ -11,7 +11,26 @@ import simplejson
 import sqlalchemy as sqla
 from sqlalchemy.ext.mutable import MutableDict
 
+# TODO update whole code with the possibility of recompiling the code, that will need to be automatically redeployed.
+
 db = SQLAlchemy()
+
+class Deployment(db.Model):
+    """
+    This class represents the code being uploaded to a testbed
+    to be executed and the status of it
+    """
+
+    # SQLAlchemy mapping code
+    __tablename__ = 'deployments'
+    executable_id = db.Column(db.Integer, 
+                              db.ForeignKey('testbeds.id'), 
+                              primary_key=True)
+    testbed_id = db.Column(db.Integer, 
+                           db.ForeignKey('executables.id'), 
+                           primary_key=True)
+    status = db.Column(db.String)
+    path = db.Column(db.String)
 
 class Executable(db.Model):
     """
@@ -59,19 +78,15 @@ class Execution(db.Model):
     # SQLAlchemy mapping code
     __tablename__ = 'executions'
     id = db.Column(db.Integer, primary_key=True)
-    command = db.Column(db.String)
     execution_type = db.Column(db.String)
-    parameters = db.Column(db.String)
     status = db.Column(db.String)
     output = db.Column(db.String)
     execution_configuration_id = db.Column(db.Integer, db.ForeignKey('execution_configurations.id'))
 
-    def __init__(self, command, execution_type, parameters, status):
+    def __init__(self, execution_type, status):
         """Initiaze basic parameters of the class"""
 
-        self.command = command
         self.execution_type = execution_type
-        self.parameters = parameters
         self.status = status
 
 
@@ -84,21 +99,17 @@ class ExecutionConfiguration(db.Model):
     # SQLAlchemy mapping code
     __tablename__ = 'execution_configurations'
     id = db.Column(db.Integer, primary_key=True)
-    command = db.Column(db.String)
     execution_type = db.Column(db.String)
-    parameters = db.Column(db.String)
     application_id = db.Column(db.Integer, db.ForeignKey('applications.id'))
     application = db.relationship("Application", back_populates=("execution_configurations"))
     testbed_id = db.Column(db.Integer, db.ForeignKey('testbeds.id'))
     testbed = db.relationship("Testbed")
     launch_execution=False
 
-    def __init__(self, command, execution_type, parameters):
+    def __init__(self, execution_type):
         """Initialize basic parameters of the class"""
 
-        self.command = command
         self.execution_type = execution_type
-        self.parameters = parameters
 
 class Application(db.Model):
     """

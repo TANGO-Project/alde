@@ -21,9 +21,7 @@ def execute_application(execution_configuration):
 	"""
 
 	# We create the execution
-	execution = Execution(execution_configuration.command,
-						  execution_configuration.execution_type,
-						  execution_configuration.parameters,
+	execution = Execution(execution_configuration.execution_type,
 						  execute_status_submitted)
 	
 	db.session.add(execution)

@@ -20,28 +20,26 @@ class ExecutionMappingTest(MappingTest):
 
 		# We verify that the object is not in the db after creating it
 
-		execution = Execution("command", "execution_type", "parameters", "status")
+		execution = Execution("execution_type", "status")
 		self.assertIsNone(execution.id)
 
 		# We store the object in the db
 		db.session.add(execution)
 
 		# We recover the execution from the db
-		execution = db.session.query(Execution).filter_by(command="command").first()
+		execution = db.session.query(Execution).filter_by(execution_type="execution_type").first()
 		self.assertIsNotNone(execution.id)
-		self.assertEquals("command", execution.command)
 		self.assertEquals("execution_type", execution.execution_type)
-		self.assertEquals("parameters", execution.parameters)
 		self.assertEquals("status", execution.status)
 
 		# We check that we can update the execution
 		execution.execution_type = "X"
 		db.session.commit()
-		execution_2 = db.session.query(Execution).filter_by(command="command").first()
+		execution_2 = db.session.query(Execution).filter_by(execution_type="X").first()
 		self.assertEquals(execution.id, execution_2.id)
 		self.assertEquals("X", execution.execution_type)
 
 		# We check the delation
 		db.session.delete(execution_2)
-		count = db.session.query(Execution).filter_by(command="command").count()
+		count = db.session.query(Execution).filter_by(execution_type="X").count()
 		self.assertEquals(0, count)

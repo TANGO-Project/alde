@@ -22,16 +22,14 @@ class ExecutorTests(MappingTest):
 		Verifies that the right methods and status are set when an appplication is executed
 		"""
 
-		execution_configuration = ExecutionConfiguration("ls", "slurm:sbatch", "-x1")
+		execution_configuration = ExecutionConfiguration("slurm:sbatch")
 		db.session.add(execution_configuration)
 		db.session.commit()
 
 		t = executor.execute_application(execution_configuration)
 
-		execution = db.session.query(Execution).filter_by(command="ls").first()
-		self.assertEquals("ls", execution.command)
+		execution = db.session.query(Execution).filter_by(execution_type="slurm:sbatch").first()
 		self.assertEquals("slurm:sbatch", execution.execution_type)
-		self.assertEquals("-x1", execution.parameters)
 		self.assertEquals(executor.execute_status_submitted, execution.status)
 
 		# We verify that the right method was called
@@ -45,9 +43,7 @@ class ExecutorTests(MappingTest):
 		executor.execute_application(execution_configuration)
 
 		execution = db.session.query(Execution).filter_by(execution_type="xxx").first()
-		self.assertEquals("ls", execution.command)
 		self.assertEquals("xxx", execution.execution_type)
-		self.assertEquals("-x1", execution.parameters)
 		self.assertEquals(executor.execute_status_failed, execution.status)
 		self.assertEquals("No support for execurtion type: xxx", execution.output)
 
@@ -60,17 +56,15 @@ class ExecutorTests(MappingTest):
 		# to execute it, in this case it should give an error since it is
 		# not of type slurm
 
-		execution = Execution("ls", "slurm:sbatch", "-X", executor.execute_status_submitted)
+		execution = Execution("slurm:sbatch", executor.execute_status_submitted)
 		testbed = Testbed("name", True, "xxxx", "ssh", "user@server", ['slurm'])
-		execution_configuration = ExecutionConfiguration("ls", "slurm:sbatch", "-x1")
+		execution_configuration = ExecutionConfiguration("slurm:sbatch")
 		execution.execution_configuration=execution_configuration
 		execution_configuration.testbed = testbed
 
 		executor.execute_application_type_slurm_sbatch(execution)
 
-		self.assertEquals("ls", execution.command)
 		self.assertEquals("slurm:sbatch", execution.execution_type)
-		self.assertEquals("-X", execution.parameters)
 		self.assertEquals(executor.execute_status_failed, execution.status)
 		self.assertEquals("Testbed does not support slurm:sbatch applications", execution.output)
 
@@ -81,9 +75,7 @@ class ExecutorTests(MappingTest):
 
 		executor.execute_application_type_slurm_sbatch(execution)
 
-		self.assertEquals("ls", execution.command)
 		self.assertEquals("slurm:sbatch", execution.execution_type)
-		self.assertEquals("-X", execution.parameters)
 		self.assertEquals(executor.execute_status_failed, execution.status)
 		self.assertEquals("Testbed is off-line", execution.output)
 

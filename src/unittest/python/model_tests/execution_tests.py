@@ -17,9 +17,7 @@ class ExecutionTests(unittest.TestCase):
 	def test_initialization_execution(self):
 		"""Test the initializacion method of the class Execution"""
 
-		execution = Execution("command", "execution_type", "parameters", "status")
+		execution = Execution("execution_type", "status")
 
-		self.assertEquals("command", execution.command)
 		self.assertEquals("execution_type", execution.execution_type)
-		self.assertEquals("parameters", execution.parameters)
 		self.assertEquals("status", execution.status)

@@ -24,7 +24,5 @@ class ApplicationTest(unittest.TestCase):
     def test_initialization_execution_configuration(self):
         """Test the initialization method of the class Execution Scripts"""
 
-        execution_configuration = ExecutionConfiguration("command", "type", "1 2 3")
-        self.assertEquals("command", execution_configuration.command)
+        execution_configuration = ExecutionConfiguration("type")
         self.assertEquals("type", execution_configuration.execution_type)
-        self.assertEquals("1 2 3", execution_configuration.parameters)
