@@ -27,3 +27,4 @@ class ExecutableTest(unittest.TestCase):
 		self.assertEquals("NOT_COMPILED", executable.status)
 		self.assertEquals("app_folder", executable.singularity_app_folder)
 		self.assertEquals("image.img", executable.singularity_image_file)
+

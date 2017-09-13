@@ -628,7 +628,7 @@ class AldeV1Tests(TestCase):
         mock_execute_application.assert_called_with(execution_script)
 
     @mock.patch('executor.upload_deployment')
-    def test_post_deployment_preprocessor(self, mock_execute_application):
+    def test_post_deployment_preprocessor(self, mock_upload_deployment):
         """
         It checks the correct work of the post_deployment_preprocessor function
         """
@@ -702,8 +702,12 @@ class AldeV1Tests(TestCase):
                                      data=json.dumps(data),
                                      content_type='application/json')
         self.assertEquals(201, response.status_code)
-        
+        self.assertEquals(1, response.json['executable_id'])
+        self.assertEquals(1, response.json['testbed_id'])
+        self.assertEquals(None, response.json['path'])
+        self.assertEquals(None, response.json['status'])
+
         executable = db.session.query(Executable).filter_by(id=1).first()
         testbed = db.session.query(Testbed).filter_by(id=1).first()
 
-        mock_execute_application.assert_called_with(executable, testbed)
+        mock_upload_deployment.assert_called_with(executable, testbed)

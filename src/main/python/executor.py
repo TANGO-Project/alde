@@ -7,7 +7,10 @@
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
 from threading import Thread
-from models import db, Execution, Testbed, Executable
+from models import db, Execution, Testbed, Executable, Deployment
+import shell
+import uuid
+import os
 
 execute_type_slurm_sbatch = "slurm:sbatch"
 execute_status_submitted = "SUBMITTED"
@@ -60,9 +63,31 @@ def execute_application_type_slurm_sbatch(execution):
 		db.session.commit()
 
 
-def upload_deployment(executable, testbed):
+def upload_deployment(executable, testbed, app_folder='/tmp'):
 	"""
 	It uploads a executable to the testbed to be executed
 	"""
+	# TODO app_folder needs to go via configuration.
 
-	pass
+	# TODO upload the executable
+	# TODO Updates the status of the deployment
+
+	if executable.compilation_type == Executable.__type_singularity_pm__ and testbed.category == Testbed.slurm_category and 'SINGULARITY' in testbed.package_formats :
+
+		path = str(uuid.uuid4())
+
+		if testbed.protocol == Testbed.protocol_ssh :
+			# TODO for local protocol
+			deployment = db.session.query(Deployment).filter_by(executable_id=executable.id, testbed_id=testbed.id).first()
+
+			deployment.path = os.path.join(path, executable.singularity_image_file)
+			
+
+			shell.execute_command('mkdir', testbed.endpoint, [ path ])
+
+			# Uploading the file to the testbed
+			local_filename = os.path.join(app_folder, executable.singularity_image_file)
+			shell.scp_file(local_filename, testbed.endpoint, path)
+
+			deployment.status = Deployment.__status_uploaded_updated__
+			db.session.commit()

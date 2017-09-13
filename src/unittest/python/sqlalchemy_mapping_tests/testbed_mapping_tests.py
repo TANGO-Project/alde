@@ -39,6 +39,14 @@ class TestbedMappingTest(MappingTest):
         testbed = db.session.query(Testbed).filter_by(name='name').first()
         self.assertFalse(testbed.on_line)
 
+        # Checking the pickle format
+        testbed.package_formats = [ 'pepito', 'fulanito']
+        db.session.commit()
+        testbed = db.session.query(Testbed).filter_by(name='name').first()
+        self.assertEquals('pepito', testbed.package_formats[0])
+        self.assertEquals('fulanito', testbed.package_formats[1])
+
+
         # We check the deletion
         db.session.delete(testbed)
         count = db.session.query(Testbed).filter_by(name='name').count()

@@ -154,7 +154,6 @@ def post_deployment_preprocessor(data=None, **kw):
     """
     It verifies that an executable can be uploaded to the testbed
     """
-    # TODO upload the exectuable to the testbed (this process maybe needs to be done via a thread... )
 
     # We verify the id is in the right format
     if 'testbed_id' in data :
@@ -170,7 +169,7 @@ def post_deployment_preprocessor(data=None, **kw):
                 if executable :
                     # We verify that the testbed is on-line
                     if testbed.on_line :
-                        executor.upload_deployment(executable, testbed)
+                        pass
                     else :
                         raise flask_restless.ProcessingException(
                         description='Testbed is off-line, this process needs to be performed manually',
@@ -191,6 +190,16 @@ def post_deployment_preprocessor(data=None, **kw):
         raise flask_restless.ProcessingException(
                 description='Missing testbed_id field in the inputed JSON',
                 code=400)
+
+def post_deployment_postprocessor(result=None):
+    """
+    It starsts the uploading process of a deployment to the testbed
+    """
+
+    executable = db.session.query(Executable).filter_by(id=result['executable_id']).first()
+    testbed = db.session.query(Testbed).filter_by(id=result['testbed_id']).first()
+
+    executor.upload_deployment(executable, testbed)
 
 
 def create_app_v1(sql_db_url, port, app_folder):
@@ -233,6 +242,9 @@ def create_app_v1(sql_db_url, port, app_folder):
                        preprocessors={
                             'POST': [post_deployment_preprocessor]
                             },
+                       postprocessors={
+                            'POST': [post_deployment_postprocessor]
+                       },
                        url_prefix=url_prefix_v1)
 
     # Create the REST methods for a Testbed

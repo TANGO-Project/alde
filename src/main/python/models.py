@@ -49,6 +49,7 @@ class Executable(db.Model):
     __status_compiling__ = 'COMPILING'
     __status_compiled__ = 'COMPILED'
     __status_error_type__ = 'ERROR: UNKNOW TYPE'
+    __type_singularity_pm__ = 'SINGULARITY:PM'
 
 
     # SQLAlchemy mapping code
@@ -375,7 +376,7 @@ class Testbed(db.Model):
     protocol = db.Column(db.String)
     endpoint = db.Column(db.String)
     extra_config = db.Column(json_type)
-    #package_formats = db.Column(db.String)
+    package_formats = db.Column(db.PickleType)
     nodes = db.relationship("Node", order_by=Node.id, back_populates="testbed")
 
     def __init__(self, name, on_line, category, protocol, endpoint, package_formats=[], extra_config=None):
