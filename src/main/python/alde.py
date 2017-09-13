@@ -12,7 +12,7 @@ import slurm
 import logging
 import executor
 from flask_apscheduler import APScheduler
-from models import db, Application, ExecutionConfiguration, Testbed, Node, Memory, CPU, MCP, GPU, Deployment
+from models import db, Application, ExecutionConfiguration, Testbed, Node, Memory, CPU, MCP, GPU, Deployment, Executable
 
 url_prefix_v1='/api/v1'
 accepted_message = { 'create' : True, 'reason' : ''}
@@ -119,8 +119,6 @@ def post_testbed_preprocessor(data=None, **kw):
     add nodes to if necessaryexi
     """
 
-    print(data)
-
     if 'nodes' in data :
         create = can_create_the_node(testbed=data)
 
@@ -151,6 +149,48 @@ def patch_execution_script_preprocessor(instance_id=None, data=None, **kw):
 
             else:
                 executor.execute_application(execution_script)
+
+def post_deployment_preprocessor(data=None, **kw):
+    """
+    It verifies that an executable can be uploaded to the testbed
+    """
+    # TODO upload the exectuable to the testbed (this process maybe needs to be done via a thread... )
+
+    # We verify the id is in the right format
+    if 'testbed_id' in data :
+        if 'executable_id' in data :
+
+            # We verify that the testbed exists in the database
+            testbed = db.session.query(Testbed).filter_by(id=data['testbed_id']).first()
+
+            if testbed :
+                # We verify now that the executable_id is present in the db
+                executable = db.session.query(Executable).filter_by(id=data['executable_id']).first()
+
+                if executable :
+                    # We verify that the testbed is on-line
+                    if testbed.on_line :
+                        executor.upload_deployment(executable, testbed)
+                    else :
+                        raise flask_restless.ProcessingException(
+                        description='Testbed is off-line, this process needs to be performed manually',
+                        code=403)
+                else :
+                    raise flask_restless.ProcessingException(
+                        description='No executable found with that id in the database',
+                        code=400)
+            else :
+                raise flask_restless.ProcessingException(
+                description='No testbed found with that id in the database',
+                code=400)
+        else :
+            raise flask_restless.ProcessingException(
+                description='Missing executable_id field in the inputed JSON',
+                code=400)
+    else :
+        raise flask_restless.ProcessingException(
+                description='Missing testbed_id field in the inputed JSON',
+                code=400)
 
 
 def create_app_v1(sql_db_url, port, app_folder):
@@ -190,6 +230,9 @@ def create_app_v1(sql_db_url, port, app_folder):
     # Create the REST APi for the deployment
     manager.create_api(Deployment,
                        methods=['POST'],
+                       preprocessors={
+                            'POST': [post_deployment_preprocessor]
+                            },
                        url_prefix=url_prefix_v1)
 
     # Create the REST methods for a Testbed

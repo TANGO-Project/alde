@@ -8,7 +8,7 @@
 
 from flask import Flask
 from flask_testing import TestCase
-from models import db, ExecutionConfiguration, Application, Testbed, Node
+from models import db, ExecutionConfiguration, Application, Testbed, Node, Executable
 import alde
 import json
 import unittest.mock as mock
@@ -57,8 +57,10 @@ class AldeV1Tests(TestCase):
         # We store some testbeds in the db for the tests
         testbed_1 = Testbed("name_1", True, "slurm", "ssh", "user@server", ['slurm'])
         testbed_2 = Testbed("name_2", False, "slurm", "ssh", "user@server", ['slurm'])
+        testbed_3 = Testbed("name_3", True, "slurm", "ssh", "user@server", ['slurm', 'slurm:singularity'])
         db.session.add(testbed_1)
         db.session.add(testbed_2)
+        db.session.add(testbed_3)
 
         # We store some nodes in the db for the tests
         node_1 = Node("node_1", True)
@@ -180,10 +182,10 @@ class AldeV1Tests(TestCase):
         self.assertEquals("config2", testbed['extra_config']['extra2_config'])
         # We check that we only have three testbeds
         response = self.client.get("/api/v1/testbeds")
-        self.assertEquals(3, len(response.json['objects']))
+        self.assertEquals(4, len(response.json['objects']))
 
         # GET Specific identity
-        response = self.client.get("/api/v1/testbeds/3")
+        response = self.client.get("/api/v1/testbeds/4")
         self.assertEquals(200, response.status_code)
         testbed = response.json
         self.assertEquals("name_3", testbed['name'])
@@ -198,7 +200,7 @@ class AldeV1Tests(TestCase):
         self.assertEquals(204, response.status_code)
         # We check we only have two entities in the db
         response = self.client.get("/api/v1/testbeds")
-        self.assertEquals(2, len(response.json['objects']))
+        self.assertEquals(3, len(response.json['objects']))
 
         # PUT
         data={"name": "Foobar"}
@@ -605,7 +607,6 @@ class AldeV1Tests(TestCase):
                                      content_type='application/json')
 
         self.assertEquals(403, response.status_code)
-        print(response.json)
         self.assertEquals(
           'Testbed does not allow on-line connection',
           response.json['message'])
@@ -625,3 +626,84 @@ class AldeV1Tests(TestCase):
         self.assertEquals(200, response.status_code)
 
         mock_execute_application.assert_called_with(execution_script)
+
+    @mock.patch('executor.upload_deployment')
+    def test_post_deployment_preprocessor(self, mock_execute_application):
+        """
+        It checks the correct work of the post_deployment_preprocessor function
+        """
+
+        # Error raised becasue missing testbed_id
+        data = { 'asdf' : 'asdf'}
+
+        response = self.client.post("/api/v1/deployments",
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        self.assertEquals(400, response.status_code)
+        self.assertEquals('Missing testbed_id field in the inputed JSON', response.json['message'])
+
+        # Error raised because missing executable_di
+        data = { 'asdf' : 'asdf',
+                 'testbed_id' : 1 }
+
+        response = self.client.post("/api/v1/deployments",
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        self.assertEquals(400, response.status_code)
+        self.assertEquals('Missing executable_id field in the inputed JSON', response.json['message'])
+
+        # Error raised because the testbed_id is wrong
+        data = { 'executable_id' : 1,
+                 'testbed_id' : 5 }
+
+        response = self.client.post("/api/v1/deployments",
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        self.assertEquals(400, response.status_code)
+        self.assertEquals('No testbed found with that id in the database', response.json['message'])
+
+        # Error raised because the executable_id is wrong
+        data = { 'executable_id' : 1,
+                 'testbed_id' : 1 }
+
+        response = self.client.post("/api/v1/deployments",
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        self.assertEquals(400, response.status_code)
+        self.assertEquals('No executable found with that id in the database', response.json['message'])
+
+        # Error raised because the testbed is off-line
+        # We verify that the object is not in the db after creating it
+        executable = Executable("source", "script", "type")
+        db.session.add(executable)
+        db.session.commit()
+
+        data = { 'executable_id' : 1,
+                 'testbed_id' : 2 }
+
+        response = self.client.post("/api/v1/deployments",
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        self.assertEquals(403, response.status_code)
+        self.assertEquals('Testbed is off-line, this process needs to be performed manually', response.json['message'])
+
+        # Verify that the executable was uploaded
+
+
+        data = { 'executable_id' : 1,
+                 'testbed_id' : 1 }
+
+        response = self.client.post("/api/v1/deployments",
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+        self.assertEquals(201, response.status_code)
+        
+        executable = db.session.query(Executable).filter_by(id=1).first()
+        testbed = db.session.query(Testbed).filter_by(id=1).first()
+
+        mock_execute_application.assert_called_with(executable, testbed)

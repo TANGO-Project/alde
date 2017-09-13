@@ -7,7 +7,7 @@
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
 from threading import Thread
-from models import db, Execution, Testbed
+from models import db, Execution, Testbed, Executable
 
 execute_type_slurm_sbatch = "slurm:sbatch"
 execute_status_submitted = "SUBMITTED"
@@ -58,3 +58,11 @@ def execute_application_type_slurm_sbatch(execution):
 		execution.status = execute_status_failed
 		execution.output = "Testbed is off-line"
 		db.session.commit()
+
+
+def upload_deployment(executable, testbed):
+	"""
+	It uploads a executable to the testbed to be executed
+	"""
+
+	pass
