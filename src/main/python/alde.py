@@ -32,21 +32,21 @@ class Config(object):
             'func': 'slurm:check_nodes_in_db_for_on_line_testbeds',
             'args': (),
             'trigger': 'interval',
-            'seconds': 30 # TODO increase this after the debugging ends
+            'seconds': 12000 # TODO increase this after the debugging ends
         },
         {
             'id': 'update_node_info',
             'func': 'slurm:update_node_information',
             'args': (),
             'trigger': 'interval',
-            'seconds': 30 # TODO increase this after the debugging ends
+            'seconds': 12000 # TODO increase this after the debugging ends
         },
         {
             'id': 'update_cpu_node_info',
             'func': 'slurm:update_cpu_node_information',
             'args': (),
             'trigger': 'interval',
-            'seconds': 60 # TODO increase this after the debugging ends
+            'seconds': 12000 # TODO increase this after the debugging ends
         },
         {
             'id': 'check_not_compiled_apps',
@@ -137,9 +137,11 @@ def patch_execution_script_preprocessor(instance_id=None, data=None, **kw):
 
             execution_script = db.session.query(ExecutionConfiguration).filter_by(id=instance_id).first()
 
-            if not execution_script.testbed:
+            deployment = db.session.query(Deployment).filter_by(executable_id=execution_script.executable_id, testbed_id=execution_script.testbed_id).first()
+
+            if not deployment:
                 raise flask_restless.ProcessingException(
-                                            description='No testbed configured to execute the application',
+                                            description='No deployment configured to execute the application',
                                             code=409)
 
             elif not execution_script.testbed.on_line:

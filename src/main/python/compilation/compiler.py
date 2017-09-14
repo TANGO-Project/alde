@@ -19,8 +19,8 @@ def return_not_compiled_executables():
 	"""
 	It looks in the db for all the not compiled executables
 	"""
-
-	return db.session.query(Executable).filter_by(status=Executable.__status_not_compiled__).all()
+	with db.session.no_autoflush:
+		return db.session.query(Executable).filter_by(status=Executable.__status_not_compiled__).all()
 
 def compile_executables(app_folder='/tmp'):
 	"""

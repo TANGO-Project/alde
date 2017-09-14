@@ -8,7 +8,7 @@
 
 from flask import Flask
 from flask_testing import TestCase
-from models import db, ExecutionConfiguration, Application, Testbed, Node, Executable
+from models import db, ExecutionConfiguration, Application, Testbed, Node, Executable, Deployment
 import alde
 import json
 import unittest.mock as mock
@@ -61,6 +61,12 @@ class AldeV1Tests(TestCase):
         db.session.add(testbed_1)
         db.session.add(testbed_2)
         db.session.add(testbed_3)
+        db.session.commit()
+
+        deployment = Deployment()
+        deployment.executable_id = execution_script_1.id
+        deployment.testbed_id = testbed_1.id
+        db.session.add(deployment)
 
         # We store some nodes in the db for the tests
         node_1 = Node("node_1", True)
@@ -585,19 +591,30 @@ class AldeV1Tests(TestCase):
         print(response.json)
         execution_script = response.json
         self.assertEquals(
-          'No testbed configured to execute the application',
+          'No deployment configured to execute the application',
           response.json['message'])
 
         """
         Now we have an off-line testbed testbed to submit the execution
         """
         testbed = Testbed("name", False, "slurm", "ssh", "user@server", ['slurm'])
-
         db.session.add(testbed)
+
+        executable = Executable('source_code_file', 'compilation_script', 'compilation_type')
+        db.session.add(executable)
+
         db.session.commit()
 
         execution_script = db.session.query(ExecutionConfiguration).filter_by(id=1).first()
         execution_script.testbed = testbed
+        execution_script.executable = executable
+
+        db.session.commit()
+
+        deployment = Deployment()
+        deployment.executable_id = executable.id
+        deployment.testbed_id = testbed.id
+        db.session.add(deployment)
         db.session.commit()
 
         data = {'launch_execution': True}
@@ -696,18 +713,18 @@ class AldeV1Tests(TestCase):
 
 
         data = { 'executable_id' : 1,
-                 'testbed_id' : 1 }
+                 'testbed_id' : 3 }
 
         response = self.client.post("/api/v1/deployments",
                                      data=json.dumps(data),
                                      content_type='application/json')
         self.assertEquals(201, response.status_code)
         self.assertEquals(1, response.json['executable_id'])
-        self.assertEquals(1, response.json['testbed_id'])
+        self.assertEquals(3, response.json['testbed_id'])
         self.assertEquals(None, response.json['path'])
         self.assertEquals(None, response.json['status'])
 
         executable = db.session.query(Executable).filter_by(id=1).first()
-        testbed = db.session.query(Testbed).filter_by(id=1).first()
+        testbed = db.session.query(Testbed).filter_by(id=3).first()
 
         mock_upload_deployment.assert_called_with(executable, testbed)
