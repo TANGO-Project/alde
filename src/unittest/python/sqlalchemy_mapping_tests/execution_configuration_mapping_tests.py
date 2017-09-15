@@ -19,7 +19,8 @@ class ExecutionConfigurationMappingTest(MappingTest):
         """It test basic CRUD operations of an ExecutionConfiguration Class"""
 
         # We verify that the object is not in the db after creating
-        execution_configuration = ExecutionConfiguration("slurm:sbatch")
+        execution_configuration = ExecutionConfiguration()
+        execution_configuration.execution_type = "slurm:sbatch"
         self.assertIsNone(execution_configuration.id)
 
         # We store the object in the db
@@ -52,7 +53,8 @@ class ExecutionConfigurationMappingTest(MappingTest):
         db.session.commit()
 
         # We create an execution script
-        execution_configuration = ExecutionConfiguration("slurm:sbatch")
+        execution_configuration = ExecutionConfiguration()
+        execution_configuration.execution_type = "slurm:sbatch"
         execution_configuration.testbed = testbed
 
         db.session.add(execution_configuration)

@@ -54,9 +54,9 @@ class ApplicationMappingTest(MappingTest):
 
         # We create several ExecutionConfigurations
         application.execution_configurations = [
-            ExecutionConfiguration("slurm:sbatch"),
-            ExecutionConfiguration("slurm:xxx"),
-            ExecutionConfiguration("asdf")]
+            ExecutionConfiguration(),
+            ExecutionConfiguration(),
+            ExecutionConfiguration()]
 
         # We save everything to the db
         db.session.add(application)
@@ -66,9 +66,6 @@ class ApplicationMappingTest(MappingTest):
         application = db.session.query(Application).filter_by(name='AppName').first()
 
         self.assertEquals(3, len(application.execution_configurations))
-        self.assertEquals("slurm:sbatch", application.execution_configurations[0].execution_type)
-        self.assertEquals("slurm:xxx", application.execution_configurations[1].execution_type)
-        self.assertEquals("asdf", application.execution_configurations[2].execution_type)
 
         # lets delete a execution_script directly
         db.session.delete(application.execution_configurations[0])
@@ -76,14 +73,10 @@ class ApplicationMappingTest(MappingTest):
 
         application = db.session.query(Application).filter_by(name='AppName').first()
         self.assertEquals(2, len(application.execution_configurations))
-        self.assertEquals("slurm:xxx", application.execution_configurations[0].execution_type)
-        self.assertEquals("asdf", application.execution_configurations[1].execution_type)
 
         # It should be only two execution scripts in the db:
         execution_configurations = db.session.query(ExecutionConfiguration).all()
         self.assertEquals(2, len(execution_configurations))
-        self.assertEquals("slurm:xxx", execution_configurations[0].execution_type)
-        self.assertEquals("asdf", execution_configurations[1].execution_type)
 
     def test_application_executable_relation(self):
         """

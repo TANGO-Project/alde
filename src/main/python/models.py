@@ -111,21 +111,14 @@ class ExecutionConfiguration(db.Model):
     testbed = db.relationship("Testbed")
     executable_id = db.Column(db.Integer, db.ForeignKey('executables.id'))
     executable = db.relationship("Executable")
-    debug = db.Column(db.Boolean)
     num_nodes = db.Column(db.Integer)
     num_gpus_per_node = db.Column(db.Integer)
     num_cpus_per_node = db.Column(db.Integer)
     exec_time = db.Column(db.Integer)
     command = db.Column(db.Integer)
-    enqueue_compss_worker_working_dir = db.Column(db.String)
-    enqueue_compss_lang = db.Column(db.String)
-    enqueue_compss_monitoring = db.Column(db.Integer)
-    launch_execution=False
+    compss_config = db.Column(db.String)
+    launch_execution=False    
 
-    def __init__(self, execution_type):
-        """Initialize basic parameters of the class"""
-
-        self.execution_type = execution_type
 
 class Application(db.Model):
     """

@@ -1,0 +1,15 @@
+curl -X POST -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/applications -d'{ "name": "my_app" }'
+
+
+curl -X POST -F "file=@test.zip" http://localhost:5000/api/v1/upload/1?compilation_type=SINGULARITY:PM\&compilation_script=compss_build_app+Matmul
+
+# Definition of nova testbed
+curl -X POST -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/testbeds -d'{ "name": "nova2", "on_line": true, "category": "SLURM", "protocol": "SSH", "endpoint": "ns54", "extra_config": { "enqueue_compss_sc_cfg": "nova.cfg" }, "package_formats": [ "SINGULARITY"]}'
+
+# Definition of a deployment
+curl -X POST -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/deployments -d'{"executable_id": 3, "testbed_id": 2}'
+
+# Create execution configuration
+curl -X POST -H'Content-type: application/json' http://127.0.0.1:5000/api/v1/execution_configurations -d'{ "execution_type":"SINGULARITY:PM", "application_id": 1, "testbed_id": 2, "executable_id": 3, "debug": true, "num_nodes": 2, "num_gpus_per_node": 2, "num_cpus_per_node": 2, "exec_time": 90, "command": "/home/atos/tango/alde/src/main/resources/master/Matmul 2 1024 12.34", "enqueue_compss_worker_working_dir": "/home_nfs/home_ejarquej", "enqueue_compss_lang": "C", "enqueue_compss_monitoring": 1000}'
+
+# Launch the execution

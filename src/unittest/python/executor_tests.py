@@ -76,7 +76,8 @@ class ExecutorTests(MappingTest):
 		Verifies that the right methods and status are set when an appplication is executed
 		"""
 
-		execution_configuration = ExecutionConfiguration("slurm:sbatch")
+		execution_configuration = ExecutionConfiguration()
+		execution_configuration.execution_type = "slurm:sbatch"
 		db.session.add(execution_configuration)
 		db.session.commit()
 
@@ -112,7 +113,8 @@ class ExecutorTests(MappingTest):
 
 		execution = Execution("slurm:sbatch", executor.execute_status_submitted)
 		testbed = Testbed("name", True, "xxxx", "ssh", "user@server", ['slurm'])
-		execution_configuration = ExecutionConfiguration("slurm:sbatch")
+		execution_configuration = ExecutionConfiguration()
+		execution_configuration.execution_type = "slurm:sbatch"
 		execution.execution_configuration=execution_configuration
 		execution_configuration.testbed = testbed
 

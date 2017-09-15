@@ -44,8 +44,10 @@ class AldeV1Tests(TestCase):
         application_2 = Application("AppName_2")
 
         # Adding executing scripts
-        execution_script_1 = ExecutionConfiguration("slurm:sbatch")
-        execution_script_2 = ExecutionConfiguration("slurm:sbatch2")
+        execution_script_1 = ExecutionConfiguration()
+        execution_script_1.execution_type = "slurm:sbatch"
+        execution_script_2 = ExecutionConfiguration()
+        execution_script_2.execution_type = "slurm:sbatch2"
         application_2.execution_configurations = [
                 execution_script_1,
                 execution_script_2 ]

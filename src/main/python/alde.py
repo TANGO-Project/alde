@@ -240,7 +240,7 @@ def create_app_v1(sql_db_url, port, app_folder):
 
     # Create the REST APi for the deployment
     manager.create_api(Deployment,
-                       methods=['POST'],
+                       methods=['GET', 'POST'],
                        preprocessors={
                             'POST': [post_deployment_preprocessor]
                             },
