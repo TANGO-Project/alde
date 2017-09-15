@@ -13,6 +13,7 @@ import uuid
 import os
 
 execute_type_slurm_sbatch = "slurm:sbatch"
+execute_type_singularity_pm = "SINGULARITY:PM"
 execute_status_submitted = "SUBMITTED"
 execute_status_failed = "FAILED"
 
@@ -37,10 +38,25 @@ def execute_application(execution_configuration):
 		t = Thread(target=execute_application_type_slurm_sbatch, args=(execution,))
 		t.start()
 		return t
+	elif execution.execution_type == execute_type_singularity_pm :
+		t = Thread(target=execute_application_type_singularity_pm, args=(execution, execution_configuration))
+		t.start()
+		return t
 	else: 
 		execution.status = execute_status_failed
 		execution.output = "No support for execurtion type: " + execution.execution_type
 		db.session.commit()
+
+def execute_application_type_singularity_pm(execution, execution_configuration):
+	"""
+	It executes a Singularity PM application in a targatted testbed
+	"""
+
+	# TODO launch the execution as specified by Jorge
+	# TODO recover the slurm id to query slurm (check how to do this)
+	# TODO in other method... monitor the application... 
+
+	pass
 
 def execute_application_type_slurm_sbatch(execution):
 	"""

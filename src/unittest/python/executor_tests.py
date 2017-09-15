@@ -70,8 +70,9 @@ class ExecutorTests(MappingTest):
 		local_filename = os.path.join('/tmp', executable.singularity_image_file)
 		mock_scp.assert_called_with(local_filename, testbed.endpoint, path)
 
+	@mock.patch("executor.execute_application_type_singularity_pm")
 	@mock.patch("executor.execute_application_type_slurm_sbatch")
-	def test_execute_application(self, mock_slurm_sbatch):
+	def test_execute_application(self, mock_slurm_sbatch, mock_singularity):
 		"""
 		Verifies that the right methods and status are set when an appplication is executed
 		"""
@@ -90,6 +91,18 @@ class ExecutorTests(MappingTest):
 		# We verify that the right method was called
 		t.join()
 		mock_slurm_sbatch.assert_called_with(execution)
+
+		execution_configuration.execution_type = "SINGULARITY:PM"
+		db.session.commit()
+
+		t = executor.execute_application(execution_configuration)
+		execution = db.session.query(Execution).filter_by(execution_type="SINGULARITY:PM").first()
+		self.assertEquals("SINGULARITY:PM", execution.execution_type)
+		self.assertEquals(executor.execute_status_submitted, execution.status)
+
+		# We verify that the right method was called
+		t.join()
+		mock_singularity.assert_called_with(execution, execution_configuration)
 
 		# We verify the wrong status of unrecognize execution type
 		execution_configuration.execution_type = "xxx"
