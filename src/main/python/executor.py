@@ -51,12 +51,37 @@ def execute_application_type_singularity_pm(execution, execution_configuration):
 	"""
 	It executes a Singularity PM application in a targatted testbed
 	"""
+	# TODO sacar del config:  --container_compss_path=/opt/TANGO/TANGO_ProgrammingModel/COMPSs/
 
+	# TODO I have to load the environemnt
 	# TODO launch the execution as specified by Jorge
 	# TODO recover the slurm id to query slurm (check how to do this)
 	# TODO in other method... monitor the application... 
 
-	pass
+	# Lets recover all the information needed...execution_configuration
+	testbed = db.session.query(Testbed).filter_by(id=execution_configuration.testbed_id).first()
+	deployment = db.session.query(Deployment).filter_by(executable_id=execution_configuration.executable_id, testbed_id=testbed.id).first()
+	executable = db.session.query(Executable).filter_by(id=execution_configuration.executable_id).first()
+
+	# Preparing the command to be executed
+	command = "source"
+	endpoint = testbed.endpoint
+	params = []
+	params.append(testbed.extra_config['enqueue_env_file'])
+	params.append(";")
+	params.append("enqueue_compss")
+	params.append("--sc_cfg=" + testbed.extra_config['enqueue_compss_sc_cfg'])
+	params.append("--num_nodes=" + str(execution_configuration.num_nodes))
+	params.append("--gpus_per_node=" + str(execution_configuration.num_gpus_per_node))
+	params.append("--cpus_per_node=" + str(execution_configuration.num_cpus_per_node))
+	params.append("--container_image=" + deployment.path)
+	params.append("--container_compss_path=/opt/TANGO/TANGO_ProgrammingModel/COMPSs/") # TODO Ugly... ugly... and more ugly...
+	params.append("--appdir=" + executable.singularity_app_folder)
+	params.append("--exec_time=" + str(execution_configuration.exec_time))
+	params.append(execution_configuration.compss_config)
+	params.append(execution_configuration.command)
+
+	shell.execute_command(command, endpoint, params)
 
 def execute_application_type_slurm_sbatch(execution):
 	"""
