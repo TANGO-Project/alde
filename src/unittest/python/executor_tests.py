@@ -102,7 +102,7 @@ class ExecutorTests(MappingTest):
 
 		# We verify that the right method was called
 		t.join()
-		mock_singularity.assert_called_with(execution, execution_configuration)
+		mock_singularity.assert_called_with(execution, execution_configuration.id)
 
 		# We verify the wrong status of unrecognize execution type
 		execution_configuration.execution_type = "xxx"
@@ -177,7 +177,7 @@ class ExecutorTests(MappingTest):
 		# TEST starts here:
 		execution = Execution(execution_config.execution_type,
 						  executor.execute_status_submitted)
-		executor.execute_application_type_singularity_pm(execution, execution_config)
+		executor.execute_application_type_singularity_pm(execution, execution_config.id)
 
 		mock_shell.assert_called_with("source",
 									  "user@testbed.com",
@@ -191,12 +191,29 @@ class ExecutorTests(MappingTest):
 										"--cpus_per_node=12",
 										"--container_image=/pepito/pepito.img",
 										"--container_compss_path=/opt/TANGO/TANGO_ProgrammingModel/COMPSs/",
-										"--appdir=/singularity/app/folder",
+										"--appdir=/apps/application/",
 										"--exec_time=10",
 										"--worker_in_master_cpus=12 --worker_in_master_memory=24000 --worker_working_dir=/home_nfs/home_ejarquej --lang=c --monitoring=1000 -d",
 										"/apps/application/master/Matmul 2 1024 12.34 /home_nfs/home_ejarquej/demo_test/cpu_gpu_run_data"
 									   ]
 									  )
+
+	def test__extract_id_from_sigularity_pm_app__(self):
+		"""
+		Test the correct work of the method: __extract_id_from_sigularity_pm_app__
+		"""
+
+		output = b'COMPSS_HOME=/home_nfs/home_ejarquej/installations/rc1707/COMPSs\nSC Configuration:          nova.cfg\nQueue:                     default\nReservation:               disabled\nNum Nodes:                 1\nNum Switches:              0\nGPUs per node:             2\nJob dependency:            None\nExec-Time:                 00:10:00\nStorage Home:              null\nStorage Properties:        \nOther:                     --sc_cfg=nova.cfg\n\t\t\t--gpus_per_node=2\n\t\t\t--cpus_per_node=12\n\t\t\t--container_image=/tmp/d96d4766-6612-414d-bf5e-0c043a3f30c3.img\n\t\t\t--container_compss_path=/opt/TANGO/TANGO_ProgrammingModel/COMPSs/\n\t\t\t--appdir=/apps/application/\n\t\t\t--worker_in_master_cpus=12\n\t\t\t--worker_in_master_memory=24000\n\t\t\t--worker_working_dir=/home_nfs/home_garciad\n\t\t\t--lang=c\n\t\t\t--monitoring=1000 -d /apps/application/master/Matmul 2 1024 12.34 /home_nfs/home_garciad/demo_test/cpu_gpu_run_data\n \nTemp submit script is: /tmp/tmp.y7WxtgjPSz\nRequesting 2 processes\nSubmitted batch job 3357\n'
+
+		sbatch_id = executor.__extract_id_from_sigularity_pm_app__(output)
+
+		self.assertEquals(3357, sbatch_id)
+
+		output = b'COMPSS_HOME=/home_nfs/home_ejarquej/installations/rc1707/COMPSs\nSC Configuration:          nova.cfg\nQueue:                     default\nReservation:               disabled\nNum Nodes:                 1\nNum Switches:              0\nGPUs per node:             2\nJob dependency:            None\nExec-Time:                 00:10:00\nStorage Home:              null\nStorage Properties:        \nOther:                     --sc_cfg=nova.cfg\n\t\t\t--gpus_per_node=2\n\t\t\t--cpus_per_node=12\n\t\t\t--container_image=/tmp/d96d4766-6612-414d-bf5e-0c043a3f30c3.img\n\t\t\t--container_compss_path=/opt/TANGO/TANGO_ProgrammingModel/COMPSs/\n\t\t\t--appdir=/apps/application/\n\t\t\t--worker_in_master_cpus=12\n\t\t\t--worker_in_master_memory=24000\n\t\t\t--worker_working_dir=/home_nfs/home_garciad\n\t\t\t--lang=c\n\t\t\t--monitoring=1000 -d /apps/application/master/Matmul 2 1024 12.34 /home_nfs/home_garciad/demo_test/cpu_gpu_run_data\n \nTemp submit script is: /tmp/tmp.y7WxtgjPSz\nRequesting 2 processes\nSubmitted batch job     3357    \n\n\n'
+
+		sbatch_id = executor.__extract_id_from_sigularity_pm_app__(output)
+
+		self.assertEquals(3357, sbatch_id)
 
 	def test_execute_application_type_slurm_sbatch(self):
 		"""

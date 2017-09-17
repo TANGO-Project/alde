@@ -7,7 +7,7 @@
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
 from threading import Thread
-from models import db, Execution, Testbed, Executable, Deployment
+from models import db, Execution, Testbed, Executable, Deployment, ExecutionConfiguration
 import shell
 import uuid
 import os
@@ -39,7 +39,7 @@ def execute_application(execution_configuration):
 		t.start()
 		return t
 	elif execution.execution_type == execute_type_singularity_pm :
-		t = Thread(target=execute_application_type_singularity_pm, args=(execution, execution_configuration))
+		t = Thread(target=execute_application_type_singularity_pm, args=(execution, execution_configuration.id))
 		t.start()
 		return t
 	else: 
@@ -47,7 +47,7 @@ def execute_application(execution_configuration):
 		execution.output = "No support for execurtion type: " + execution.execution_type
 		db.session.commit()
 
-def execute_application_type_singularity_pm(execution, execution_configuration):
+def execute_application_type_singularity_pm(execution, identifier):
 	"""
 	It executes a Singularity PM application in a targatted testbed
 	"""
@@ -59,6 +59,7 @@ def execute_application_type_singularity_pm(execution, execution_configuration):
 	# TODO in other method... monitor the application... 
 
 	# Lets recover all the information needed...execution_configuration
+	execution_configuration = db.session.query(ExecutionConfiguration).filter_by(id=identifier).first() # This is to avoid reusing objects from other thread
 	testbed = db.session.query(Testbed).filter_by(id=execution_configuration.testbed_id).first()
 	deployment = db.session.query(Deployment).filter_by(executable_id=execution_configuration.executable_id, testbed_id=testbed.id).first()
 	executable = db.session.query(Executable).filter_by(id=execution_configuration.executable_id).first()
@@ -76,12 +77,30 @@ def execute_application_type_singularity_pm(execution, execution_configuration):
 	params.append("--cpus_per_node=" + str(execution_configuration.num_cpus_per_node))
 	params.append("--container_image=" + deployment.path)
 	params.append("--container_compss_path=/opt/TANGO/TANGO_ProgrammingModel/COMPSs/") # TODO Ugly... ugly... and more ugly...
-	params.append("--appdir=" + executable.singularity_app_folder)
+	#params.append("--appdir=" + executable.singularity_app_folder)
+	params.append("--appdir=/apps/application/") # TODO Ugly... fix this... 
 	params.append("--exec_time=" + str(execution_configuration.exec_time))
 	params.append(execution_configuration.compss_config)
 	params.append(execution_configuration.command)
 
-	shell.execute_command(command, endpoint, params)
+	output = shell.execute_command(command, endpoint, params)
+	print(output)
+
+def __extract_id_from_sigularity_pm_app__(output):
+	"""
+	Internal method to extract the id from the output of
+	the execution of enqueue_compss commnad
+	"""
+
+	lines = output.decode('utf-8')
+	lines = lines.split("\n")
+
+	last = None
+	for line in (line for line in lines if line.rstrip('\n')):
+		last = line
+
+	last = ' '.join(last.split())
+	return int(last.split()[-1])
 
 def execute_application_type_slurm_sbatch(execution):
 	"""
