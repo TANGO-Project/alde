@@ -198,6 +198,12 @@ class ExecutorTests(MappingTest):
 									   ]
 									  )
 
+		execution = db.session.query(Execution).filter_by(execution_configuration_id=execution_config.id).first()
+
+		self.assertEquals(execution.execution_type, execution_config.execution_type)
+		self.assertEquals(execution.status, Execution.__status_running__)
+		self.assertEquals(3357, execution.slurm_sbatch_id)
+
 	def test__extract_id_from_sigularity_pm_app__(self):
 		"""
 		Test the correct work of the method: __extract_id_from_sigularity_pm_app__

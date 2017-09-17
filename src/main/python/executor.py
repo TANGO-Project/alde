@@ -51,12 +51,6 @@ def execute_application_type_singularity_pm(execution, identifier):
 	"""
 	It executes a Singularity PM application in a targatted testbed
 	"""
-	# TODO sacar del config:  --container_compss_path=/opt/TANGO/TANGO_ProgrammingModel/COMPSs/
-
-	# TODO I have to load the environemnt
-	# TODO launch the execution as specified by Jorge
-	# TODO recover the slurm id to query slurm (check how to do this)
-	# TODO in other method... monitor the application... 
 
 	# Lets recover all the information needed...execution_configuration
 	execution_configuration = db.session.query(ExecutionConfiguration).filter_by(id=identifier).first() # This is to avoid reusing objects from other thread
@@ -85,7 +79,12 @@ def execute_application_type_singularity_pm(execution, identifier):
 
 	output = shell.execute_command(command, endpoint, params)
 	sbatch_id = __extract_id_from_sigularity_pm_app__(output)
-	print(sbatch_id)
+	
+	execution = Execution(execution_configuration.execution_type, Execution.__status_running__)
+	execution_configuration.executions.append(execution)
+	execution.slurm_sbatch_id = sbatch_id
+	db.session.commit()
+
 
 def __extract_id_from_sigularity_pm_app__(output):
 	"""

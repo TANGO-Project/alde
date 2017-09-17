@@ -79,6 +79,7 @@ class Execution(db.Model):
     Objet that represents the execution of an application with its
     different states
     """
+    __status_running__ = "RUNNING"
 
     # SQLAlchemy mapping code
     __tablename__ = 'executions'
@@ -87,6 +88,8 @@ class Execution(db.Model):
     status = db.Column(db.String)
     output = db.Column(db.String)
     execution_configuration_id = db.Column(db.Integer, db.ForeignKey('execution_configurations.id'))
+    execution_configuration = db.relationship("ExecutionConfiguration")
+    slurm_sbatch_id = db.Column(db.Integer)
 
     def __init__(self, execution_type, status):
         """Initiaze basic parameters of the class"""
@@ -117,6 +120,7 @@ class ExecutionConfiguration(db.Model):
     exec_time = db.Column(db.Integer)
     command = db.Column(db.Integer)
     compss_config = db.Column(db.String)
+    executions = db.relationship("Execution", order_by=Execution.id, back_populates="execution_configuration")
     launch_execution=False    
 
 
