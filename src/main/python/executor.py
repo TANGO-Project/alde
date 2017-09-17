@@ -84,7 +84,8 @@ def execute_application_type_singularity_pm(execution, identifier):
 	params.append(execution_configuration.command)
 
 	output = shell.execute_command(command, endpoint, params)
-	print(output)
+	sbatch_id = __extract_id_from_sigularity_pm_app__(output)
+	print(sbatch_id)
 
 def __extract_id_from_sigularity_pm_app__(output):
 	"""

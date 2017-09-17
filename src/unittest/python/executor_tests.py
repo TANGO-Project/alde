@@ -115,7 +115,6 @@ class ExecutorTests(MappingTest):
 		self.assertEquals(executor.execute_status_failed, execution.status)
 		self.assertEquals("No support for execurtion type: xxx", execution.output)
 
-
 	@mock.patch("shell.execute_command")
 	def test_execute_application_type_singularity_pm(self, mock_shell):
 		"""
@@ -171,8 +170,9 @@ class ExecutorTests(MappingTest):
 		db.session.add(execution_config)
 		db.session.commit()
 
-		# TODO execute the command
-		# TODO parse the output
+		output = b'COMPSS_HOME=/home_nfs/home_ejarquej/installations/rc1707/COMPSs\nSC Configuration:          nova.cfg\nQueue:                     default\nReservation:               disabled\nNum Nodes:                 1\nNum Switches:              0\nGPUs per node:             2\nJob dependency:            None\nExec-Time:                 00:10:00\nStorage Home:              null\nStorage Properties:        \nOther:                     --sc_cfg=nova.cfg\n\t\t\t--gpus_per_node=2\n\t\t\t--cpus_per_node=12\n\t\t\t--container_image=/tmp/d96d4766-6612-414d-bf5e-0c043a3f30c3.img\n\t\t\t--container_compss_path=/opt/TANGO/TANGO_ProgrammingModel/COMPSs/\n\t\t\t--appdir=/apps/application/\n\t\t\t--worker_in_master_cpus=12\n\t\t\t--worker_in_master_memory=24000\n\t\t\t--worker_working_dir=/home_nfs/home_garciad\n\t\t\t--lang=c\n\t\t\t--monitoring=1000 -d /apps/application/master/Matmul 2 1024 12.34 /home_nfs/home_garciad/demo_test/cpu_gpu_run_data\n \nTemp submit script is: /tmp/tmp.y7WxtgjPSz\nRequesting 2 processes\nSubmitted batch job 3357\n'
+
+		mock_shell.return_value = output
 
 		# TEST starts here:
 		execution = Execution(execution_config.execution_type,
