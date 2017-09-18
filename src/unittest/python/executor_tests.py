@@ -280,6 +280,8 @@ class ExecutorTests(MappingTest):
 		is working
 		"""
 
+	
+
 		# TODO
 
 		output_squeue = b'             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)\n              3362       all   COMPSs  garciad  R       0:10      1 ns50'
