@@ -132,7 +132,10 @@ def upload_zip_file_application(executable, connection_url, destination_folder, 
 	filename = os.path.join(upload_folder, executable.source_code_file)
 	destination = os.path.join('.', destination_folder)
 
-	shell.scp_file(filename, connection_url, destination)
+	if connection_url != '':
+		shell.scp_file(filename, connection_url, destination)
+	else:
+		shell.execute_command('cp', params=[ filename, destination])
 
 def create_random_folder(connection_url):
 	"""

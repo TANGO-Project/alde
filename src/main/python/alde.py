@@ -32,21 +32,21 @@ class Config(object):
             'func': 'slurm:check_nodes_in_db_for_on_line_testbeds',
             'args': (),
             'trigger': 'interval',
-            'seconds': 12000 # TODO increase this after the debugging ends
+            'seconds': 60 # TODO increase this after the debugging ends
         },
         {
             'id': 'update_node_info',
             'func': 'slurm:update_node_information',
             'args': (),
             'trigger': 'interval',
-            'seconds': 12000 # TODO increase this after the debugging ends
+            'seconds': 70 # TODO increase this after the debugging ends
         },
         {
             'id': 'update_cpu_node_info',
             'func': 'slurm:update_cpu_node_information',
             'args': (),
             'trigger': 'interval',
-            'seconds': 12000 # TODO increase this after the debugging ends
+            'seconds': 80 # TODO increase this after the debugging ends
         },
         {
             'id': 'check_not_compiled_apps',

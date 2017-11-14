@@ -1,10 +1,13 @@
 curl -X POST -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/applications -d'{ "name": "my_app" }'
 
-
 curl -X POST -F "file=@test.zip" http://localhost:5000/api/v1/upload/1?compilation_type=SINGULARITY:PM\&compilation_script=compss_build_app+Matmul
 
 # Definition of nova testbed
 curl -X POST -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/testbeds -d'{ "name": "nova2", "on_line": true, "category": "SLURM", "protocol": "SSH", "endpoint": "ns54", "extra_config": { "enqueue_compss_sc_cfg": "nova.cfg", "enqueue_env_file": "/home_nfs/home_ejarquej/installations/rc1707/COMPSs/compssenv" }, "package_formats": [ "SINGULARITY"]}'
+
+## Defining a local testbed:
+
+curl -X POST -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/testbeds -d'{ "name": "nova2", "on_line": true, "category": "SLURM", "protocol": "LOCAL", "endpoint": ""} 
 
 # Definition of a deployment
 curl -X POST -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/deployments -d'{"executable_id": 1, "testbed_id": 1}'

@@ -190,8 +190,9 @@ class CompilerTests(MappingTest):
 
 		mock_shell_excute.assert_called_with("mkdir", "server@xxxx:2222", [ destination_folder ])
 
+	@mock.patch('compilation.compiler.shell.execute_command')
 	@mock.patch('compilation.compiler.shell.scp_file')
-	def test_upload_zip_file_application(self, mock_scp):
+	def test_upload_zip_file_application(self, mock_scp, mock_exec):
 		""" 
 		Test the function of uploading a zip file of the application 
 		to the selected testbed in an specific folder
@@ -202,3 +203,7 @@ class CompilerTests(MappingTest):
 		compiler.upload_zip_file_application(executable, 'asd@asdf.com', 'dest_folder', '/tmp')
 
 		mock_scp.assert_called_with(os.path.join('/tmp', 'test.zip'), 'asd@asdf.com', './dest_folder')
+
+		compiler.upload_zip_file_application(executable, '', 'dest_folder', '/tmp')
+
+		mock_exec.assert_called_with('cp', params=[ os.path.join('/tmp', 'test.zip'), './dest_folder'])
