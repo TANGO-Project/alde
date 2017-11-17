@@ -57,6 +57,7 @@ def compile_singularity_pm(executable, app_folder):
 	# First we load the configuration config
 	configuration = config.find_compilation_config('SINGULARITY:PM')
 	connection_url = configuration['connection_url']
+	become = configuration['become']
 
 	# We upload an unzip the src to the compilation node
 	compilation_folder = create_random_folder(connection_url)
@@ -68,13 +69,13 @@ def compile_singularity_pm(executable, app_folder):
 
 	# We create the image and we build the container
 	create_singularity_image(configuration, connection_url, _singularity_pm_image_)
-	image_file = build_singularity_container(connection_url, output_template, _singularity_pm_image_, app_folder)
+	image_file = build_singularity_container(connection_url, output_template, _singularity_pm_image_, app_folder, become=become)
 
 	executable.singularity_image_file = image_file
 	executable.status = Executable.__status_compiled__ 
 	db.session.commit()
 
-def build_singularity_container(connection_url, template, image_file, upload_folder):
+def build_singularity_container(connection_url, template, image_file, upload_folder, become=True):
 	"""
 	It builds a singularity container following an specific 
 	definition
@@ -87,8 +88,15 @@ def build_singularity_container(connection_url, template, image_file, upload_fol
 
 	template = os.path.basename(template)
 
-	shell.execute_command('sudo', connection_url, ['singularity', 'bootstrap', image_file, template ])
-	shell.scp_file(local_filename, connection_url, image_file, False)
+	if become:
+		shell.execute_command('sudo', connection_url, ['singularity', 'bootstrap', image_file, template ])
+	else:
+		shell.execute_command('singularity', connection_url, ['bootstrap', image_file, template ])
+
+	if connection_url != '':
+		shell.scp_file(local_filename, connection_url, image_file, False)
+	else:
+		shell.execute_command('mv', connection_url, [img_file_name, local_filename])
 
 	return local_filename
 

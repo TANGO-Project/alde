@@ -11,6 +11,7 @@ from models import db, Executable
 import compilation.compiler as compiler
 import compilation.config as config
 import unittest.mock as mock
+from unittest.mock import ANY, call
 import os
 from uuid import UUID
 
@@ -99,7 +100,7 @@ class CompilerTests(MappingTest):
 		# We verify that the image was created
 		mock_image.assert_called_with(configuration, 'ubuntu@localhost:2222', 'singularity_pm.img')
 		# We verify that the container was build
-		mock_build.assert_called_with('ubuntu@localhost:2222', 'template.def', 'singularity_pm.img', 'asdf')
+		mock_build.assert_called_with('ubuntu@localhost:2222', 'template.def', 'singularity_pm.img', 'asdf', become=True)
 
 		executable = db.session.query(Executable).filter_by(status=Executable. __status_compiled__).first()
 
@@ -117,7 +118,7 @@ class CompilerTests(MappingTest):
 
 		filename = compiler.build_singularity_container('asdf@asdf.com', '/test/test.def', 'image.img', '/tmp')
 
-		mock_shell.assert_called_with('sudo', 'asdf@asdf.com', ['singularity', 'bootstrap', 'image.img', 'test.def'])
+		#mock_shell.assert_called_with('sudo', 'asdf@asdf.com', ['singularity', 'bootstrap', 'image.img', 'test.def'])
 		mock_scp.assert_called_with(filename, 'asdf@asdf.com', 'image.img', False)
 
 		filename = filename[5:-4]
@@ -126,6 +127,39 @@ class CompilerTests(MappingTest):
 			val = UUID(filename, version=4)
 		except ValueError:
 			self.fail("Filname is not uuid4 complaint: " + filename)
+
+		# In case not necessary to use sudo
+		filename = compiler.build_singularity_container('asdf@asdf.com', '/test/test.def', 'image.img', '/tmp', become=False)
+
+		#mock_shell.assert_called_with('singularity', 'asdf@asdf.com', ['bootstrap', 'image.img', 'test.def'])
+		mock_scp.assert_called_with(filename, 'asdf@asdf.com', 'image.img', False)
+
+		filename = filename[5:-4]
+
+		try:
+			val = UUID(filename, version=4)
+		except ValueError:
+			self.fail("Filname is not uuid4 complaint: " + filename)
+
+		# In case of local compilation
+		filename = compiler.build_singularity_container('', '/test/test.def', 'image.img', '/tmp', become=False)
+
+		filename = filename[5:-4]
+
+		try:
+			val = UUID(filename, version=4)
+		except ValueError:
+			self.fail("Filname is not uuid4 complaint: " + filename)
+
+		## WE VERIFY ALL THE CALLS:
+
+		call_1 = call('sudo', 'asdf@asdf.com', ['singularity', 'bootstrap', 'image.img', 'test.def'])
+		call_2 = call('singularity', 'asdf@asdf.com', ['bootstrap', 'image.img', 'test.def'])
+		call_3 = call('singularity', '', ['bootstrap', 'image.img', 'test.def'])
+		call_4 = call('mv', '', [ANY, ANY])
+		calls = [ call_1, call_2, call_3, call_4]
+		mock_shell.assert_has_calls(calls)
+
 
 	@mock.patch('compilation.compiler.shell.execute_command')
 	def test_create_singularity_image(self, mock_shell):
