@@ -80,6 +80,7 @@ class Execution(db.Model):
     different states
     """
     __status_running__ = "RUNNING"
+    __status_finished__ = "FINISHED"
 
     # SQLAlchemy mapping code
     __tablename__ = 'executions'

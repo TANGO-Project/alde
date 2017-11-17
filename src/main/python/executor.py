@@ -140,14 +140,56 @@ def upload_deployment(executable, testbed, app_folder='/tmp'):
 			# TODO for local protocol
 			deployment = db.session.query(Deployment).filter_by(executable_id=executable.id, testbed_id=testbed.id).first()
 
-			deployment.path = os.path.join(path, executable.singularity_image_file)
-			
-
 			shell.execute_command('mkdir', testbed.endpoint, [ path ])
 
+			filename = os.path.basename(executable.singularity_image_file)
+
+			path = path + "/"
+			deployment.path = os.path.join(path, filename)
+
 			# Uploading the file to the testbed
-			local_filename = os.path.join(app_folder, executable.singularity_image_file)
-			shell.scp_file(local_filename, testbed.endpoint, path)
+			shell.scp_file(executable.singularity_image_file, testbed.endpoint, path)
 
 			deployment.status = Deployment.__status_uploaded_updated__
 			db.session.commit()
+
+def monitor_execution_apps():
+	"""
+	It monitors which apps have running executions.
+	It check the status fo those running apps and updates the db accordingly
+	"""
+
+	# TODO query que encuentre las apps que están corriendo y las devuelva 
+	executions = db.session.query(Execution).filter_by(status=Execution.__status_running__).all()
+
+	for execution in executions :
+
+		if execution.execution_type == Executable.__type_singularity_pm__ :
+			monitor_execution_singularity_apps(execution)
+
+
+def monitor_execution_singularity_apps(execution):
+	"""	
+	It monitors the execution of singularity applications
+	"""
+
+	sbatch_id = execution.slurm_sbatch_id
+	testbed = execution.execution_configuration.testbed
+
+	
+def find_squeue_job_status(command_output):
+	"""
+	It finds the status of a squeue job:
+
+	PENDING (PD), RUNNING (R), SUSPENDED (S), STOPPED (ST), COMPLETING (CG), COMPLETED (CD), CONFIGURING (CF), CANCELLED (CA), FAILED (F), TIMEOUT (TO), PREEMPTED (PR), BOOT_FAIL (BF) , NODE_FAIL (NF), REVOKED (RV), and SPECIAL_EXIT (SE)
+
+	it returns "UNKNOWN" if it was not in the command output
+	"""
+
+	output = shell.execute_command('squeue', testbed.endpoint, [])
+
+	lines = output.decode('utf-8')
+	lines = lines.split("\n")
+
+
+	pass

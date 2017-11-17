@@ -43,7 +43,7 @@ class ExecutorTests(MappingTest):
 		executable = Executable("source", "script", "SINGULARITY:PM")
 		testbed = Testbed("nova", True, "SLURM", "SSH", "pepito@ssh.com", [ "SINGULARITY" ] )
 		executable.status = Executable.__status_compiled__
-		executable.singularity_image_file='file.img'
+		executable.singularity_image_file='/tmp/file.img'
 		db.session.add(executable)
 		db.session.add(testbed)
 		db.session.commit()
@@ -57,6 +57,7 @@ class ExecutorTests(MappingTest):
 
 		executor.upload_deployment(executable, testbed)
 		deployment = db.session.query(Deployment).filter_by(executable_id=executable.id, testbed_id=testbed.id).first()
+
 		path = deployment.path[:36] # Extracting the UUID
 		try:
 			val = UUID(path, version=4)
@@ -67,8 +68,7 @@ class ExecutorTests(MappingTest):
 
 		# We verify the calls to shell
 		mock_execute.assert_called_with('mkdir', testbed.endpoint, [ path ])
-		local_filename = os.path.join('/tmp', executable.singularity_image_file)
-		mock_scp.assert_called_with(local_filename, testbed.endpoint, path)
+		mock_scp.assert_called_with(executable.singularity_image_file, testbed.endpoint, path + "/")
 
 	@mock.patch("executor.execute_application_type_singularity_pm")
 	@mock.patch("executor.execute_application_type_slurm_sbatch")
@@ -253,4 +253,37 @@ class ExecutorTests(MappingTest):
 		self.assertEquals("slurm:sbatch", execution.execution_type)
 		self.assertEquals(executor.execute_status_failed, execution.status)
 		self.assertEquals("Testbed is off-line", execution.output)
+
+	@mock.patch("executor.monitor_execution_singularity_apps")
+	def test_monitor_execution_apps(self, mock_monitor):
+		"""
+		It verifies that the method that monitors the execution of apps
+		works as expected
+		"""
+
+		execution_1 = Execution("typeX", Execution.__status_running__)
+		execution_2 = Execution(Executable.__type_singularity_pm__, Execution.__status_finished__)
+		execution_3 = Execution(Executable.__type_singularity_pm__, Execution.__status_running__)
+
+		db.session.add(execution_1)
+		db.session.add(execution_2)
+		db.session.add(execution_3)
+		db.session.commit()
+
+		executor.monitor_execution_apps()
+		mock_monitor.assert_called_with(execution_3)
+
+
+	def test_monitor_execution_singularity_apps(self):
+		"""
+		It checks that the monitoring of singularity apps 
+		is working
+		"""
+
+	
+
+		# TODO
+
+		output_squeue = b'             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)\n              3362       all   COMPSs  garciad  R       0:10      1 ns50'
+		output_sacct = b'       JobID    JobName     MaxRSS    Elapsed \n------------ ---------- ---------- ---------- \n3362             COMPSs              00:00:10 \n3362.batch        batch      2308K   00:00:10 \n3362.0            mkdir      2796K   00:00:00 \n3362.1       singulari+      2792K   00:00:00 '
 
