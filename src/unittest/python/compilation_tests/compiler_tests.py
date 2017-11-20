@@ -14,6 +14,7 @@ import unittest.mock as mock
 from unittest.mock import ANY, call
 import os
 from uuid import UUID
+from testfixtures import LogCapture
 
 class CompilerTests(MappingTest):
 	"""
@@ -116,6 +117,8 @@ class CompilerTests(MappingTest):
 		create_singularity_image
 		"""
 
+		l = LogCapture()
+
 		filename = compiler.build_singularity_container('asdf@asdf.com', '/test/test.def', 'image.img', '/tmp')
 
 		#mock_shell.assert_called_with('sudo', 'asdf@asdf.com', ['singularity', 'bootstrap', 'image.img', 'test.def'])
@@ -155,10 +158,21 @@ class CompilerTests(MappingTest):
 
 		call_1 = call('sudo', 'asdf@asdf.com', ['singularity', 'bootstrap', 'image.img', 'test.def'])
 		call_2 = call('singularity', 'asdf@asdf.com', ['bootstrap', 'image.img', 'test.def'])
-		call_3 = call('singularity', '', ['bootstrap', 'image.img', 'test.def'])
+		call_3 = call('singularity', '', ['bootstrap', 'image.img', '/test/test.def'])
 		call_4 = call('mv', '', [ANY, ANY])
 		calls = [ call_1, call_2, call_3, call_4]
 		mock_shell.assert_has_calls(calls)
+
+		# Checking that we are logging the correct messages
+		l.check(
+			('root', 'INFO', "Executing [asdf@asdf.com], 'sudo singulary bootstrap image.img test.def'"),
+			('root', 'INFO', 'Downloading image from asdf@asdf.com'),
+			('root', 'INFO', "Executing [asdf@asdf.com], 'singulary bootstrap image.img test.def'"),
+			('root', 'INFO', 'Downloading image from asdf@asdf.com'),
+			('root', 'INFO', "Executing [], 'singulary bootstrap image.img /test/test.def'"),
+			('root', 'INFO', 'Moving image to final destination')
+			)
+		l.uninstall()
 
 
 	@mock.patch('compilation.compiler.shell.execute_command')

@@ -12,6 +12,7 @@ import os
 import uuid
 import compilation.config as config
 import compilation.template as template
+import logging
 
 _singularity_pm_image_ = 'singularity_pm.img'
 
@@ -86,16 +87,21 @@ def build_singularity_container(connection_url, template, image_file, upload_fol
 	img_file_name = str(uuid.uuid4()) + '.img'
 	local_filename = os.path.join(upload_folder, img_file_name)
 
-	template = os.path.basename(template)
+	if connection_url != '':
+		template = os.path.basename(template)
 
 	if become:
+		logging.info("Executing [%s], 'sudo singulary bootstrap %s %s'", connection_url, image_file, template)
 		shell.execute_command('sudo', connection_url, ['singularity', 'bootstrap', image_file, template ])
 	else:
+		logging.info("Executing [%s], 'singulary bootstrap %s %s'", connection_url, image_file, template)
 		shell.execute_command('singularity', connection_url, ['bootstrap', image_file, template ])
 
 	if connection_url != '':
+		logging.info("Downloading image from %s", connection_url)
 		shell.scp_file(local_filename, connection_url, image_file, False)
 	else:
+		logging.info("Moving image to final destination")
 		shell.execute_command('mv', connection_url, [img_file_name, local_filename])
 
 	return local_filename
