@@ -21,7 +21,8 @@ $ sudo apt-get install gcc python make
 ```bash
 VERSION=2.3.1
 wget https://github.com/singularityware/singularity/releases/download/$VERSION/singularity-$VERSION.tar.gz
-scp 
+tar xvfz singularity-2.3.1.tar.gz
+cd singularity-2.3.1 
 make
 sudo make install
 ```
