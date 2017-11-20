@@ -8,6 +8,7 @@
 
 import os
 import uuid
+import logging
 
 _build_command = "{#BUILD_COMMAND#}"
 _folder_location = "{#FOLDER_LOCATION#}"
@@ -21,6 +22,8 @@ def update_template(template, build_command, folder_location='/home/tango', app_
 	- folder_location
 	- app_folder
 	"""
+
+	logging.info('Creating singulartiy template using file: %s', template)
 
 	# Read in the file
 	with open(template, 'r') as file :
@@ -36,6 +39,8 @@ def update_template(template, build_command, folder_location='/home/tango', app_
 	filename_uuid = uuid.uuid4()
 	filename = str(filename_uuid) + ".def"
 	filename = os.path.join(upload_folder, filename)
+
+	logging.info('Template generated on: %s', filename)
 
 	# Write the file out again
 	with open(filename, 'w') as file :

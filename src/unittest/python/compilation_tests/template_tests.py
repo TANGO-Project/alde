@@ -11,6 +11,7 @@ import unittest.mock as mock
 import os
 import compilation.template as template
 from uuid import UUID
+from testfixtures import LogCapture
 
 class TemplateTests(unittest.TestCase):
 	"""
@@ -26,6 +27,8 @@ class TemplateTests(unittest.TestCase):
 		- {#APP_FOLDER#}
 		- {#BUILD_COMMAND#}
 		"""
+
+		l = LogCapture()
 
 		template.upload_folder="."
 
@@ -62,9 +65,19 @@ class TemplateTests(unittest.TestCase):
 
 		# We verify the name follows the righ nomenclature
 		filename = os.path.basename(destination_template)
+		log_string = 'Template generated on: ./' + filename
 		filename = filename[:-4]
 
 		try:
 			val = UUID(filename, version=4)
 		except ValueError:
 			self.fail("Filname is not uuid4 complaint: " + filename)
+
+
+
+		# Checking that we are logging the correct messages
+		l.check(
+			('root', 'INFO', 'Creating singulartiy template using file: test_update_template_variables.txt'),
+			('root', 'INFO', log_string)
+			)
+		l.uninstall()
