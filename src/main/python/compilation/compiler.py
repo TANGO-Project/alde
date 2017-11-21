@@ -102,7 +102,7 @@ def build_singularity_container(connection_url, template, image_file, upload_fol
 		shell.scp_file(local_filename, connection_url, image_file, False)
 	else:
 		logging.info("Moving image to final destination")
-		shell.execute_command('mv', connection_url, [img_file_name, local_filename])
+		shell.execute_command('mv', connection_url, [image_file, local_filename])
 
 	return local_filename
 
