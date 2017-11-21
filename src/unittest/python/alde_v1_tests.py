@@ -136,6 +136,56 @@ class AldeV1Tests(TestCase):
         response = self.client.get("/api/v1/applications")
         self.assertEquals(2, len(response.json['objects']))
 
+    def test_executable_rest_api(self):
+        """
+        It tests all supported REST methods for an Executables works
+        as expected.
+        """
+        
+        # POST
+        data={
+            "executables" : [
+                {
+                    "compilation_script" : "compss_build_app Matmul",
+                    "compilation_type" : "SINGULARITY:PM",
+                    "source_code_file" : "dc93830d-740e-40b4-80ed-777e1c6ee0ec.zip",
+                    "singularity_image_file" : "asdfasd.img",
+                    "singularity_app_folder" : "/tmp"
+                }
+            ]
+        }
+
+
+        response = self.client.put('/api/v1/applications/2',
+                                      data=json.dumps(data),
+                                      content_type='application/json')
+
+        self.assertEquals(200, response.status_code)
+        # self.assertEquals('COMPILED', response.json['status'])
+        # self.assertEquals(1, response.json['id'])
+        # # We check that we only have three applicions
+        # response = self.client.get("/api/v1/executables")
+        # self.assertEquals(1, len(response.json['objects']))
+
+        # # GET Specific Entity
+        # response = self.client.get("/api/v1/executabless/1")
+
+        # self.assertEquals(200, response.status_code)
+        # self.assertEquals('COMPILED', response.json['status'])
+        # self.assertEquals(1, response.json['id'])
+        # self.assertEquals("compss_build_app Matmul", response.json['compilation_script'])
+        # self.assertEquals("compilation_type", response.json["SINGULARITY:PM"])
+        # self.assertEquals(response.json["singularity_image_file"], "/tmp/c2a99650-889a-4942-a3cd-f550d0e225ed.img")
+        # self.assertEquals(response.json["source_code_file"], "dc93830d-740e-40b4-80ed-777e1c6ee0ec.zip")
+        
+        # # DELETE
+        # response = self.client.delete("/api/v1/executables/1")
+
+        # self.assertEquals(204, response.status_code)
+        # # We check that we only have two applicions
+        # response = self.client.get("/api/v1/executables")
+        # self.assertEquals(0, len(response.json['objects']))
+
     def test_testbed_rest_api(self):
         """
         It tests all supported REST methods for an Testbed works
@@ -602,7 +652,10 @@ class AldeV1Tests(TestCase):
         testbed = Testbed("name", False, "slurm", "ssh", "user@server", ['slurm'])
         db.session.add(testbed)
 
-        executable = Executable('source_code_file', 'compilation_script', 'compilation_type')
+        executable = Executable()
+        executable.source_code_file = 'source_code_file'
+        executable.compilation_script = 'compilation_script'
+        executable.compilation_type = 'compilation_type'
         db.session.add(executable)
 
         db.session.commit()
@@ -697,7 +750,10 @@ class AldeV1Tests(TestCase):
 
         # Error raised because the testbed is off-line
         # We verify that the object is not in the db after creating it
-        executable = Executable("source", "script", "type")
+        executable = Executable()
+        executable.source_code_file = 'source'
+        executable.compilation_script = 'script'
+        executable.compilation_type = 'type'
         db.session.add(executable)
         db.session.commit()
 

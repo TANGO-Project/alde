@@ -24,8 +24,14 @@ class CompilerTests(MappingTest):
 	def test_return_not_compiled_executable(self):
 		"""It checks the method that returns all the no compiled executables"""
 
-		executable_1 = Executable("source1", "script1", "type1")
-		executable_2 = Executable("source2", "script2", "type2")
+		executable_1 = Executable()
+		executable_1.source_code_file = 'source1'
+		executable_1.compilation_script = 'script1'
+		executable_1.compilation_type = "type1"
+		executable_2 = Executable()
+		executable_2.source_code_file = 'source2'
+		executable_2.compilation_script = 'script2'
+		executable_2.compilation_type = "type2"
 		executable_2.status = 'pepito'
 
 		db.session.add(executable_1)
@@ -45,8 +51,14 @@ class CompilerTests(MappingTest):
 		# Changing the config file path for the running of the test.
 		config.COMPILATION_CONFIG_FILE = "compilation_config.json"
 
-		executable_1 = Executable("source1", "script1", "type1")
-		executable_2 = Executable("source2", "script2", "SINGULARITY:PM")
+		executable_1 = Executable()
+		executable_1.source_code_file = 'source1'
+		executable_1.compilation_script = 'script1'
+		executable_1.compilation_type = "type1"
+		executable_2 = Executable()
+		executable_2.source_code_file = 'source2'
+		executable_2.compilation_script = 'script2'
+		executable_2.compilation_type = "SINGULARITY:PM"
 
 		db.session.add(executable_1)
 		db.session.add(executable_2)
@@ -84,7 +96,10 @@ class CompilerTests(MappingTest):
 		mock_create_sing_template.return_value = 'template.def'
 		mock_build.return_value = '/tmp/image.img'
 
-		executable = Executable("test.zip", "xxxx", "xxxx")
+		executable = Executable()
+		executable.source_code_file = "test.zip"
+		executable.compilation_script = "xxxx"
+		executable.compilation_type = "xxxx"
 		db.session.add(executable)
 		db.session.commit()
 		
@@ -199,7 +214,10 @@ class CompilerTests(MappingTest):
 		"""
 
 		configuration = { 'singularity_template': 'sing_template'}
-		executable = Executable('test.zip', 'comp_script', 'xxxx')
+		executable = Executable()
+		executable.source_code_file = "test.zip"
+		executable.compilation_script = 'comp_script'
+		executable.compilation_type = "xxxx"
 
 		mock_template.return_value = 'sing_template'
 
@@ -217,7 +235,10 @@ class CompilerTests(MappingTest):
 		It verifies the workflow of unziping the zip file
 		"""
 
-		executable = Executable('test.zip', 'xxxx', 'xxxx')
+		executable = Executable()
+		executable.source_code_file = "test.zip"
+		executable.compilation_script = "xxxx"
+		executable.compilation_type = "xxxx"
 
 		compiler.unzip_src(executable, 'asd@asdf.com', '/home/pepito')
 
@@ -246,7 +267,10 @@ class CompilerTests(MappingTest):
 		to the selected testbed in an specific folder
 		"""
 
-		executable = Executable('test.zip', 'xxxx', 'xxxx')
+		executable = Executable()
+		executable.source_code_file = "test.zip"
+		executable.compilation_script = "xxxx"
+		executable.compilation_type = "xxxx"
 
 		compiler.upload_zip_file_application(executable, 'asd@asdf.com', 'dest_folder', '/tmp')
 

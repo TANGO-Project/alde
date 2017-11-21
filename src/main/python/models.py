@@ -63,16 +63,7 @@ class Executable(db.Model):
     singularity_image_file = db.Column(db.String)
     application_id = db.Column(db.Integer, db.ForeignKey('applications.id'))
     application = db.relationship("Application", back_populates=("executables"))
-    status = db.Column(db.String)
-
-    def __init__(self, source_code_file, compilation_script, compilation_type):
-        """Inititaze basic parameters of the class"""
-
-        self.source_code_file = source_code_file
-        self.compilation_type = compilation_type
-        self.compilation_script = compilation_script
-        self.status = self.__status_not_compiled__
-
+    status = db.Column(db.String, default=__status_not_compiled__)
 
 class Execution(db.Model):
     """

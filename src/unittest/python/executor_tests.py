@@ -24,7 +24,10 @@ class ExecutorTests(MappingTest):
 	def test_upload_deployment(self, mock_scp, mock_execute):
 		""" Verifies that the upload of the deployment works """
 
-		executable = Executable("source", "script", "TYPE")
+		executable = Executable()
+		executable.source_code_file = 'source'
+		executable.compilation_script = 'script'
+		executable.compilation_type = 'TYPE'
 		testbed = Testbed("nova", True, "SLURM", "SSH", "pepito@ssh.com", [ "SINGULARITY" ] )
 
 		executor.upload_deployment(executable, testbed)
@@ -32,7 +35,10 @@ class ExecutorTests(MappingTest):
 		self.assertFalse(mock_scp.called)
 		self.assertFalse(mock_execute.called)
 
-		executable = Executable("source", "script", "SINGULARITY:PM")
+		executable = Executable()
+		executable.source_code_file = 'source'
+		executable.compilation_script = 'script'
+		executable.compilation_type = "SINGULARITY:PM"
 		testbed = Testbed("nova", True, "SLURM", "SSH", "pepito@ssh.com", [ "SBATCH" ] )
 
 		executor.upload_deployment(executable, testbed)
@@ -40,7 +46,10 @@ class ExecutorTests(MappingTest):
 		self.assertFalse(mock_scp.called)
 		self.assertFalse(mock_execute.called)
 
-		executable = Executable("source", "script", "SINGULARITY:PM")
+		executable = Executable()
+		executable.source_code_file = 'source'
+		executable.compilation_script = 'script'
+		executable.compilation_type = "SINGULARITY:PM"
 		testbed = Testbed("nova", True, "SLURM", "SSH", "pepito@ssh.com", [ "SINGULARITY" ] )
 		executable.status = Executable.__status_compiled__
 		executable.singularity_image_file='/tmp/file.img'
@@ -139,10 +148,10 @@ class ExecutorTests(MappingTest):
 		db.session.add(application)
 		db.session.commit() # So application and testbed get an id
 
-		executable = Executable(source_code_file="test.zip",
-								compilation_script="gcc -X",
-								compilation_type="SINGULARITY:PM",
-								)
+		executable = Executable()
+		executable.source_code_file = 'test.zip'
+		executable.compilation_script = 'gcc -X'
+		executable.compilation_type = "SINGULARITY:PM"
 		executable.singularity_app_folder="/singularity/app/folder"
 		executable.singularity_image_file="pepito.img"
 		executable.status = "COMPILED"

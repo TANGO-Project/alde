@@ -52,7 +52,10 @@ def upload_application(app_id):
 			file.save(os.path.join(upload_folder, filename))
 
 			# We store the compilation/executable information in the db
-			executable = Executable(filename, compilation_script, compilation_type)
+			executable = Executable()
+			executable.source_code_file = filename
+			executable.compilation_script = compilation_script
+			executable.compilation_type = compilation_type
 			application.executables.append(executable)
 			db.session.commit()
 

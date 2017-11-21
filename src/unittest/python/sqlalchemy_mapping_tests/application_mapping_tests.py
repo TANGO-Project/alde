@@ -86,13 +86,24 @@ class ApplicationMappingTest(MappingTest):
 
         # We create an application
         application = Application("AppName")
-
+        executable_1 = Executable()
+        executable_1.source_code_file = "source1"
+        executable_1.compilation_script = "script1"
+        executable_1.compilation_type = "type1"
+        executable_2 = Executable()
+        executable_2.source_code_file = "source2"
+        executable_2.compilation_script = "script2"
+        executable_2.compilation_type = "type2"
+        executable_3 = Executable()
+        executable_3.source_code_file = "source3"
+        executable_3.compilation_script = "script3"
+        executable_3.compilation_type = "type3"
 
         # We create several Executables
         application.executables = [
-            Executable("source1", "script1", "type1"),
-            Executable("source2", "script2", "type2"),
-            Executable("source3", "script3", "type3")]
+            executable_1,
+            executable_2,
+            executable_3]
 
         # We save everything to the db
         db.session.add(application)

@@ -19,7 +19,10 @@ class ExecutableMappingTest(MappingTest):
 		"""It tests basis CRUD operations of an Executable Class"""
 
 		# We verify that the object is not in the db after creating it
-		executable = Executable("source", "script", "type")
+		executable = Executable()
+		executable.source_code_file = "source"
+		executable.compilation_script = "script"
+		executable.compilation_type = "type"
 		self.assertIsNone(executable.id)
 
 		# We store the object in the db
