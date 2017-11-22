@@ -231,7 +231,7 @@ def create_app_v1(sql_db_url, port, app_folder):
 
     # Create the REST API for the Executable Configuration
     manager.create_api(Executable,
-                       methods=['GET', 'DELETE'],
+                       methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
                        url_prefix=url_prefix_v1)
 
     # Create the REST API for Execution Configuration

@@ -150,7 +150,8 @@ class AldeV1Tests(TestCase):
                     "compilation_type" : "SINGULARITY:PM",
                     "source_code_file" : "dc93830d-740e-40b4-80ed-777e1c6ee0ec.zip",
                     "singularity_image_file" : "asdfasd.img",
-                    "singularity_app_folder" : "/tmp"
+                    "singularity_app_folder" : "/tmp",
+                    "status" : "COMPILED"
                 }
             ]
         }
@@ -161,30 +162,97 @@ class AldeV1Tests(TestCase):
                                       content_type='application/json')
 
         self.assertEquals(200, response.status_code)
-        # self.assertEquals('COMPILED', response.json['status'])
-        # self.assertEquals(1, response.json['id'])
-        # # We check that we only have three applicions
-        # response = self.client.get("/api/v1/executables")
-        # self.assertEquals(1, len(response.json['objects']))
+        self.assertEquals(2, response.json['executables'][0]['application_id'])
+        self.assertEquals('compss_build_app Matmul', response.json['executables'][0]['compilation_script'])
+        self.assertEquals('SINGULARITY:PM', response.json['executables'][0]['compilation_type'])
+        self.assertEquals(None, response.json['executables'][0]['executable_file'])
+        self.assertEquals(1, response.json['executables'][0]['id'])
+        self.assertEquals('/tmp', response.json['executables'][0]['singularity_app_folder'])
+        self.assertEquals('asdfasd.img', response.json['executables'][0]['singularity_image_file'])
+        self.assertEquals('dc93830d-740e-40b4-80ed-777e1c6ee0ec.zip', response.json['executables'][0]['source_code_file'])
+        self.assertEquals('COMPILED', response.json['executables'][0]['status'])
 
-        # # GET Specific Entity
-        # response = self.client.get("/api/v1/executabless/1")
+        # We check that we only have three applicions
+        response = self.client.get("/api/v1/executables")
+        self.assertEquals(1, len(response.json['objects']))
 
-        # self.assertEquals(200, response.status_code)
-        # self.assertEquals('COMPILED', response.json['status'])
-        # self.assertEquals(1, response.json['id'])
-        # self.assertEquals("compss_build_app Matmul", response.json['compilation_script'])
-        # self.assertEquals("compilation_type", response.json["SINGULARITY:PM"])
-        # self.assertEquals(response.json["singularity_image_file"], "/tmp/c2a99650-889a-4942-a3cd-f550d0e225ed.img")
-        # self.assertEquals(response.json["source_code_file"], "dc93830d-740e-40b4-80ed-777e1c6ee0ec.zip")
+        # GET Specific Entity
+        response = self.client.get("/api/v1/executables/1")
+
+        self.assertEquals(200, response.status_code)
+        self.assertEquals(2, response.json['application_id'])
+        self.assertEquals('compss_build_app Matmul', response.json['compilation_script'])
+        self.assertEquals('SINGULARITY:PM', response.json['compilation_type'])
+        self.assertEquals(None, response.json['executable_file'])
+        self.assertEquals(1, response.json['id'])
+        self.assertEquals('/tmp', response.json['singularity_app_folder'])
+        self.assertEquals('asdfasd.img', response.json['singularity_image_file'])
+        self.assertEquals('dc93830d-740e-40b4-80ed-777e1c6ee0ec.zip', response.json['source_code_file'])
+        self.assertEquals('COMPILED', response.json['status'])
         
-        # # DELETE
-        # response = self.client.delete("/api/v1/executables/1")
+        # DELETE
+        response = self.client.delete("/api/v1/executables/1")
 
-        # self.assertEquals(204, response.status_code)
-        # # We check that we only have two applicions
-        # response = self.client.get("/api/v1/executables")
-        # self.assertEquals(0, len(response.json['objects']))
+        self.assertEquals(204, response.status_code)
+        # We check that we only have two applicions
+        response = self.client.get("/api/v1/executables")
+        self.assertEquals(0, len(response.json['objects']))
+
+        # POST
+        data = {
+                    "application_id" : 1,
+                    "compilation_script" : "compss_build_app Matmul",
+                    "compilation_type" : "SINGULARITY:PM",
+                    "source_code_file" : "dc93830d-740e-40b4-80ed-777e1c6ee0ec.zip",
+                    "singularity_image_file" : "asdfasd.img",
+                    "singularity_app_folder" : "/tmp",
+                    "status" : "COMPILED"
+                }
+
+        # We check that we only have three applicions
+        response = self.client.post("/api/v1/executables", 
+                                    data=json.dumps(data),
+                                    content_type='application/json')
+        self.assertEquals(201, response.status_code)
+        id = response.json['application_id']
+
+        # GET Specific Entity
+        response = self.client.get("/api/v1/executables/" + str(id))
+
+        self.assertEquals(200, response.status_code)
+        self.assertEquals(1, response.json['application_id'])
+        self.assertEquals('compss_build_app Matmul', response.json['compilation_script'])
+        self.assertEquals('SINGULARITY:PM', response.json['compilation_type'])
+        self.assertEquals(None, response.json['executable_file'])
+        self.assertEquals(id, response.json['id'])
+        self.assertEquals('/tmp', response.json['singularity_app_folder'])
+        self.assertEquals('asdfasd.img', response.json['singularity_image_file'])
+        self.assertEquals('dc93830d-740e-40b4-80ed-777e1c6ee0ec.zip', response.json['source_code_file'])
+        self.assertEquals('COMPILED', response.json['status'])
+
+        # PUT/PATCH
+        data = {
+                    "status" : "COMPILED2"
+                }
+
+        # We check that we only have three applicions
+        response = self.client.put("/api/v1/executables/" + str(id),
+                                    data=json.dumps(data),
+                                    content_type='application/json')
+
+        # GET Specific Entity
+        response = self.client.get("/api/v1/executables/" + str(id))
+
+        self.assertEquals(200, response.status_code)
+        self.assertEquals(1, response.json['application_id'])
+        self.assertEquals('compss_build_app Matmul', response.json['compilation_script'])
+        self.assertEquals('SINGULARITY:PM', response.json['compilation_type'])
+        self.assertEquals(None, response.json['executable_file'])
+        self.assertEquals(id, response.json['id'])
+        self.assertEquals('/tmp', response.json['singularity_app_folder'])
+        self.assertEquals('asdfasd.img', response.json['singularity_image_file'])
+        self.assertEquals('dc93830d-740e-40b4-80ed-777e1c6ee0ec.zip', response.json['source_code_file'])
+        self.assertEquals('COMPILED2', response.json['status'])
 
     def test_testbed_rest_api(self):
         """
