@@ -29,11 +29,7 @@ class ShellTests(unittest.TestCase):
                               params=["-la", "."])
 
         # We verify that the right params are passed to the mock_subprocess
-        mock_subprocess.check_output.assert_called_with(["ssh",
-                                                         "-p",
-                                                         "2222",
-                                                         "pepito@ssh.com",
-                                                         "ls -la ."])
+        mock_subprocess.check_output.assert_called_with(" ssh -p 2222 pepito@ssh.com ls -la .", shell=True)
 
 
 
@@ -48,12 +44,12 @@ class ShellTests(unittest.TestCase):
 
         # We verify this simple commands works
         self.assertEquals("It is ok", output)
-        mock_subprocess.check_output.assert_called_with("ls")
+        mock_subprocess.check_output.assert_called_with("ls", shell=True)
 
         # We verify a more complex scenario with several params
         output = shell.execute_command(command = "ls", params=["-la", "."])
         # We verify that the params are passed in the correct way
-        mock_subprocess.check_output.assert_called_with(["ls", "-la", "."])
+        mock_subprocess.check_output.assert_called_with(" ls -la .", shell=True)
 
     @mock.patch('shell.subprocess')
     def test_ssh_command(self, mock_subprocess):
@@ -66,9 +62,7 @@ class ShellTests(unittest.TestCase):
                               params=["-la", "."])
 
         # We verify that the right params are passed to the mock_subprocess
-        mock_subprocess.check_output.assert_called_with(["ssh",
-                                                         "pepito@ssh.com",
-                                                         "ls -la ."])
+        mock_subprocess.check_output.assert_called_with(" ssh pepito@ssh.com ls -la .", shell=True)
 
     @mock.patch('shell.subprocess.check_output')
     def test_raise_exception(self, mock_subprocess):
@@ -90,7 +84,8 @@ class ShellTests(unittest.TestCase):
 
         # Checking that we are logging the correct messages
         l.check(
-            ('root', 'ERROR', "Trying to execute command: ['ls', '-la', '.']"),
+            ('root', 'INFO', 'Executing: ls -la .'),
+            ('root', 'ERROR', "Trying to execute command:  ls -la ."),
             ('root', 'ERROR', "Error: Command 'ls' returned non-zero exit status 255."),
             ('root', 'ERROR', 'Trying to execute command at server ')
             )
@@ -105,22 +100,14 @@ class ShellTests(unittest.TestCase):
         shell.scp_file('/path/file', 'user@host', 'destination_path')
 
         # We verify that the right params are passed to the mock_subproces
-        mock_subprocess.check_output.assert_called_with(['scp', 
-                                                          '/path/file', 
-                                                          'user@host:destination_path'])
+        mock_subprocess.check_output.assert_called_with(' scp /path/file user@host:destination_path', shell=True)
 
         shell.scp_file('/path/file', 'user@host:5000', 'destination_path')
 
         # We verify that the right params are passed to the mock_subproces
-        mock_subprocess.check_output.assert_called_with(['scp',
-                                                          '-P',
-                                                          '5000',
-                                                          '/path/file', 
-                                                          'user@host:destination_path'])
+        mock_subprocess.check_output.assert_called_with(' scp -P 5000 /path/file user@host:destination_path', shell=True)
 
         shell.scp_file('/path/file', 'user@host', 'destination_path', False)
 
         # We verify that the right params are passed to the mock_subproces
-        mock_subprocess.check_output.assert_called_with(['scp', 
-                                                          'user@host:destination_path',
-                                                          '/path/file'])
+        mock_subprocess.check_output.assert_called_with(' scp user@host:destination_path /path/file', shell=True)

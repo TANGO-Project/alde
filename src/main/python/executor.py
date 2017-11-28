@@ -11,6 +11,7 @@ from models import db, Execution, Testbed, Executable, Deployment, ExecutionConf
 import shell
 import uuid
 import os
+import logging
 
 execute_type_slurm_sbatch = "slurm:sbatch"
 execute_type_singularity_pm = "SINGULARITY:PM"
@@ -76,6 +77,8 @@ def execute_application_type_singularity_pm(execution, identifier):
 	params.append("--exec_time=" + str(execution_configuration.exec_time))
 	params.append(execution_configuration.compss_config)
 	params.append(execution_configuration.command)
+
+	logging.info("Launching execution of application: command: " + command + " | endpoint: " + endpoint + " | params: " + str(params))
 
 	output = shell.execute_command(command, endpoint, params)
 	sbatch_id = __extract_id_from_sigularity_pm_app__(output)

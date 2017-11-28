@@ -17,11 +17,21 @@ def _execute_command(command):
     It just executes the give command and returns the output
     """
 
+    cmd = ""
+
+    if type(command) is str:
+        cmd = command
+    else: 
+        for cmd_part in command:
+            cmd = cmd + " " + cmd_part
+
+    logging.info("Executing:" + cmd)
+
     try:
-        output = subprocess.check_output(command)
+        output = subprocess.check_output(cmd, shell=True)
         return output
     except subprocess.CalledProcessError as e:
-        logging.error("Trying to execute command: " + str(command))
+        logging.error("Trying to execute command: " + str(cmd))
         logging.error('Error: %s', str(e))
         raise e
 
