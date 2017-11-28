@@ -227,17 +227,17 @@ def create_app_v1(sql_db_url, port, app_folder):
     # Create the REST methods for an Application
     manager.create_api(Application,
                        methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
-                       url_prefix=url_prefix_v1)
+                       url_prefix=url_prefix_v1, results_per_page=-1)
 
     # Create the REST API for the Executable Configuration
     manager.create_api(Executable,
                        methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
-                       url_prefix=url_prefix_v1)
+                       url_prefix=url_prefix_v1, results_per_page=-1)
 
     # Create the REST API for the Executable Configuration
     manager.create_api(Execution,
                        methods=['GET'],
-                       url_prefix=url_prefix_v1)
+                       url_prefix=url_prefix_v1, results_per_page=-1)
 
     # Create the REST API for Execution Configuration
     manager.create_api(ExecutionConfiguration,
@@ -245,7 +245,7 @@ def create_app_v1(sql_db_url, port, app_folder):
                       preprocessors={
                             'PATCH_SINGLE': [patch_execution_script_preprocessor]
                         },
-                      url_prefix=url_prefix_v1)
+                      url_prefix=url_prefix_v1, results_per_page=-1)
 
     # Create the REST APi for the deployment
     manager.create_api(Deployment,
@@ -256,7 +256,7 @@ def create_app_v1(sql_db_url, port, app_folder):
                        postprocessors={
                             'POST': [post_deployment_postprocessor]
                        },
-                       url_prefix=url_prefix_v1)
+                       url_prefix=url_prefix_v1, results_per_page=-1)
 
     # Create the REST methods for a Testbed
     manager.create_api(Testbed,
@@ -266,32 +266,32 @@ def create_app_v1(sql_db_url, port, app_folder):
                             'PATCH_SINGLE': [put_testbed_preprocessor],
                             'PUT_SINGLE': [put_testbed_preprocessor]
                             },
-                       url_prefix=url_prefix_v1)
+                       url_prefix=url_prefix_v1, results_per_page=-1)
 
     # Create teh REST methods for a Node
     manager.create_api(Node,
                        methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-                       url_prefix=url_prefix_v1)
+                       url_prefix=url_prefix_v1, results_per_page=-1)
 
     # Create the REST methods for the GPU
     manager.create_api(GPU,
                        methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-                       url_prefix=url_prefix_v1)
+                       url_prefix=url_prefix_v1, results_per_page=-1)
 
     # Create the REST methods for the MCP
     manager.create_api(MCP,
                        methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-                       url_prefix=url_prefix_v1)
+                       url_prefix=url_prefix_v1, results_per_page=-1)
 
     # Create the REST methods for the Memory
     manager.create_api(Memory,
                        methods=['GET', 'POST', 'PUT', 'DELETE'],
-                       url_prefix=url_prefix_v1)
+                       url_prefix=url_prefix_v1, results_per_page=-1)
 
     # Create the REST methods for the CPU
     manager.create_api(CPU,
                        methods=['GET', 'POST', 'PUT', 'DELETE'],
-                       url_prefix=url_prefix_v1)
+                       url_prefix=url_prefix_v1, results_per_page=-1)
 
     # Create the scheduler of tasks
     scheduler = APScheduler()
