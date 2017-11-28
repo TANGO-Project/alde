@@ -168,7 +168,10 @@ def monitor_execution_apps():
 	for execution in executions :
 
 		if execution.execution_type == Executable.__type_singularity_pm__ :
-			monitor_execution_singularity_apps(execution)
+			status = monitor_execution_singularity_apps(execution)
+			execution.status = status
+			db.session.commit()
+
 
 
 def monitor_execution_singularity_apps(execution):

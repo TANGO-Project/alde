@@ -71,7 +71,9 @@ class Execution(db.Model):
     different states
     """
     __status_running__ = "RUNNING"
-    __status_finished__ = "FINISHED"
+    __status_finished__ = "COMPLETED"
+    __status_failed__ = "FAILED"
+    __status_unknown__ = "UNKNOWN"
 
     # SQLAlchemy mapping code
     __tablename__ = 'executions'

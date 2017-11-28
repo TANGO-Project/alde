@@ -275,6 +275,8 @@ class ExecutorTests(MappingTest):
 		execution_2 = Execution(Executable.__type_singularity_pm__, Execution.__status_finished__)
 		execution_3 = Execution(Executable.__type_singularity_pm__, Execution.__status_running__)
 
+		mock_monitor.return_value = 'pepito'
+
 		db.session.add(execution_1)
 		db.session.add(execution_2)
 		db.session.add(execution_3)
@@ -282,6 +284,8 @@ class ExecutorTests(MappingTest):
 
 		executor.monitor_execution_apps()
 		mock_monitor.assert_called_with(execution_3)
+
+		self.assertEquals('pepito', execution_3.status)
 
 
 	@mock.patch("executor._parse_sacct_output")

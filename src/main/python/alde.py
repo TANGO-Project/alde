@@ -31,29 +31,36 @@ class Config(object):
             'func': 'slurm:check_nodes_in_db_for_on_line_testbeds',
             'args': (),
             'trigger': 'interval',
-            'seconds': 60 # TODO increase this after the debugging ends
+            'seconds': 60 
         },
         {
             'id': 'update_node_info',
             'func': 'slurm:update_node_information',
             'args': (),
             'trigger': 'interval',
-            'seconds': 70 # TODO increase this after the debugging ends
+            'seconds': 70 
         },
         {
             'id': 'update_cpu_node_info',
             'func': 'slurm:update_cpu_node_information',
             'args': (),
             'trigger': 'interval',
-            'seconds': 80 # TODO increase this after the debugging ends
+            'seconds': 80 
         },
         {
             'id': 'check_not_compiled_apps',
             'func': 'compilation.compiler:compile_executables',
             'args': (),
             'trigger': 'interval',
-            'seconds': 30 # TODO increase this after the debugging ends
-        }
+            'seconds': 30 
+        },
+        {
+            'id': 'check_running_app_status',
+            'func': 'executor:monitor_execution_apps',
+            'args': (),
+            'trigger': 'interval',
+            'seconds': 20 
+        },
     ]
 
     SCHEDULER_API_ENABLED = True
