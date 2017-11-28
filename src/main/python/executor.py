@@ -179,6 +179,24 @@ def monitor_execution_singularity_apps(execution):
 	sbatch_id = execution.slurm_sbatch_id
 	testbed = execution.execution_configuration.testbed
 
+def _parse_sacct_output(id, url):
+	"""
+	It executes the sacct command and extracts the status
+	information
+	"""
+
+	output = shell.execute_command('sacct', server=url, params=['-j', id, '-o', 'JobID,NNodes,State,ExitCode,DerivedExitcode,Comment'])
+	
+	if output.count(b'\n') <= 2:
+		return '?'
+	elif output.count(b'RUNNING') >= 1:
+		return 'RUNNING'
+	elif output.count(b'FAILED') >= 1:
+		return 'FAILED'
+	elif output.count(b'COMPLETED') >= 1:
+		return 'COMPLETED'
+	else:
+		return 'UNKNOWN'
 	
 def find_squeue_job_status(command_output):
 	"""

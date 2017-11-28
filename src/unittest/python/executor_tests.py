@@ -13,6 +13,7 @@ import unittest.mock as mock
 from sqlalchemy_mapping_tests.mapping_tests import MappingTest
 from models import db, Execution, Deployment, ExecutionConfiguration, Testbed, Executable, ExecutionConfiguration, Application
 from uuid import UUID
+from unittest.mock import call
 
 class ExecutorTests(MappingTest):
 	"""
@@ -287,12 +288,87 @@ class ExecutorTests(MappingTest):
 		"""
 		It checks that the monitoring of singularity apps 
 		is working
+
+		Command to be executed:
+
+		[garciad@ns54 ~]$ sacct -j 4340 -o JobID,NNodes,State,ExitCode,DerivedExitcode,Comment
+		JobID   NNodes      State ExitCode DerivedExitCode        Comment 
+		------------ -------- ---------- -------- --------------- -------------- 
+		4340                1  COMPLETED      0:0             1:0                
+		4340.batch          1  COMPLETED      0:0                                
+		4340.0              1  COMPLETED      0:0                                
+		4340.1              1     FAILED      1:0 
 		"""
 
-	
+		
 
 		# TODO
 
-		output_squeue = b'             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)\n              3362       all   COMPSs  garciad  R       0:10      1 ns50'
-		output_sacct = b'       JobID    JobName     MaxRSS    Elapsed \n------------ ---------- ---------- ---------- \n3362             COMPSs              00:00:10 \n3362.batch        batch      2308K   00:00:10 \n3362.0            mkdir      2796K   00:00:00 \n3362.1       singulari+      2792K   00:00:00 '
+	@mock.patch("shell.execute_command")
+	def test_parse_sacct_output(self, mock_shell):
+		"""
+		It checks that the monitoring of singularity apps 
+		is working
 
+		Command to be executed:
+
+		[garciad@ns54 ~]$ sacct -j 4340 -o JobID,NNodes,State,ExitCode,DerivedExitcode,Comment
+		JobID   NNodes      State ExitCode DerivedExitCode        Comment 
+		------------ -------- ---------- -------- --------------- -------------- 
+		4340                1  COMPLETED      0:0             1:0                
+		4340.batch          1  COMPLETED      0:0                                
+		4340.0              1  COMPLETED      0:0                                
+		4340.1              1     FAILED      1:0 
+		"""
+
+		# TEST NO OUTPUT
+		output = b'       JobID   NNodes      State ExitCode DerivedExitCode        Comment \n------------ -------- ---------- -------- --------------- -------------- '
+
+		mock_shell.return_value = output
+
+		status = executor._parse_sacct_output(4340, 'test@pepito.com')
+
+		self.assertEquals('?', status)
+
+		# TEST RUNNING
+		output = b'       JobID   NNodes      State ExitCode DerivedExitCode        Comment \n------------ -------- ---------- -------- --------------- -------------- \n4340                1  RUNNING      0:0             0:0                \n4340.batch          1  COMPLETED      0:0                                \n4340.0              1  COMPLETED      0:0                                \n4340.1              1     COMPLETED      0:0 '
+		mock_shell.return_value = output
+
+		status = executor._parse_sacct_output(4340, 'test@pepito.com')
+
+		self.assertEquals('RUNNING', status)
+
+		# TEST COMPLETED
+		output = b'       JobID   NNodes      State ExitCode DerivedExitCode        Comment \n------------ -------- ---------- -------- --------------- -------------- \n4340                1  COMPLETED      0:0             0:0                \n4340.batch          1  COMPLETED      0:0                                \n4340.0              1  COMPLETED      0:0                                \n4340.1              1     COMPLETED      0:0 '
+
+		mock_shell.return_value = output
+
+		status = executor._parse_sacct_output(4340, 'test@pepito.com')
+
+		self.assertEquals('COMPLETED', status)
+
+		# TEST FAILED
+		output = b'       JobID   NNodes      State ExitCode DerivedExitCode        Comment \n------------ -------- ---------- -------- --------------- -------------- \n4340                1  COMPLETED      0:0             1:0                \n4340.batch          1  COMPLETED      0:0                                \n4340.0              1  COMPLETED      0:0                                \n4340.1              1     FAILED      1:0 '
+
+		mock_shell.return_value = output
+
+		status = executor._parse_sacct_output(4340, 'test@pepito.com')
+
+		self.assertEquals('FAILED', status)
+
+		# TEST UNKNOWN
+		output = b'       JobID   NNodes      State ExitCode DerivedExitCode        Comment \n------------ -------- ---------- -------- --------------- -------------- \n4340                1  UNKNOWN      0:0             1:0                \n4340.batch          1  UNKNOWN      0:0                                \n4340.0              1  UNKNOWN      0:0                                \n4340.1              1     UNKNOWN      1:0 '
+
+		mock_shell.return_value = output
+
+		status = executor._parse_sacct_output(4340, 'test@pepito.com')
+
+		self.assertEquals('UNKNOWN', status)
+
+		call_1 = call('sacct', server='test@pepito.com', params=['-j', 4340, '-o', 'JobID,NNodes,State,ExitCode,DerivedExitcode,Comment'])
+		call_2 = call('sacct', server='test@pepito.com', params=['-j', 4340, '-o', 'JobID,NNodes,State,ExitCode,DerivedExitcode,Comment'])
+		call_3 = call('sacct', server='test@pepito.com', params=['-j', 4340, '-o', 'JobID,NNodes,State,ExitCode,DerivedExitcode,Comment'])
+		call_4 = call('sacct', server='test@pepito.com', params=['-j', 4340, '-o', 'JobID,NNodes,State,ExitCode,DerivedExitcode,Comment'])
+		call_5 = call('sacct', server='test@pepito.com', params=['-j', 4340, '-o', 'JobID,NNodes,State,ExitCode,DerivedExitcode,Comment'])
+		calls = [ call_1, call_2, call_3, call_4, call_5]
+		mock_shell.assert_has_calls(calls)
