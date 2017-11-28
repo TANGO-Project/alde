@@ -179,6 +179,13 @@ def monitor_execution_singularity_apps(execution):
 	sbatch_id = execution.slurm_sbatch_id
 	testbed = execution.execution_configuration.testbed
 
+	status = _parse_sacct_output(sbatch_id, testbed.endpoint)
+
+	if status == '?':
+		return execution.status
+	else:
+		return status
+
 def _parse_sacct_output(id, url):
 	"""
 	It executes the sacct command and extracts the status

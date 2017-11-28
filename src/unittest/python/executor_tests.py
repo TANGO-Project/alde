@@ -284,25 +284,36 @@ class ExecutorTests(MappingTest):
 		mock_monitor.assert_called_with(execution_3)
 
 
-	def test_monitor_execution_singularity_apps(self):
+	@mock.patch("executor._parse_sacct_output")
+	def test_monitor_execution_singularity_apps(self, mock_parse):
 		"""
 		It checks that the monitoring of singularity apps 
 		is working
-
-		Command to be executed:
-
-		[garciad@ns54 ~]$ sacct -j 4340 -o JobID,NNodes,State,ExitCode,DerivedExitcode,Comment
-		JobID   NNodes      State ExitCode DerivedExitCode        Comment 
-		------------ -------- ---------- -------- --------------- -------------- 
-		4340                1  COMPLETED      0:0             1:0                
-		4340.batch          1  COMPLETED      0:0                                
-		4340.0              1  COMPLETED      0:0                                
-		4340.1              1     FAILED      1:0 
 		"""
 
-		
+		execution = Execution("typeX", "xxx")
+		execution.slurm_sbatch_id = 1
+		execution_configuration = ExecutionConfiguration()
+		execution.execution_configuration=execution_configuration
+		testbed = Testbed("name", True, "slurm", "ssh", "user@server", ['slurm'])
+		execution_configuration.testbed=testbed
 
-		# TODO
+		mock_parse.return_value = '?'
+
+		status = executor.monitor_execution_singularity_apps(execution)
+
+		self.assertEquals("xxx", status)
+
+		mock_parse.return_value = 'RUNNING'
+
+		status = executor.monitor_execution_singularity_apps(execution)
+
+		self.assertEquals("RUNNING", status)
+
+		call_1 = call(1,"user@server")
+		call_2 = call(1,"user@server")
+		calls = [ call_1, call_2, ]
+		mock_parse.assert_has_calls(calls)
 
 	@mock.patch("shell.execute_command")
 	def test_parse_sacct_output(self, mock_shell):
