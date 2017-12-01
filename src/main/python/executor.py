@@ -230,7 +230,7 @@ def monitor_execution_apps():
 
 	for execution in executions :
 
-		if execution.execution_type == Executable.__type_singularity_pm__ :
+		if execution.execution_type == Executable.__type_singularity_pm__ or execution.execution_type == Executable.__type_singularity_srun__ :
 			status = monitor_execution_singularity_apps(execution)
 			execution.status = status
 			db.session.commit()

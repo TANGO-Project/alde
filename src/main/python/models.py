@@ -50,6 +50,7 @@ class Executable(db.Model):
     __status_compiled__ = 'COMPILED'
     __status_error_type__ = 'ERROR: UNKNOW TYPE'
     __type_singularity_pm__ = 'SINGULARITY:PM'
+    __type_singularity_srun__ = 'SINGULARITY:SRUN'
 
 
     # SQLAlchemy mapping code

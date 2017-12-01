@@ -23,6 +23,9 @@ curl -X PATCH -H'Content-type: application/json' http://127.0.0.1:5000/api/v1/ex
 
 
 
+curl -X POST -H'Content-type: application/json' http://127.0.0.1:5000/api/v1/execution_configurations -d'{ "execution_type":"SINGULARITY:SRUN", "application_id": 5, "testbed_id": 1, "executable_id": 3, "num_nodes": 2, "num_cpus_per_node": 8}'
+
+
 
 [garciad@ns54 ~]$ squeue
              JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
