@@ -22,8 +22,18 @@ curl -X PATCH -H'Content-type: application/json' http://127.0.0.1:5000/api/v1/ex
 
 
 
+curl -X POST -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/applications -d'{ "name": "clover_app" }'
 
-curl -X POST -H'Content-type: application/json' http://127.0.0.1:5000/api/v1/execution_configurations -d'{ "execution_type":"SINGULARITY:SRUN", "application_id": 5, "testbed_id": 1, "executable_id": 3, "num_nodes": 2, "num_cpus_per_node": 8}'
+
+curl -X PUT -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/applications/6 -d'{"executables":[{"compilation_script":"BuildCloverLeaf_MPI.sh","compilation_type":"SINGULARIY:SRUN","source_code_file":"/home_nfs/home_dineshkr/UseCaseMiniAppBuild/ALDE/","singularity_image_file":"/home_nfs/home_dineshkr/UseCaseMiniAppBuild/ALDE/centos-7-clover-leaf-mpi.img","singularity_app_folder":"/home_nfs/home_dineshkr/UseCaseMiniAppBuild/ALDE/","status":"COMPILED"}]}'
+
+curl -X POST -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/deployments -d'{"executable_id":5,"testbed_id":1,"status":"UPLOADED_UPDATED","path":"/home_nfs/home_dineshkr/UseCaseMiniAppBuild/ALDE/centos-7-clover-leaf-mpi.img"}'
+
+curl -X POST -H'Content-type: application/json' http://127.0.0.1:5000/api/v1/execution_configurations -d'{ "execution_type":"SINGULARITY:SRUN", "application_id": 6, "testbed_id": 1, "executable_id": 5, "num_nodes": 2, "num_cpus_per_node": 8}'
+
+curl -X PATCH -H'Content-type: application/json' http://127.0.0.1:5000/api/v1/execution_configurations/5 -d'{"launch_execution": true}'
+
+curl -X POST -H'Content-type: application/json' http://127.0.0.1:5000/api/v1/execution_configurations -d'{ "execution_type":"SINGULARITY:SRUN", "application_id": 6, "testbed_id": 1, "executable_id": 5, "num_nodes": 2, "num_cpus_per_node": 8, "num_gpus_per_node": 2}'
 
 
 

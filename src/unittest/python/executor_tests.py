@@ -528,7 +528,7 @@ class ExecutorTests(MappingTest):
 		call_2 = call('(', "user@testbed.com",
 									  [
 									  	"srun",
-									  	"-gres=2",
+									  	"--gres=2",
 									  	"-n",
 									  	"16",
 									  	"singularity",
