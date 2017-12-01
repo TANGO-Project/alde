@@ -98,6 +98,20 @@ def execute_application_type_singularity_srun(execution, identifier):
 
 	pass
 
+def __extract_id_from_squeue__(output):
+	"""
+	It extracts the id from squeue output
+	"""
+
+	lines = output.decode('utf-8')
+	lines = lines.split("\n")
+
+	last = None
+	for line in (line for line in lines if line.rstrip('\n')):
+		last = line
+
+	last = ' '.join(last.split())
+	return int(last.split()[0])
 
 def __extract_id_from_sigularity_pm_app__(output):
 	"""

@@ -387,3 +387,104 @@ class ExecutorTests(MappingTest):
 		call_5 = call('sacct', server='test@pepito.com', params=['-j', 4340, '-o', 'JobID,NNodes,State,ExitCode,DerivedExitcode,Comment'])
 		calls = [ call_1, call_2, call_3, call_4, call_5]
 		mock_shell.assert_has_calls(calls)
+
+	def test__extract_id_from_squeue__(self):
+		"""
+		Test that it is possible to extract the id from the first squeue output
+		"""
+
+		# example output
+		output = b'             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)\n              4610       all singular  garciad  R       0:01      2 ns[55-56]\n'
+
+		squeue_id = executor.__extract_id_from_squeue__(output)
+
+		self.assertEquals(4610, squeue_id)
+
+	@mock.patch("shell.execute_command")
+	def test_execute_application_type_singularity_srun(self, mock_shell):
+		"""
+		Test the correct work fo this function
+		"""
+
+		# We define the different entities necessaryb for the test.
+		pass
+		# testbed = Testbed(name="nova2",
+		# 				  on_line=True,
+		# 				  category="SLURM",
+		# 				  protocol="SSH",
+		# 				  endpoint="user@testbed.com",
+		# 				  package_formats= ['sbatch', 'SINGULARITY'],
+		# 				  extra_config= {
+		# 				  	"enqueue_compss_sc_cfg": "nova.cfg" ,
+		# 				  	"enqueue_env_file": "/home_nfs/home_ejarquej/installations/rc1707/COMPSs/compssenv"
+		# 				  })
+		# db.session.add(testbed)
+
+		# application = Application(name="super_app")
+		# db.session.add(application)
+		# db.session.commit() # So application and testbed get an id
+
+		# executable = Executable()
+		# executable.source_code_file = 'test.zip'
+		# executable.compilation_script = 'gcc -X'
+		# executable.compilation_type = "SINGULARITY:SRUN"
+		# executable.singularity_app_folder="/singularity/app/folder"
+		# executable.singularity_image_file="pepito.img"
+		# executable.status = "COMPILED"
+		# executable.application = application
+		# db.session.add(executable)
+		# db.session.commit() # We do this so executable gets and id
+
+		# deployment = Deployment()
+		# deployment.testbed_id = testbed.id
+		# deployment.executable_id = executable.id
+		# deployment.path="/pepito/pepito.img"
+		# db.session.add(deployment) # We add the executable to the db so it has an id
+
+		# execution_config = ExecutionConfiguration()
+		# execution_config.execution_type ="SINGULARITY:SRUN"
+		# execution_config.application = application
+		# execution_config.testbed = testbed
+		# execution_config.executable = executable 
+		# execution_config.num_nodes = 2
+		# #execution_config.num_gpus_per_node = 2
+		# execution_config.num_cpus_per_node = 16
+		# execution_config.exec_time = 10 
+		# execution_config.command = "/apps/application/master/Matmul 2 1024 12.34 /home_nfs/home_ejarquej/demo_test/cpu_gpu_run_data"
+		# execution_config.compss_config = "--worker_in_master_cpus=12 --worker_in_master_memory=24000 --worker_working_dir=/home_nfs/home_ejarquej --lang=c --monitoring=1000 -d"
+		# db.session.add(execution_config)
+		# db.session.commit()
+
+		# output = b'             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)\n              4610       all singular  garciad  R       0:01      2 ns[55-56]\n'
+
+		# mock_shell.return_value = output
+
+		# # TEST starts here:
+		# execution = Execution(execution_config.execution_type,
+		# 				  executor.execute_status_submitted)
+		# executor.execute_application_type_singularity_pm(execution, execution_config.id)
+
+		# mock_shell.assert_called_with("source",
+		# 							  "user@testbed.com",
+		# 							  [
+		# 							  	"/home_nfs/home_ejarquej/installations/rc1707/COMPSs/compssenv",
+		# 								";",
+		# 								"enqueue_compss",
+		# 								"--sc_cfg=nova.cfg",
+		# 								"--num_nodes=1",
+		# 								"--gpus_per_node=2",
+		# 								"--cpus_per_node=12",
+		# 								"--container_image=/pepito/pepito.img",
+		# 								"--container_compss_path=/opt/TANGO/TANGO_ProgrammingModel/COMPSs/",
+		# 								"--appdir=/apps/application/",
+		# 								"--exec_time=10",
+		# 								"--worker_in_master_cpus=12 --worker_in_master_memory=24000 --worker_working_dir=/home_nfs/home_ejarquej --lang=c --monitoring=1000 -d",
+		# 								"/apps/application/master/Matmul 2 1024 12.34 /home_nfs/home_ejarquej/demo_test/cpu_gpu_run_data"
+		# 							   ]
+		# 							  )
+
+		# execution = db.session.query(Execution).filter_by(execution_configuration_id=execution_config.id).first()
+
+		# self.assertEquals(execution.execution_type, execution_config.execution_type)
+		# self.assertEquals(execution.status, Execution.__status_running__)
+		# self.assertEquals(3357, execution.slurm_sbatch_id)
