@@ -105,8 +105,11 @@ def execute_application_type_singularity_srun(execution, identifier):
 	endpoint = testbed.endpoint
 	params = []
 	params.append("srun")
-	params.append("-N")
-	params.append(str(execution_configuration.num_nodes))
+	if execution_configuration.num_nodes:
+		params.append("-N")
+		params.append(str(execution_configuration.num_nodes))
+	if execution_configuration.num_gpus_per_node:
+		params.append("-gres=" + str(execution_configuration.num_gpus_per_node))
 	params.append("-n")
 	params.append(str(execution_configuration.num_cpus_per_node))
 	params.append("singularity")
