@@ -23,7 +23,7 @@ def _execute_command(command):
         cmd = command
     else: 
         for cmd_part in command:
-            cmd = cmd + " " + cmd_part
+            cmd = cmd + " " + str(cmd_part)
 
     logging.info("Executing:" + cmd)
 

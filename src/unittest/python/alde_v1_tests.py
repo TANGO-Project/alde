@@ -8,7 +8,7 @@
 
 from flask import Flask
 from flask_testing import TestCase
-from models import db, ExecutionConfiguration, Application, Testbed, Node, Executable, Deployment
+from models import db, ExecutionConfiguration, Application, Testbed, Node, Executable, Deployment, Execution
 import alde
 import json
 import unittest.mock as mock
@@ -76,6 +76,10 @@ class AldeV1Tests(TestCase):
         db.session.add(node_1)
         db.session.add(node_2)
 
+        execution = Execution("execution_type", "status")
+        db.session.add(execution)
+
+
         db.session.commit()
 
     def setDown(self):
@@ -84,6 +88,22 @@ class AldeV1Tests(TestCase):
         """
 
         db.session_remove()
+
+    def test_execution_rest_api(self):
+        """
+        It tests the rest api for the exeuction entity
+        """
+
+        # GET
+        response = self.client.get("/api/v1/executions")
+
+        # We verify the response of the GET
+        self.assertEquals(200, response.status_code)
+        executions = response.json['objects']
+        self.assertEquals(1, len(executions))
+        execution = executions[0]
+        self.assertEquals("execution_type", execution['execution_type'])
+        self.assertEquals("status", execution['status'])
 
     def test_application_rest_api(self):
         """
