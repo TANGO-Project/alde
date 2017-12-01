@@ -463,8 +463,13 @@ class ExecutorTests(MappingTest):
 						  executor.execute_status_submitted)
 		executor.execute_application_type_singularity_srun(execution, execution_config.id)
 
-		mock_shell.assert_called_with("(",
-									  "user@testbed.com",
+		execution = db.session.query(Execution).filter_by(execution_configuration_id=execution_config.id).first()
+
+		self.assertEquals(execution.execution_type, execution_config.execution_type)
+		self.assertEquals(execution.status, Execution.__status_running__)
+		self.assertEquals(4610, execution.slurm_sbatch_id)
+
+		call_1 = call('(', "user@testbed.com",
 									  [
 									  	"srun",
 									  	"-N",
@@ -480,11 +485,48 @@ class ExecutorTests(MappingTest):
 									  	"sleep",
 									  	"1;",
 									  	"squeue"
-									   ]
-									  )
+									   ])
+
+		# adding a new type of execution
+		execution_config = ExecutionConfiguration()
+		execution_config.execution_type ="SINGULARITY:SRUN"
+		execution_config.application = application
+		execution_config.testbed = testbed
+		execution_config.executable = executable 
+		execution_config.num_gpus_per_node = 2
+		execution_config.num_cpus_per_node = 16
+		execution_config.exec_time = 10 
+		execution_config.command = "/apps/application/master/Matmul 2 1024 12.34 /home_nfs/home_ejarquej/demo_test/cpu_gpu_run_data"
+		execution_config.compss_config = "--worker_in_master_cpus=12 --worker_in_master_memory=24000 --worker_working_dir=/home_nfs/home_ejarquej --lang=c --monitoring=1000 -d"
+		db.session.add(execution_config)
+		db.session.commit()
+
+		execution = Execution(execution_config.execution_type,
+						  executor.execute_status_submitted)
+		executor.execute_application_type_singularity_srun(execution, execution_config.id)
 
 		execution = db.session.query(Execution).filter_by(execution_configuration_id=execution_config.id).first()
 
 		self.assertEquals(execution.execution_type, execution_config.execution_type)
 		self.assertEquals(execution.status, Execution.__status_running__)
 		self.assertEquals(4610, execution.slurm_sbatch_id)
+
+		call_2 = call('(', "user@testbed.com",
+									  [
+									  	"srun",
+									  	"-gres=2",
+									  	"-n",
+									  	"16",
+									  	"singularity",
+									  	"run",
+									  	"/pepito/pepito.img",
+									  	"&",
+									  	")",
+									  	";",
+									  	"sleep",
+									  	"1;",
+									  	"squeue"
+									   ])
+		calls = [ call_1, call_2]
+		mock_shell.assert_has_calls(calls)
+
