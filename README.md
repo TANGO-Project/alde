@@ -8,11 +8,11 @@ ALDE is distributed under a [Apache License, version 2.0](http://www.apache.org/
 
 ## Description
 
-ALDE is responsible for the workload scheduling and the management of the application life-cycle while it is executed. ALDE will take the application source code, packetize for different heterogenous architectures configurations and, if possible, deploy it via a TANGO Device Supervisor and manage the application execution. 
+ALDE is responsible for the workload scheduling and the management of the application life-cycle while it is executed. ALDE will take the application source code, packetize for different heterogeneous architectures configurations and, if possible, deploy it via a TANGO Device Supervisor and manage the application execution. 
 
 More in detail each one of the previous steps:
 
-* **Compilation** - ALDE is able to compile the application in different configurations depending of the selected heterogenous architectures. The result will be a set of binaries optimal compiled for specific hardware architectures.
+* **Compilation** - ALDE is able to compile the application in different configurations depending of the selected heterogeneous architectures. The result will be a set of binaries optimal compiled for specific hardware architectures.
 * **Packetization** - ALDE, once the application has been compiled, can packetize it. For the moment it only supports typical tar.gz files and [Docker](https://www.docker.com/) and [Singularity](http://singularity.lbl.gov/) containers.
 * **Deployment** - ALDE is able to automatically deploy an application into a TANGO compatible Device Supervisor. It will launch the execution and monitor it. It will also support adaptations interactions if used in combination with the [TANGO Self-Adaptation Manager](https://github.com/TANGO-Project/self-adaptation-manager).
 

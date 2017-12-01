@@ -88,6 +88,16 @@ def execute_application_type_singularity_pm(execution, identifier):
 	execution.slurm_sbatch_id = sbatch_id
 	db.session.commit()
 
+def execute_application_type_singularity_srun(execution, identifier):
+	"""
+	It supports execution of this type:
+	( srun -N 2 -n 16 singularity run /home_nfs/home_dineshkr/UseCaseMiniAppBuild/ALDE/centos-7-clover-leaf-mpi.img > allout.txt 2>&1 & ) ; sleep 1; squeue
+	"""
+
+	#TODO
+
+	pass
+
 
 def __extract_id_from_sigularity_pm_app__(output):
 	"""
