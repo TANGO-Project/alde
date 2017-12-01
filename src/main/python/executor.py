@@ -94,9 +94,40 @@ def execute_application_type_singularity_srun(execution, identifier):
 	( srun -N 2 -n 16 singularity run /home_nfs/home_dineshkr/UseCaseMiniAppBuild/ALDE/centos-7-clover-leaf-mpi.img > allout.txt 2>&1 & ) ; sleep 1; squeue
 	"""
 
-	#TODO
+	# Lets recover all the information needed...execution_configuration
+	execution_configuration = db.session.query(ExecutionConfiguration).filter_by(id=identifier).first() # This is to avoid reusing objects from other thread
+	testbed = db.session.query(Testbed).filter_by(id=execution_configuration.testbed_id).first()
+	deployment = db.session.query(Deployment).filter_by(executable_id=execution_configuration.executable_id, testbed_id=testbed.id).first()
+	executable = db.session.query(Executable).filter_by(id=execution_configuration.executable_id).first()
 
-	pass
+	# Preparing the command to be executed
+	command = "("
+	endpoint = testbed.endpoint
+	params = []
+	params.append("srun")
+	params.append("-N")
+	params.append(str(execution_configuration.num_nodes))
+	params.append("-n")
+	params.append(str(execution_configuration.num_cpus_per_node))
+	params.append("singularity")
+	params.append("run")
+	params.append(deployment.path)
+	params.append("&")
+	params.append(")")
+	params.append(";")
+	params.append("sleep")
+	params.append("1;")
+	params.append("squeue")
+
+	logging.info("Launching execution of application: command: " + command + " | endpoint: " + endpoint + " | params: " + str(params))
+
+	output = shell.execute_command(command, endpoint, params)
+	sbatch_id = __extract_id_from_squeue__(output)
+	
+	execution = Execution(execution_configuration.execution_type, Execution.__status_running__)
+	execution_configuration.executions.append(execution)
+	execution.slurm_sbatch_id = sbatch_id
+	db.session.commit()
 
 def __extract_id_from_squeue__(output):
 	"""
