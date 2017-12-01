@@ -80,9 +80,10 @@ class ExecutorTests(MappingTest):
 		mock_execute.assert_called_with('mkdir', testbed.endpoint, [ path ])
 		mock_scp.assert_called_with(executable.singularity_image_file, testbed.endpoint, path + "/")
 
+	@mock.patch("executor.execute_application_type_singularity_srun")
 	@mock.patch("executor.execute_application_type_singularity_pm")
 	@mock.patch("executor.execute_application_type_slurm_sbatch")
-	def test_execute_application(self, mock_slurm_sbatch, mock_singularity):
+	def test_execute_application(self, mock_slurm_sbatch, mock_singularity, mock_singularity_srun):
 		"""
 		Verifies that the right methods and status are set when an appplication is executed
 		"""
@@ -113,6 +114,19 @@ class ExecutorTests(MappingTest):
 		# We verify that the right method was called
 		t.join()
 		mock_singularity.assert_called_with(execution, execution_configuration.id)
+
+		# SINGULARITY:SRUN
+		execution_configuration.execution_type = "SINGULARITY:SRUN"
+		db.session.commit()
+
+		t = executor.execute_application(execution_configuration)
+		execution = db.session.query(Execution).filter_by(execution_type="SINGULARITY:SRUN").first()
+		self.assertEquals("SINGULARITY:SRUN", execution.execution_type)
+		self.assertEquals(executor.execute_status_submitted, execution.status)
+
+		# We verify that the right method was called
+		t.join()
+		mock_singularity_srun.assert_called_with(execution, execution_configuration.id)
 
 		# We verify the wrong status of unrecognize execution type
 		execution_configuration.execution_type = "xxx"

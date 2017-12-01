@@ -15,6 +15,7 @@ import logging
 
 execute_type_slurm_sbatch = "slurm:sbatch"
 execute_type_singularity_pm = "SINGULARITY:PM"
+execute_type_singularity_srun = "SINGULARITY:SRUN"
 execute_status_submitted = "SUBMITTED"
 execute_status_failed = "FAILED"
 
@@ -41,6 +42,10 @@ def execute_application(execution_configuration):
 		return t
 	elif execution.execution_type == execute_type_singularity_pm :
 		t = Thread(target=execute_application_type_singularity_pm, args=(execution, execution_configuration.id))
+		t.start()
+		return t
+	elif execution.execution_type == execute_type_singularity_srun :
+		t = Thread(target=execute_application_type_singularity_srun, args=(execution, execution_configuration.id))
 		t.start()
 		return t
 	else: 
