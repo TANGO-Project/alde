@@ -12,6 +12,7 @@ import shell
 import uuid
 import os
 import logging
+from sqlalchemy import or_
 
 execute_type_slurm_sbatch = "slurm:sbatch"
 execute_type_singularity_pm = "SINGULARITY:PM"
@@ -228,8 +229,7 @@ def monitor_execution_apps():
 	It check the status fo those running apps and updates the db accordingly
 	"""
 
-	# TODO query que encuentre las apps que están corriendo y las devuelva 
-	executions = db.session.query(Execution).filter_by(status=Execution.__status_running__).all()
+	executions = db.session.query(Execution).filter(or_(Execution.status == Execution.__status_running__, Execution.status == Execution.__status_cancel__)).all()
 
 	for execution in executions :
 
