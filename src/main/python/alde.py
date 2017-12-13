@@ -158,6 +158,33 @@ def patch_execution_script_preprocessor(instance_id=None, data=None, **kw):
             else:
                 executor.execute_application(execution_script)
 
+def patch_execution_preprocessor(instance_id=None, data=None, **kw):
+    """
+    It allows to change the status of a running execution
+    """
+
+    execution = db.session.query(Execution).filter_by(id=instance_id).first()
+
+    if execution :
+
+        if 'status' in data:
+            if data['status'] == Execution.__status_cancel__ :
+                url = execution.execution_configuration.testbed.endpoint
+                executor.cancel_execution(execution, url) 
+            else :
+                raise flask_restless.ProcessingException(
+                                description='No valid state to try to change',
+                                code=409)
+        else :
+           raise flask_restless.ProcessingException(
+                                description='No status field in the payload',
+                                code=409)      
+    else :
+        raise flask_restless.ProcessingException(
+                                description='No execution by the given id',
+                                code=409)
+
+
 def post_deployment_preprocessor(data=None, **kw):
     """
     It verifies that an executable can be uploaded to the testbed
@@ -243,7 +270,10 @@ def create_app_v1(sql_db_url, port, app_folder):
 
     # Create the REST API for the Executable Configuration
     manager.create_api(Execution,
-                       methods=['GET'],
+                       methods=['GET', 'PATCH'],
+                       preprocessors={
+                            'PATCH_SINGLE': [patch_execution_preprocessor]
+                        },
                        url_prefix=url_prefix_v1, results_per_page=-1)
 
     # Create the REST API for Execution Configuration

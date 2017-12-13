@@ -728,7 +728,6 @@ class AldeV1Tests(TestCase):
                                      content_type='application/json')
 
         self.assertEquals(409, response.status_code)
-        print(response.json)
         execution_script = response.json
         self.assertEquals(
           'No deployment configured to execute the application',
@@ -786,6 +785,64 @@ class AldeV1Tests(TestCase):
         self.assertEquals(200, response.status_code)
 
         mock_execute_application.assert_called_with(execution_script)
+
+    @mock.patch('executor.cancel_execution')
+    def test_patch_execution_preprocessor(self, mock_executor):
+        """
+        It test the correct work of the method of canceling an execution
+        """
+
+        # First we verify that nothing happens if launch_execution = False
+        data = {'status': 'PEPITO'}
+
+        response = self.client.patch("/api/v1/executions/100",
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        self.assertEquals(409, response.status_code)
+        self.assertEquals(
+          'No execution by the given id',
+          response.json['message'])
+
+        # Preparing the data for the rest of the test
+        testbed = Testbed("name", False, "slurm", "ssh", "user@server", ['slurm'])
+        db.session.add(testbed)
+        db.session.commit()
+        execution_configuration = ExecutionConfiguration()
+        execution_configuration.testbed = testbed
+        db.session.add(execution_configuration)
+        db.session.commit()
+        execution = Execution(Executable.__type_singularity_srun__,
+                          Execution.__status_running__)
+        execution.execution_configuration = execution_configuration
+        db.session.add(execution)
+        db.session.commit()
+
+        response = self.client.patch("/api/v1/executions/" + str(execution.id) ,
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+        self.assertEquals(409, response.status_code)
+        self.assertEquals(
+          'No valid state to try to change',
+          response.json['message'])
+
+        data = {'PEPITO': 'PEPITO'}
+        response = self.client.patch("/api/v1/executions/" + str(execution.id) ,
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        self.assertEquals(409, response.status_code)
+        self.assertEquals(
+          'No status field in the payload',
+          response.json['message'])
+
+        data = {'status': 'CANCEL'}
+        response = self.client.patch("/api/v1/executions/" + str(execution.id) ,
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        self.assertEquals(200, response.status_code)
+        mock_executor.assert_called_with(execution, 'user@server')
 
     @mock.patch('executor.upload_deployment')
     def test_post_deployment_preprocessor(self, mock_upload_deployment):

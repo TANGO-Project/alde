@@ -75,6 +75,8 @@ class Execution(db.Model):
     __status_finished__ = "COMPLETED"
     __status_failed__ = "FAILED"
     __status_unknown__ = "UNKNOWN"
+    __status_cancel__ = 'CANCEL'
+    __status_cancelled__ = 'CANCELLED'
 
     # SQLAlchemy mapping code
     __tablename__ = 'executions'
