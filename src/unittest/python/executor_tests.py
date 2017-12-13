@@ -550,3 +550,32 @@ class ExecutorTests(MappingTest):
 		calls = [ call_1, call_2]
 		mock_shell.assert_has_calls(calls)
 
+	@mock.patch("shell.execute_command")
+	def test_cancel_execution(self, mock_shell):
+		"""
+		It test the correct work of the cancel execution method
+		"""
+
+		# We create the execution objects to test
+		execution_1 = Execution(Executable.__type_singularity_srun__,
+						  Execution.__status_running__)
+		execution_1.slurm_sbatch_id = 1
+		execution_2 = Execution(Executable.__type_singularity_pm__,
+						  Execution.__status_running__)
+		execution_2.slurm_sbatch_id = 2
+		execution_3 = Execution("other_type",
+						  Execution.__status_running__)
+		execution_3.slurm_sbatch_id = 3
+		execution_4 = Execution(Executable.__type_singularity_srun__,
+						  Execution.__status_finished__)
+		execution_4.slurm_sbatch_id = 4
+
+		executor.cancel_execution(execution_1, "user@testbed.com")
+		executor.cancel_execution(execution_2, "user@testbed.com")
+		executor.cancel_execution(execution_3, "user@testbed.com")
+		executor.cancel_execution(execution_4, "user@testbed.com")
+
+		call_1 = call("scancel", "user@testbed.com", [ "1" ])
+		call_2 = call("scancel", "user@testbed.com", [ "2" ])
+		calls = [ call_1, call_2]
+		mock_shell.assert_has_calls(calls)

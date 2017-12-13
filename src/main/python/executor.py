@@ -290,3 +290,12 @@ def find_squeue_job_status(command_output):
 
 
 	pass
+
+def cancel_execution(execution, url):
+	"""
+	It finds an execution an cancels it if running
+	"""
+
+	if (( execution.execution_type == execute_type_singularity_pm ) or ( execution.execution_type ==  execute_type_singularity_srun )) and ( execution.status == Execution.__status_running__ ) :
+		# Preparing the command to be executed
+		shell.execute_command('scancel', url, [ str(execution.slurm_sbatch_id) ])
