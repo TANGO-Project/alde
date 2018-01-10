@@ -117,6 +117,7 @@ class ExecutionConfiguration(db.Model):
     exec_time = db.Column(db.Integer)
     command = db.Column(db.String)
     compss_config = db.Column(db.String)
+    srun_config = db.Column(db.String)
     executions = db.relationship("Execution", order_by=Execution.id, back_populates="execution_configuration")
     launch_execution=False    
 

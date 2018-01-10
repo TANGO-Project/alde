@@ -551,6 +551,141 @@ class ExecutorTests(MappingTest):
 		mock_shell.assert_has_calls(calls)
 
 	@mock.patch("shell.execute_command")
+	def test_execute_application_type_slurm_srun(self, mock_shell):
+		"""
+		Test the correct work fo this function
+		"""
+
+		# We define the different entities necessaryb for the test.
+		testbed = Testbed(name="nova2",
+						  on_line=True,
+						  category="SLURM",
+						  protocol="SSH",
+						  endpoint="user@testbed.com",
+						  package_formats= ['sbatch', 'srun', 'SINGULARITY'],
+						  extra_config= {
+						  	"enqueue_compss_sc_cfg": "nova.cfg" ,
+						  	"enqueue_env_file": "/home_nfs/home_ejarquej/installations/rc1707/COMPSs/compssenv"
+						  })
+		db.session.add(testbed)
+
+		application = Application(name="super_app")
+		db.session.add(application)
+		db.session.commit() # So application and testbed get an id
+
+		executable = Executable()
+		executable.source_code_file = 'test.zip'
+		executable.compilation_script = 'gcc -X'
+		executable.compilation_type = "SLURM:SRUN"
+		executable.executable_file = "/usr/local/gromacs-4.6.7-cuda2/bin/mdrun"
+		executable.status = "COMPILED"
+		executable.application = application
+		db.session.add(executable)
+		db.session.commit() # We do this so executable gets and id
+
+		deployment = Deployment()
+		deployment.testbed_id = testbed.id
+		deployment.executable_id = executable.id
+		db.session.add(deployment) # We add the executable to the db so it has an id
+
+		execution_config = ExecutionConfiguration()
+		execution_config.execution_type ="SLURM:SRUN"
+		execution_config.application = application
+		execution_config.testbed = testbed
+		execution_config.executable = executable 
+		execution_config.num_nodes = 2
+		#execution_config.num_gpus_per_node = 2
+		execution_config.num_cpus_per_node = 16
+		execution_config.srun_config = "--job-name gromacstest --profile=energy,task --acctg-freq=Energy=1,Task=1"
+		execution_config.command = "-s /home_nfs/home_dineshkr/Gromacs/gromacs-run/peptide_water_3k.tpr -v -nsteps 50000 -testverlet"
+		db.session.add(execution_config)
+		db.session.commit()
+
+		output = b'             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)\n              4610       all singular  garciad  R       0:01      2 ns[55-56]\n'
+
+		mock_shell.return_value = output
+
+		# TEST starts here:
+		execution = Execution(execution_config.execution_type,
+						  executor.execute_status_submitted)
+		executor.execute_application_type_slurm_srun(execution, execution_config.id)
+
+		execution = db.session.query(Execution).filter_by(execution_configuration_id=execution_config.id).first()
+
+		self.assertEquals(execution.execution_type, execution_config.execution_type)
+		self.assertEquals(execution.status, Execution.__status_running__)
+		self.assertEquals(4610, execution.slurm_sbatch_id)
+
+		call_1 = call('(', "user@testbed.com",
+									  [
+									  	'srun', 
+									  	'-N', 
+									  	'2', 
+									  	'-n', 
+									  	'16', 
+									  	'--job-name gromacstest --profile=energy,task --acctg-freq=Energy=1,Task=1', 
+									  	'/usr/local/gromacs-4.6.7-cuda2/bin/mdrun', 
+									  	'-s /home_nfs/home_dineshkr/Gromacs/gromacs-run/peptide_water_3k.tpr -v -nsteps 50000 -testverlet',							  	
+									  	">",
+										"allout.txt",
+										"2>&1",
+									  	"&",
+									  	")",
+									  	";",
+									  	"sleep",
+									  	"1;",
+									  	"squeue"
+									   ])
+
+		# adding a new type of execution
+		execution_config = ExecutionConfiguration()
+		execution_config.execution_type ="SLURM:SRUN"
+		execution_config.application = application
+		execution_config.testbed = testbed
+		execution_config.executable = executable 
+		execution_config.num_nodes = 2
+		execution_config.num_gpus_per_node = 2
+		execution_config.num_cpus_per_node = 16
+		execution_config.srun_config = "--job-name gromacstest --profile=energy,task --acctg-freq=Energy=1,Task=1"
+		execution_config.command = "-s /home_nfs/home_dineshkr/Gromacs/gromacs-run/peptide_water_3k.tpr -v -nsteps 50000 -testverlet"
+		db.session.add(execution_config)
+		db.session.commit()
+
+		execution = Execution(execution_config.execution_type,
+						  executor.execute_status_submitted)
+		executor.execute_application_type_slurm_srun(execution, execution_config.id)
+
+		execution = db.session.query(Execution).filter_by(execution_configuration_id=execution_config.id).first()
+
+		self.assertEquals(execution.execution_type, execution_config.execution_type)
+		self.assertEquals(execution.status, Execution.__status_running__)
+		self.assertEquals(4610, execution.slurm_sbatch_id)
+
+		call_2 = call('(', "user@testbed.com",
+									  [
+									  	'srun', 
+									  	'-N', 
+									  	'2',
+									  	"--gres=gpu:2", 
+									  	'-n', 
+									  	'16', 
+									  	'--job-name gromacstest --profile=energy,task --acctg-freq=Energy=1,Task=1', 
+									  	'/usr/local/gromacs-4.6.7-cuda2/bin/mdrun', 
+									  	'-s /home_nfs/home_dineshkr/Gromacs/gromacs-run/peptide_water_3k.tpr -v -nsteps 50000 -testverlet',							  	
+									  	">",
+										"allout.txt",
+										"2>&1",
+									  	"&",
+									  	")",
+									  	";",
+									  	"sleep",
+									  	"1;",
+									  	"squeue"
+									   ])
+		calls = [ call_1, call_2]
+		mock_shell.assert_has_calls(calls)
+
+	@mock.patch("shell.execute_command")
 	def test_cancel_execution(self, mock_shell):
 		"""
 		It test the correct work of the cancel execution method

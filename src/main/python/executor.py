@@ -95,10 +95,9 @@ def execute_application_type_singularity_pm(execution, identifier):
 	execution.slurm_sbatch_id = sbatch_id
 	db.session.commit()
 
-def execute_application_type_singularity_srun(execution, identifier):
+def __get_srun_info__(execution, identifier):
 	"""
-	It supports execution of this type:
-	( srun -N 2 -n 16 singularity run /home_nfs/home_dineshkr/UseCaseMiniAppBuild/ALDE/centos-7-clover-leaf-mpi.img > allout.txt 2>&1 & ) ; sleep 1; squeue
+	Internal method that gets all the necessary srun information
 	"""
 
 	# Lets recover all the information needed...execution_configuration
@@ -106,6 +105,61 @@ def execute_application_type_singularity_srun(execution, identifier):
 	testbed = db.session.query(Testbed).filter_by(id=execution_configuration.testbed_id).first()
 	deployment = db.session.query(Deployment).filter_by(executable_id=execution_configuration.executable_id, testbed_id=testbed.id).first()
 	executable = db.session.query(Executable).filter_by(id=execution_configuration.executable_id).first()
+
+	return execution_configuration, testbed, deployment, executable
+
+
+def execute_application_type_slurm_srun(execution, identifier):
+	"""
+	It supports execution of this type:
+	( srun --job-name gromacstest 
+	       --profile=energy,task 
+	       --acctg-freq=Energy=1,Task=1 
+	       --gres=gpu 
+	       -n 1 
+	       /usr/local/gromacs-4.6.7-cuda2/bin/mdrun -s /home_nfs/home_dineshkr/Gromacs/gromacs-run/peptide_water_3k.tpr -v -nsteps 50000 -testverlet > allout.txt 2>&1 & ) ; sleep 1 ; squeue
+	"""
+
+	execution_configuration, testbed, deployment, executable = __get_srun_info__(execution, identifier)
+
+	# Preparing the command to be executed
+	command = "("
+	endpoint = testbed.endpoint
+	params = []
+	params.append("srun")
+	if execution_configuration.num_nodes:
+		params.append("-N")
+		params.append(str(execution_configuration.num_nodes))
+	if execution_configuration.num_gpus_per_node:
+		params.append("--gres=gpu:" + str(execution_configuration.num_gpus_per_node))
+	params.append("-n")
+	params.append(str(execution_configuration.num_cpus_per_node))
+	if execution_configuration.srun_config:
+		params.append(execution_configuration.srun_config)
+	params.append(executable.executable_file)
+	params.append(execution_configuration.command)
+	params.append(">")
+	params.append("allout.txt")
+	params.append("2>&1")
+	params.append("&")
+	params.append(")")
+	params.append(";")
+	params.append("sleep")
+	params.append("1;")
+	params.append("squeue")
+
+	logging.info("Launching execution of application: command: " + command + " | endpoint: " + endpoint + " | params: " + str(params))
+
+	__launch_execution__(command, endpoint, params, execution_configuration)
+
+
+def execute_application_type_singularity_srun(execution, identifier):
+	"""
+	It supports execution of this type:
+	( srun -N 2 -n 16 singularity run /home_nfs/home_dineshkr/UseCaseMiniAppBuild/ALDE/centos-7-clover-leaf-mpi.img > allout.txt 2>&1 & ) ; sleep 1; squeue
+	"""
+
+	execution_configuration, testbed, deployment, executable = __get_srun_info__(execution, identifier)
 
 	# Preparing the command to be executed
 	command = "("
@@ -133,6 +187,13 @@ def execute_application_type_singularity_srun(execution, identifier):
 	params.append("squeue")
 
 	logging.info("Launching execution of application: command: " + command + " | endpoint: " + endpoint + " | params: " + str(params))
+
+	__launch_execution__(command, endpoint, params, execution_configuration)
+
+def __launch_execution__(command, endpoint, params, execution_configuration):
+	"""
+	It updates after any srun execution, singularity or not
+	"""
 
 	output = shell.execute_command(command, endpoint, params)
 	sbatch_id = __extract_id_from_squeue__(output)
