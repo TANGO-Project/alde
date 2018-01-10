@@ -17,6 +17,7 @@ from sqlalchemy import or_
 execute_type_slurm_sbatch = "slurm:sbatch"
 execute_type_singularity_pm = "SINGULARITY:PM"
 execute_type_singularity_srun = "SINGULARITY:SRUN"
+execute_type_slurm_srun = "SLURM:SRUN"
 execute_status_submitted = "SUBMITTED"
 execute_status_failed = "FAILED"
 

@@ -48,7 +48,7 @@ class Executable(db.Model):
     __status_not_compiled__ = 'NOT_COMPILED'
     __status_compiling__ = 'COMPILING'
     __status_compiled__ = 'COMPILED'
-    __status_error_type__ = 'ERROR: UNKNOW TYPE'
+    __status_error_type__ = 'ERROR: UNKNOWN TYPE'
     __type_singularity_pm__ = 'SINGULARITY:PM'
     __type_singularity_srun__ = 'SINGULARITY:SRUN'
 
