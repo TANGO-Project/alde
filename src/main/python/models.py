@@ -115,7 +115,7 @@ class ExecutionConfiguration(db.Model):
     num_gpus_per_node = db.Column(db.Integer)
     num_cpus_per_node = db.Column(db.Integer)
     exec_time = db.Column(db.Integer)
-    command = db.Column(db.Integer)
+    command = db.Column(db.String)
     compss_config = db.Column(db.String)
     executions = db.relationship("Execution", order_by=Execution.id, back_populates="execution_configuration")
     launch_execution=False    
