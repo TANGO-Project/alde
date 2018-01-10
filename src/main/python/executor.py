@@ -50,6 +50,10 @@ def execute_application(execution_configuration):
 		t = Thread(target=execute_application_type_singularity_srun, args=(execution, execution_configuration.id))
 		t.start()
 		return t
+	elif execution.execution_type == execute_type_slurm_srun :
+		t = Thread(target=execute_application_type_slurm_srun, args=(execution, execution_configuration.id))
+		t.start()
+		return t
 	else: 
 		execution.status = execute_status_failed
 		execution.output = "No support for execurtion type: " + execution.execution_type
