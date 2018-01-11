@@ -51,6 +51,7 @@ class Executable(db.Model):
     __status_error_type__ = 'ERROR: UNKNOWN TYPE'
     __type_singularity_pm__ = 'SINGULARITY:PM'
     __type_singularity_srun__ = 'SINGULARITY:SRUN'
+    __type_slurm_srun__ = "SLURM:SRUN"
 
 
     # SQLAlchemy mapping code

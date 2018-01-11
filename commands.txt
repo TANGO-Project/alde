@@ -58,3 +58,14 @@ curl -X PATCH -H'Content-type: application/json' http://127.0.0.1:5000/api/v1/ex
 3362.1       singulari+      2792K   00:00:00 
 
 TODO try first squeue (appears still RUNNING) try second sacct (it stopped) (failsafe for unknown)
+
+
+
+
+
+
+### Singularity SRUN Application
+
+curl -X POST -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/applications -d'{ "name": "gromacs" }'
+
+curl -X PUT -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/applications/10 -d'{"executables":[{"compilation_script":"none","compilation_type":"SLURM:SRUN", "executable_file":"/usr/local/gromacs-4.6.7-cuda2/bin/mdrun","status":"COMPILED"}]}'
