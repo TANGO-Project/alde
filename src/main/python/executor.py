@@ -39,7 +39,7 @@ def execute_application(execution_configuration):
 	# We verify that we recoginze the type of execution
 	if execution.execution_type == execute_type_slurm_sbatch :
 
-		t = Thread(target=execute_application_type_slurm_sbatch, args=(execution,))
+		t = Thread(target=execute_application_type_slurm_sbatch, args=(execution, execution_configuration.id))
 		t.start()
 		return t
 	elif execution.execution_type == execute_type_singularity_pm :
@@ -238,15 +238,15 @@ def __extract_id_from_sigularity_pm_app__(output):
 	last = ' '.join(last.split())
 	return int(last.split()[-1])
 
-def execute_application_type_slurm_sbatch(execution):
+def execute_application_type_slurm_sbatch(execution, identifier):
 	"""
 	Executes an application with a device supervisor configured
 	for slurm sbatch
 	"""
 
-	testbed = execution.execution_configuration.testbed
+	execution_configuration, testbed, deployment, executable = __get_srun_info__(execution, identifier)
 
-	if testbed.category is not Testbed.slurm_category:
+	if testbed.category != Testbed.slurm_category:
 		# If the category is not SLURM we can not execute the app
 		execution.status = execute_status_failed
 		execution.output = "Testbed does not support " + execute_type_slurm_sbatch + " applications"
@@ -257,6 +257,32 @@ def execute_application_type_slurm_sbatch(execution):
 		execution.status = execute_status_failed
 		execution.output = "Testbed is off-line"
 		db.session.commit()
+
+	else:
+		# Preparing the command to be executed
+		command = "sbatch"
+		endpoint = testbed.endpoint
+		params = []
+		params.append(executable.executable_file)
+
+		logging.info("Launching execution of application: command: " + command + " | endpoint: " + endpoint + " | params: " + str(params))
+
+		output = shell.execute_command(command, endpoint, params)
+		print(output)
+
+		sbatch_id = __extract_id_from_sbatch__(output)
+		
+		execution = Execution(execution_configuration.execution_type, Execution.__status_running__)
+		execution_configuration.executions.append(execution)
+		execution.slurm_sbatch_id = sbatch_id
+		db.session.commit()
+
+def __extract_id_from_sbatch__(output):
+	"""
+	It parses the sbatch command output
+	"""
+	output = output.split()
+	return output[-1]
 
 
 def upload_deployment(executable, testbed, app_folder='/tmp'):
@@ -299,7 +325,7 @@ def monitor_execution_apps():
 
 	for execution in executions :
 
-		if execution.execution_type == Executable.__type_singularity_pm__ or execution.execution_type == Executable.__type_singularity_srun__ or execution.execution_type == Executable.__type_slurm_srun__ :
+		if execution.execution_type == Executable.__type_singularity_pm__ or execution.execution_type == Executable.__type_singularity_srun__ or execution.execution_type == Executable.__type_slurm_srun__ or execution.execution_type == Executable.__type_slurm_sbatch__:
 			status = monitor_execution_singularity_apps(execution)
 			execution.status = status
 			db.session.commit()

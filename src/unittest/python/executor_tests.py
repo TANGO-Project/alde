@@ -102,7 +102,7 @@ class ExecutorTests(MappingTest):
 
 		# We verify that the right method was called
 		t.join()
-		mock_slurm_sbatch.assert_called_with(execution)
+		mock_slurm_sbatch.assert_called_with(execution,  execution_configuration.id)
 
 		execution_configuration.execution_type = "SINGULARITY:PM"
 		db.session.commit()
@@ -259,7 +259,8 @@ class ExecutorTests(MappingTest):
 
 		self.assertEquals(3357, sbatch_id)
 
-	def test_execute_application_type_slurm_sbatch(self):
+	@mock.patch("shell.execute_command")
+	def test_execute_application_type_slurm_sbatch(self, mock_shell):
 		"""
 		It verifies that the application type slurm sbatch is executed
 		"""
@@ -268,14 +269,45 @@ class ExecutorTests(MappingTest):
 		# to execute it, in this case it should give an error since it is
 		# not of type slurm
 
-		execution = Execution("SLURM:SBATCH", executor.execute_status_submitted)
-		testbed = Testbed("name", True, "xxxx", "ssh", "user@server", ['slurm'])
-		execution_configuration = ExecutionConfiguration()
-		execution_configuration.execution_type = "slurm:sbatch"
-		execution.execution_configuration=execution_configuration
-		execution_configuration.testbed = testbed
+		# We define the different entities necessaryb for the test.
+		testbed = Testbed(name="nova2",
+						  on_line=True,
+						  category="xxxx",
+						  protocol="SSH",
+						  endpoint="user@testbed.com",
+						  package_formats= ['sbatch', 'SINGULARITY'],
+						  extra_config= {
+						  	"enqueue_compss_sc_cfg": "nova.cfg" ,
+						  	"enqueue_env_file": "/home_nfs/home_ejarquej/installations/rc1707/COMPSs/compssenv"
+						  })
+		db.session.add(testbed)
 
-		executor.execute_application_type_slurm_sbatch(execution)
+		application = Application(name="super_app")
+		db.session.add(application)
+		db.session.commit() # So application and testbed get an id
+
+		executable = Executable()
+		executable.compilation_type = "SLURM:SBATCH"
+		executable.executable_file = "pepito.sh"
+		db.session.add(executable)
+		db.session.commit() # We do this so executable gets and id
+
+		deployment = Deployment()
+		deployment.testbed_id = testbed.id
+		deployment.executable_id = executable.id
+		db.session.add(deployment) # We add the executable to the db so it has an id
+
+		execution_config = ExecutionConfiguration()
+		execution_config.execution_type = "SLURM:SBATCH"
+		execution_config.application = application
+		execution_config.testbed = testbed
+		execution_config.executable = executable 
+		db.session.add(execution_config)
+		db.session.commit()
+
+		execution = Execution("SLURM:SBATCH", executor.execute_status_submitted)
+
+		executor.execute_application_type_slurm_sbatch(execution, execution_config.id)
 
 		self.assertEquals("SLURM:SBATCH", execution.execution_type)
 		self.assertEquals(executor.execute_status_failed, execution.status)
@@ -284,13 +316,42 @@ class ExecutorTests(MappingTest):
 		# If the testbed is off-line, execution isn't allowed also
 		testbed.category = Testbed.slurm_category
 		testbed.on_line = False
+		db.session.commit()
+
 		execution.status = executor.execute_status_submitted
 
-		executor.execute_application_type_slurm_sbatch(execution)
+		execution = Execution("SLURM:SBATCH", executor.execute_status_submitted)
+
+		executor.execute_application_type_slurm_sbatch(execution, execution_config.id)
 
 		self.assertEquals("SLURM:SBATCH", execution.execution_type)
 		self.assertEquals(executor.execute_status_failed, execution.status)
 		self.assertEquals("Testbed is off-line", execution.output)
+
+		## Test executing
+		output = 'Submitted batch job 5740'
+		mock_shell.return_value = output
+
+		testbed.category = Testbed.slurm_category
+		testbed.on_line = True
+		db.session.commit()
+
+		execution.status = executor.execute_status_submitted
+
+		execution = Execution("SLURM:SBATCH", executor.execute_status_submitted)
+
+		executor.execute_application_type_slurm_sbatch(execution, execution_config.id)
+
+		mock_shell.assert_called_with("sbatch",
+									  "user@testbed.com",
+									  [
+									  	"pepito.sh"
+									   ]
+									  )
+		execution = db.session.query(Execution).filter_by(execution_configuration_id=execution_config.id).first()
+		self.assertEquals(execution.execution_type, execution_config.execution_type)
+		self.assertEquals(execution.status, Execution.__status_running__)
+		self.assertEquals(5740, execution.slurm_sbatch_id)
 
 	@mock.patch("executor.monitor_execution_singularity_apps")
 	def test_monitor_execution_apps(self, mock_monitor):
