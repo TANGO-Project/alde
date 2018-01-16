@@ -90,14 +90,14 @@ class ExecutorTests(MappingTest):
 		"""
 
 		execution_configuration = ExecutionConfiguration()
-		execution_configuration.execution_type = "slurm:sbatch"
+		execution_configuration.execution_type = "SLURM:SBATCH"
 		db.session.add(execution_configuration)
 		db.session.commit()
 
 		t = executor.execute_application(execution_configuration)
 
-		execution = db.session.query(Execution).filter_by(execution_type="slurm:sbatch").first()
-		self.assertEquals("slurm:sbatch", execution.execution_type)
+		execution = db.session.query(Execution).filter_by(execution_type="SLURM:SBATCH").first()
+		self.assertEquals("SLURM:SBATCH", execution.execution_type)
 		self.assertEquals(executor.execute_status_submitted, execution.status)
 
 		# We verify that the right method was called
@@ -268,7 +268,7 @@ class ExecutorTests(MappingTest):
 		# to execute it, in this case it should give an error since it is
 		# not of type slurm
 
-		execution = Execution("slurm:sbatch", executor.execute_status_submitted)
+		execution = Execution("SLURM:SBATCH", executor.execute_status_submitted)
 		testbed = Testbed("name", True, "xxxx", "ssh", "user@server", ['slurm'])
 		execution_configuration = ExecutionConfiguration()
 		execution_configuration.execution_type = "slurm:sbatch"
@@ -277,9 +277,9 @@ class ExecutorTests(MappingTest):
 
 		executor.execute_application_type_slurm_sbatch(execution)
 
-		self.assertEquals("slurm:sbatch", execution.execution_type)
+		self.assertEquals("SLURM:SBATCH", execution.execution_type)
 		self.assertEquals(executor.execute_status_failed, execution.status)
-		self.assertEquals("Testbed does not support slurm:sbatch applications", execution.output)
+		self.assertEquals("Testbed does not support SLURM:SBATCH applications", execution.output)
 
 		# If the testbed is off-line, execution isn't allowed also
 		testbed.category = Testbed.slurm_category
@@ -288,7 +288,7 @@ class ExecutorTests(MappingTest):
 
 		executor.execute_application_type_slurm_sbatch(execution)
 
-		self.assertEquals("slurm:sbatch", execution.execution_type)
+		self.assertEquals("SLURM:SBATCH", execution.execution_type)
 		self.assertEquals(executor.execute_status_failed, execution.status)
 		self.assertEquals("Testbed is off-line", execution.output)
 

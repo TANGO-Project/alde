@@ -14,10 +14,10 @@ import os
 import logging
 from sqlalchemy import or_
 
-execute_type_slurm_sbatch = "slurm:sbatch"
-execute_type_singularity_pm = "SINGULARITY:PM"
-execute_type_singularity_srun = "SINGULARITY:SRUN"
-execute_type_slurm_srun = "SLURM:SRUN"
+execute_type_slurm_sbatch = Executable.__type_slurm_sbatch__
+execute_type_singularity_pm = Executable.__type_singularity_pm__
+execute_type_singularity_srun = Executable.__type_singularity_srun__
+execute_type_slurm_srun = Executable.__type_slurm_srun__
 execute_status_submitted = "SUBMITTED"
 execute_status_failed = "FAILED"
 
