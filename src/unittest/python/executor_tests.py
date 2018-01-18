@@ -329,7 +329,7 @@ class ExecutorTests(MappingTest):
 		self.assertEquals("Testbed is off-line", execution.output)
 
 		## Test executing
-		output = 'Submitted batch job 5740'
+		output = b'Submitted batch job 5740'
 		mock_shell.return_value = output
 
 		testbed.category = Testbed.slurm_category

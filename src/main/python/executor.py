@@ -281,6 +281,8 @@ def __extract_id_from_sbatch__(output):
 	"""
 	It parses the sbatch command output
 	"""
+
+	output = output.decode('utf-8')
 	output = output.split()
 	return output[-1]
 
@@ -388,6 +390,6 @@ def cancel_execution(execution, url):
 	It finds an execution an cancels it if running
 	"""
 
-	if (( execution.execution_type == execute_type_singularity_pm ) or ( execution.execution_type ==  execute_type_singularity_srun )) and ( execution.status == Execution.__status_running__ ) :
+	if (( execution.execution_type == execute_type_singularity_pm ) or ( execution.execution_type == execute_type_singularity_srun ) or ( execution.execution_type == execute_type_singularity_srun ) or ( execution.execution_type == execute_type_slurm_srun )) and ( execution.status == Execution.__status_running__ ) :
 		# Preparing the command to be executed
 		shell.execute_command('scancel', url, [ str(execution.slurm_sbatch_id) ])
