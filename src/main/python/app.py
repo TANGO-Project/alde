@@ -38,7 +38,8 @@ def load_config():
     conf = {
         'SQL_LITE_URL' : default['SQL_LITE_URL'],
         'PORT' : default['PORT'],
-        'APP_UPLOAD_FOLDER' : default['APP_UPLOAD_FOLDER']
+        'APP_UPLOAD_FOLDER' : default['APP_UPLOAD_FOLDER'],
+        'APP_PROFILE_FOLDER' : default['APP_PROFILE_FOLDER']
     }
 
     return conf
