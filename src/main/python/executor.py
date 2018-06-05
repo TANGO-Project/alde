@@ -22,7 +22,7 @@ execute_status_submitted = "SUBMITTED"
 execute_status_failed = "FAILED"
 
 
-def execute_application(execution_configuration, generate_profile=False):
+def execute_application(execution_configuration, create_profile=False):
 	"""
 	This function executes an application in the selected testbed,
 	using the execution script configuration.
@@ -43,7 +43,7 @@ def execute_application(execution_configuration, generate_profile=False):
 		t.start()
 		return t
 	elif execution.execution_type == execute_type_singularity_pm :
-		t = Thread(target=execute_application_type_singularity_pm, args=(execution, execution_configuration.id))
+		t = Thread(target=execute_application_type_singularity_pm, args=(execution, execution_configuration.id, create_profile))
 		t.start()
 		return t
 	elif execution.execution_type == execute_type_singularity_srun :
@@ -59,7 +59,7 @@ def execute_application(execution_configuration, generate_profile=False):
 		execution.output = "No support for execurtion type: " + execution.execution_type
 		db.session.commit()
 
-def execute_application_type_singularity_pm(execution, identifier):
+def execute_application_type_singularity_pm(execution, identifier, create_profile=False):
 	"""
 	It executes a Singularity PM application in a targatted testbed
 	"""

@@ -107,20 +107,20 @@ class ExecutorTests(MappingTest):
 		execution_configuration.execution_type = "SINGULARITY:PM"
 		db.session.commit()
 
-		t = executor.execute_application(execution_configuration)
+		t = executor.execute_application(execution_configuration, False)
 		execution = db.session.query(Execution).filter_by(execution_type="SINGULARITY:PM").first()
 		self.assertEquals("SINGULARITY:PM", execution.execution_type)
 		self.assertEquals(executor.execute_status_submitted, execution.status)
 
 		# We verify that the right method was called
 		t.join()
-		mock_singularity.assert_called_with(execution, execution_configuration.id)
+		mock_singularity.assert_called_with(execution, execution_configuration.id, False)
 
 		# SINGULARITY:SRUN
 		execution_configuration.execution_type = "SINGULARITY:SRUN"
 		db.session.commit()
 
-		t = executor.execute_application(execution_configuration)
+		t = executor.execute_application(execution_configuration, False)
 		execution = db.session.query(Execution).filter_by(execution_type="SINGULARITY:SRUN").first()
 		self.assertEquals("SINGULARITY:SRUN", execution.execution_type)
 		self.assertEquals(executor.execute_status_submitted, execution.status)
@@ -133,7 +133,7 @@ class ExecutorTests(MappingTest):
 		execution_configuration.execution_type = "SLURM:SRUN"
 		db.session.commit()
 
-		t = executor.execute_application(execution_configuration)
+		t = executor.execute_application(execution_configuration, False)
 		execution = db.session.query(Execution).filter_by(execution_type="SLURM:SRUN").first()
 		self.assertEquals("SLURM:SRUN", execution.execution_type)
 		self.assertEquals(executor.execute_status_submitted, execution.status)
@@ -146,7 +146,7 @@ class ExecutorTests(MappingTest):
 		execution_configuration.execution_type = "xxx"
 		db.session.commit()
 
-		executor.execute_application(execution_configuration)
+		executor.execute_application(execution_configuration, False)
 
 		execution = db.session.query(Execution).filter_by(execution_type="xxx").first()
 		self.assertEquals("xxx", execution.execution_type)
