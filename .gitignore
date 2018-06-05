@@ -2,3 +2,7 @@ venv
 __pycache__
 target
 .coverage
+.vscode
+alde.log
+commands.log
+src/unittest/python/executor_tests.log
