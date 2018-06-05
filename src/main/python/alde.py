@@ -140,7 +140,6 @@ def patch_execution_script_preprocessor(instance_id=None, data=None, **kw):
 
     if 'launch_execution' in data :
         if data['launch_execution']:
-
             execution_script = db.session.query(ExecutionConfiguration).filter_by(id=instance_id).first()
 
             deployment = db.session.query(Deployment).filter_by(executable_id=execution_script.executable_id, testbed_id=execution_script.testbed_id).first()
@@ -156,7 +155,12 @@ def patch_execution_script_preprocessor(instance_id=None, data=None, **kw):
                                             code=403)
 
             else:
-                executor.execute_application(execution_script)
+                create_profile = False
+                if 'create_profile' in data :
+                    if data['create_profile']:
+                        create_profile = True
+                
+                executor.execute_application(execution_script, create_profile)
 
 def patch_execution_preprocessor(instance_id=None, data=None, **kw):
     """

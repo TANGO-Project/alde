@@ -22,7 +22,7 @@ execute_status_submitted = "SUBMITTED"
 execute_status_failed = "FAILED"
 
 
-def execute_application(execution_configuration):
+def execute_application(execution_configuration, generate_profile=False):
 	"""
 	This function executes an application in the selected testbed,
 	using the execution script configuration.

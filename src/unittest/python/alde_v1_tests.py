@@ -9,6 +9,7 @@
 from flask import Flask
 from flask_testing import TestCase
 from models import db, ExecutionConfiguration, Application, Testbed, Node, Executable, Deployment, Execution
+from unittest.mock import call
 import alde
 import json
 import unittest.mock as mock
@@ -780,11 +781,23 @@ class AldeV1Tests(TestCase):
 
         response = self.client.patch("/api/v1/execution_configurations/1",
                                      data=json.dumps(data),
-                                     content_type='application/json')
+                                    content_type='application/json')
 
         self.assertEquals(200, response.status_code)
 
-        mock_execute_application.assert_called_with(execution_script)
+        """
+        Now we are able to lauch the execution with create_profile= True
+        """
+        data = { 'launch_execution': True, 'create_profile': True }
+
+        response = self.client.patch("/api/v1/execution_configurations/1",
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        call_1 = call(execution_script, False)
+        call_2 = call(execution_script, True)
+        calls = [ call_1, call_2 ]
+        mock_execute_application.assert_has_calls(calls)
 
     @mock.patch('executor.cancel_execution')
     def test_patch_execution_preprocessor(self, mock_executor):

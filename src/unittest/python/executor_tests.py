@@ -94,7 +94,7 @@ class ExecutorTests(MappingTest):
 		db.session.add(execution_configuration)
 		db.session.commit()
 
-		t = executor.execute_application(execution_configuration)
+		t = executor.execute_application(execution_configuration, False)
 
 		execution = db.session.query(Execution).filter_by(execution_type="SLURM:SBATCH").first()
 		self.assertEquals("SLURM:SBATCH", execution.execution_type)
