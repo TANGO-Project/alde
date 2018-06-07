@@ -29,7 +29,7 @@ class AldeV1Tests(TestCase):
         It initializes the application
         """
 
-        app = alde.create_app_v1(self.SQLALCHEMY_DATABASE_URI, 5101, self.APP_FOLDER)
+        app = alde.create_app_v1(self.SQLALCHEMY_DATABASE_URI, 5101, self.APP_FOLDER, self.APP_FOLDER)
 
         return app
 
@@ -794,8 +794,8 @@ class AldeV1Tests(TestCase):
                                      data=json.dumps(data),
                                      content_type='application/json')
 
-        call_1 = call(execution_script, False)
-        call_2 = call(execution_script, True)
+        call_1 = call(execution_script, False, '')
+        call_2 = call(execution_script, True, '')
         calls = [ call_1, call_2 ]
         mock_execute_application.assert_has_calls(calls)
 
