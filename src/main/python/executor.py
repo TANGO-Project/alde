@@ -43,7 +43,8 @@ def execute_application(execution_configuration, create_profile=False, profile_f
 		t.start()
 		return t
 	elif execution.execution_type == execute_type_singularity_pm :
-		t = Thread(target=execute_application_type_singularity_pm, args=(execution, execution_configuration.id, create_profile, profile_folder))
+		t = Thread(target=execute_application_type_singularity_pm, 
+		           args=(execution, execution_configuration.id, create_profile, profile_folder, use_stored_profile))
 		t.start()
 		return t
 	elif execution.execution_type == execute_type_singularity_srun :
@@ -59,7 +60,7 @@ def execute_application(execution_configuration, create_profile=False, profile_f
 		execution.output = "No support for execurtion type: " + execution.execution_type
 		db.session.commit()
 
-def execute_application_type_singularity_pm(execution, identifier, create_profile=False, profile_folder='.'):
+def execute_application_type_singularity_pm(execution, identifier, create_profile=False, profile_folder='.', use_storage_profile=False):
 	"""
 	It executes a Singularity PM application in a targatted testbed
 	"""
@@ -94,6 +95,9 @@ def execute_application_type_singularity_pm(execution, identifier, create_profil
 	# If create profile
 	if create_profile :
 		params.append("--input_profile=<" + profile_file)
+	# If we use a profile  --output_profile=<path>
+	if use_storage_profile :
+		params.append("--output_profile=" + execution_configuration.profile_file)
 	params.append(execution_configuration.compss_config)
 	params.append(execution_configuration.command)
 

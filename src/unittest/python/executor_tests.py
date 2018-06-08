@@ -114,7 +114,7 @@ class ExecutorTests(MappingTest):
 
 		# We verify that the right method was called
 		t.join()
-		mock_singularity.assert_called_with(execution, execution_configuration.id, False, '.')
+		mock_singularity.assert_called_with(execution, execution_configuration.id, False, '.', False)
 
 		# SINGULARITY:SRUN
 		execution_configuration.execution_type = "SINGULARITY:SRUN"
@@ -241,6 +241,35 @@ class ExecutorTests(MappingTest):
 		self.assertEquals(execution.execution_type, execution_config.execution_type)
 		self.assertEquals(execution.status, Execution.__status_running__)
 		self.assertEquals(3357, execution.slurm_sbatch_id)
+
+		# TEST with profile
+		# TEST starts here:
+		execution_config.profile_file = "/tmp/surperprofile.profile"
+		db.session.commit()
+
+		execution = Execution(execution_config.execution_type,
+						  executor.execute_status_submitted)
+		executor.execute_application_type_singularity_pm(execution, execution_config.id, use_storage_profile=True)
+
+		mock_shell.assert_called_with("source",
+									  "user@testbed.com",
+									  [
+									  	"/home_nfs/home_ejarquej/installations/rc1707/COMPSs/compssenv",
+										";",
+										"enqueue_compss",
+										"--sc_cfg=nova.cfg",
+										"--num_nodes=1",
+										"--gpus_per_node=2",
+										"--cpus_per_node=12",
+										"--container_image=/pepito/pepito.img",
+										"--container_compss_path=/opt/TANGO/TANGO_ProgrammingModel/COMPSs/",
+										"--appdir=/apps/application/",
+										"--exec_time=10",
+										"--output_profile=/tmp/surperprofile.profile",
+										"--worker_in_master_cpus=12 --worker_in_master_memory=24000 --worker_working_dir=/home_nfs/home_ejarquej --lang=c --monitoring=1000 -d",
+										"/apps/application/master/Matmul 2 1024 12.34 /home_nfs/home_ejarquej/demo_test/cpu_gpu_run_data"
+									   ]
+									  )
 
 	def test__extract_id_from_sigularity_pm_app__(self):
 		"""
