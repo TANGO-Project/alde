@@ -22,7 +22,7 @@ execute_status_submitted = "SUBMITTED"
 execute_status_failed = "FAILED"
 
 
-def execute_application(execution_configuration, create_profile=False, profile_folder='.'):
+def execute_application(execution_configuration, create_profile=False, profile_folder='.', use_stored_profile=False):
 	"""
 	This function executes an application in the selected testbed,
 	using the execution script configuration.
@@ -64,6 +64,11 @@ def execute_application_type_singularity_pm(execution, identifier, create_profil
 	It executes a Singularity PM application in a targatted testbed
 	"""
 
+	# If create_profile = True we need to create a profile and associate it with the execution
+	profile_file = ''
+	if create_profile :
+		profile_file = profile_folder + '/' + str(uuid.uuid4()) + '.profile'
+
 	# Lets recover all the information needed...execution_configuration
 	execution_configuration = db.session.query(ExecutionConfiguration).filter_by(id=identifier).first() # This is to avoid reusing objects from other thread
 	testbed = db.session.query(Testbed).filter_by(id=execution_configuration.testbed_id).first()
@@ -86,6 +91,9 @@ def execute_application_type_singularity_pm(execution, identifier, create_profil
 	#params.append("--appdir=" + executable.singularity_app_folder)
 	params.append("--appdir=/apps/application/") # TODO Ugly... fix this... 
 	params.append("--exec_time=" + str(execution_configuration.exec_time))
+	# If create profile
+	if create_profile :
+		params.append("--input_profile=<" + profile_file)
 	params.append(execution_configuration.compss_config)
 	params.append(execution_configuration.command)
 
@@ -96,6 +104,9 @@ def execute_application_type_singularity_pm(execution, identifier, create_profil
 	
 	execution = Execution(execution_configuration.execution_type, Execution.__status_running__)
 	execution_configuration.executions.append(execution)
+	# if we create the profile, we add it to the execution configuration
+	if create_profile :
+		execution_configuration.profile_file = profile_file
 	execution.slurm_sbatch_id = sbatch_id
 	db.session.commit()
 

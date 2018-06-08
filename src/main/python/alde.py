@@ -157,11 +157,16 @@ def patch_execution_script_preprocessor(instance_id=None, data=None, **kw):
 
             else:
                 create_profile = False
+                use_storaged_profile = False
                 if 'create_profile' in data :
                     if data['create_profile']:
                         create_profile = True
-                
-                executor.execute_application(execution_script, create_profile, app_profile_folder)
+                elif 'use_storaged_profile' in data :
+                    if data['use_storaged_profile'] :
+                        if execution_script.profile_file :
+                            use_storaged_profile = True
+
+                executor.execute_application(execution_script, create_profile, app_profile_folder, use_storaged_profile)
 
 def patch_execution_preprocessor(instance_id=None, data=None, **kw):
     """

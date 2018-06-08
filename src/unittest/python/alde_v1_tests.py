@@ -794,9 +794,50 @@ class AldeV1Tests(TestCase):
                                      data=json.dumps(data),
                                      content_type='application/json')
 
-        call_1 = call(execution_script, False, '')
-        call_2 = call(execution_script, True, '')
-        calls = [ call_1, call_2 ]
+        """
+        Now we are able to lauch the execution with use_storaged_profile=true and create_profile=True
+        """
+        data = { 'launch_execution': True, 
+                 'create_profile': True,
+                 'use_storaged_profile': True }
+
+        response = self.client.patch("/api/v1/execution_configurations/1",
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        """
+        Now we are able to lauch the execution with use_storaged_profile=true 
+        and Execution_Configuration without any profile storaged on it.
+        """
+        data = { 'launch_execution': True, 
+                  'use_storaged_profile': True }
+
+        response = self.client.patch("/api/v1/execution_configurations/1",
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        """
+        Now we are able to lauch the execution with use_storaged_profile=true 
+        and Execution_Configuration with a profile storaged on it.
+        """
+        data = { 'launch_execution': True, 
+                  'use_storaged_profile': True }
+
+        execution_script = db.session.query(ExecutionConfiguration).filter_by(id=1).first()
+        execution_script.profile_file = 'pepito.profile'
+        db.session.commit()
+
+        response = self.client.patch("/api/v1/execution_configurations/1",
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        call_1 = call(execution_script, False, '', False)
+        call_2 = call(execution_script, True, '', False)
+        call_3 = call(execution_script, True, '', False)
+        call_4 = call(execution_script, False, '', False)
+        call_5 = call(execution_script, False, '', True)
+        
+        calls = [ call_1, call_2, call_3, call_4, call_5 ]
         mock_execute_application.assert_has_calls(calls)
 
     @mock.patch('executor.cancel_execution')
