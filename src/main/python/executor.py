@@ -408,3 +408,10 @@ def cancel_execution(execution, url):
 	if (( execution.execution_type == execute_type_singularity_pm ) or ( execution.execution_type == execute_type_singularity_srun ) or ( execution.execution_type == execute_type_singularity_srun ) or ( execution.execution_type == execute_type_slurm_srun )) and ( execution.status == Execution.__status_running__ ) :
 		# Preparing the command to be executed
 		shell.execute_command('scancel', url, [ str(execution.slurm_sbatch_id) ])
+
+def add_resource(execution):
+	"""
+	it adds resources to a running execution
+	"""
+
+	pass 
