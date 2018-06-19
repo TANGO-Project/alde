@@ -28,6 +28,8 @@ def execute_application(execution_configuration, create_profile=False, profile_f
 	using the execution script configuration.
 	"""
 
+	profile_folder = app.config['APP_PROFILE_FOLDER']
+
 	# We create the execution
 	execution = Execution(execution_configuration.execution_type,
 						  execute_status_submitted)
