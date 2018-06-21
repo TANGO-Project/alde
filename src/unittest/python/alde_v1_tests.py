@@ -840,8 +840,9 @@ class AldeV1Tests(TestCase):
         calls = [ call_1, call_2, call_3, call_4, call_5 ]
         mock_execute_application.assert_has_calls(calls)
 
+    @mock.patch('executor.add_resource')
     @mock.patch('executor.cancel_execution')
-    def test_patch_execution_preprocessor(self, mock_executor):
+    def test_patch_execution_preprocessor(self, mock_executor_cancel, mock_executor_add):
         """
         It test the correct work of the method of canceling an execution
         """
@@ -887,7 +888,7 @@ class AldeV1Tests(TestCase):
 
         self.assertEquals(409, response.status_code)
         self.assertEquals(
-          'No status field in the payload',
+          'No status or add_resource field in the payload',
           response.json['message'])
 
         data = {'status': 'CANCEL'}
@@ -896,7 +897,14 @@ class AldeV1Tests(TestCase):
                                      content_type='application/json')
 
         self.assertEquals(200, response.status_code)
-        mock_executor.assert_called_with(execution, 'user@server')
+        mock_executor_cancel.assert_called_with(execution, 'user@server')
+
+        data = {'add_resource': ''}
+        response = self.client.patch("/api/v1/executions/" + str(execution.id) ,
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        mock_executor_add.assert_called_with(execution)
 
     @mock.patch('executor.upload_deployment')
     def test_post_deployment_preprocessor(self, mock_upload_deployment):

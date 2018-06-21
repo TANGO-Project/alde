@@ -185,9 +185,11 @@ def patch_execution_preprocessor(instance_id=None, data=None, **kw):
                 raise flask_restless.ProcessingException(
                                 description='No valid state to try to change',
                                 code=409)
+        elif 'add_resource' in data:
+                executor.add_resource(execution)
         else :
            raise flask_restless.ProcessingException(
-                                description='No status field in the payload',
+                                description='No status or add_resource field in the payload',
                                 code=409)      
     else :
         raise flask_restless.ProcessingException(
