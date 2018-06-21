@@ -94,10 +94,10 @@ def execute_application_type_singularity_pm(execution, identifier, create_profil
 	params.append("--exec_time=" + str(execution_configuration.exec_time))
 	# If create profile
 	if create_profile :
-		params.append("--input_profile=<" + profile_file)
+		params.append("--output_profile=<" + profile_file)
 	# If we use a profile  --output_profile=<path>
 	if use_storage_profile :
-		params.append("--output_profile=" + execution_configuration.profile_file)
+		params.append("--input_profile=" + execution_configuration.profile_file)
 	params.append(execution_configuration.compss_config)
 	params.append(execution_configuration.command)
 

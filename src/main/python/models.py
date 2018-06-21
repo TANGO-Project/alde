@@ -122,7 +122,9 @@ class ExecutionConfiguration(db.Model):
     srun_config = db.Column(db.String)
     profile_file = db.Column(db.String)
     executions = db.relationship("Execution", order_by=Execution.id, back_populates="execution_configuration")
-    launch_execution=False    
+    launch_execution=False
+    create_profile=False
+    use_storaged_profile=False
 
 
 class Application(db.Model):
