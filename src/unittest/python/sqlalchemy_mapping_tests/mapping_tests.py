@@ -25,6 +25,7 @@ class MappingTest(TestCase):
 
          app = Flask(__name__)
          app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+         app.config['APP_PROFILE_FOLDER'] = '/profile_folder'
          db.init_app(app)
          db.app=app
          return app

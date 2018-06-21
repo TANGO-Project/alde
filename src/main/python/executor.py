@@ -13,6 +13,7 @@ import uuid
 import os
 import logging
 from sqlalchemy import or_
+from flask import current_app as app
 
 execute_type_slurm_sbatch = Executable.__type_slurm_sbatch__
 execute_type_singularity_pm = Executable.__type_singularity_pm__
@@ -22,13 +23,11 @@ execute_status_submitted = "SUBMITTED"
 execute_status_failed = "FAILED"
 
 
-def execute_application(execution_configuration, create_profile=False, profile_folder='.', use_stored_profile=False):
+def execute_application(execution_configuration, create_profile=False, use_stored_profile=False):
 	"""
 	This function executes an application in the selected testbed,
 	using the execution script configuration.
 	"""
-
-	profile_folder = app.config['APP_PROFILE_FOLDER']
 
 	# We create the execution
 	execution = Execution(execution_configuration.execution_type,
@@ -46,7 +45,7 @@ def execute_application(execution_configuration, create_profile=False, profile_f
 		return t
 	elif execution.execution_type == execute_type_singularity_pm :
 		t = Thread(target=execute_application_type_singularity_pm, 
-		           args=(execution, execution_configuration.id, create_profile, profile_folder, use_stored_profile))
+		           args=(execution, execution_configuration.id, create_profile, use_stored_profile))
 		t.start()
 		return t
 	elif execution.execution_type == execute_type_singularity_srun :
@@ -62,7 +61,7 @@ def execute_application(execution_configuration, create_profile=False, profile_f
 		execution.output = "No support for execurtion type: " + execution.execution_type
 		db.session.commit()
 
-def execute_application_type_singularity_pm(execution, identifier, create_profile=False, profile_folder='.', use_storage_profile=False):
+def execute_application_type_singularity_pm(execution, identifier, create_profile=False, use_storage_profile=False):
 	"""
 	It executes a Singularity PM application in a targatted testbed
 	"""
@@ -70,6 +69,7 @@ def execute_application_type_singularity_pm(execution, identifier, create_profil
 	# If create_profile = True we need to create a profile and associate it with the execution
 	profile_file = ''
 	if create_profile :
+		profile_folder = app.config['APP_PROFILE_FOLDER']
 		profile_file = profile_folder + '/' + str(uuid.uuid4()) + '.profile'
 
 	# Lets recover all the information needed...execution_configuration

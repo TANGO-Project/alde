@@ -831,11 +831,11 @@ class AldeV1Tests(TestCase):
                                      data=json.dumps(data),
                                      content_type='application/json')
 
-        call_1 = call(execution_script, False, '', False)
-        call_2 = call(execution_script, True, '', False)
-        call_3 = call(execution_script, True, '', False)
-        call_4 = call(execution_script, False, '', False)
-        call_5 = call(execution_script, False, '', True)
+        call_1 = call(execution_script, False, False)
+        call_2 = call(execution_script, True, False)
+        call_3 = call(execution_script, True, False)
+        call_4 = call(execution_script, False, False)
+        call_5 = call(execution_script, False, True)
         
         calls = [ call_1, call_2, call_3, call_4, call_5 ]
         mock_execute_application.assert_has_calls(calls)

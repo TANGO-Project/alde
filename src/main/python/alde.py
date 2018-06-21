@@ -19,7 +19,6 @@ testbed_not_configured_message = { 'create' : False,
                                    'reason' : 'Testbed is configured to automatically retrieve information of nodes'}
 no_testbed = 'Testbed does not exist'
 app_upload_folder = ''
-app_profile_folder = ''
 
 class Config(object):
     """
@@ -166,7 +165,7 @@ def patch_execution_script_preprocessor(instance_id=None, data=None, **kw):
                         if execution_script.profile_file :
                             use_storaged_profile = True
 
-                executor.execute_application(execution_script, create_profile, app_profile_folder, use_storaged_profile)
+                executor.execute_application(execution_script, create_profile, use_storaged_profile)
 
 def patch_execution_preprocessor(instance_id=None, data=None, **kw):
     """
@@ -264,7 +263,6 @@ def create_app_v1(sql_db_url, port, app_folder, profile_folder):
     app.config['APP_FOLDER'] = app_folder
     app.config['APP_PROFILE_FOLDER'] = profile_folder
     app_upload_folder = app_folder
-    app_profile_folder = profile_folder
     app.config.from_object(Config())
     db.init_app(app)
     db.app=app
