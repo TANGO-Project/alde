@@ -424,8 +424,40 @@ def add_resource(execution):
 		if (( execution.status == Execution.__status_running__)) :
 			url = execution.execution_configuration.testbed.endpoint
 			singularity_image_file = execution.execution_configuration.executable.singularity_image_file
-			shell.execute_command('adapt_compss_resources', url, [ '<master_node>', '<master_job_id>', 'CREATE SLURM-Cluster default', singularity_image_file ]) ## TODO update master_node and master_job_id
+			sbatch_id = execution.slurm_sbatch_id
+			node = find_first_node(sbatch_id, url)
+			shell.execute_command('adapt_compss_resources', url, [ node, sbatch_id, 'CREATE SLURM-Cluster default', singularity_image_file ]) ## TODO update master_node and master_job_id
 		else :
 			logging.info("Execution is not in RUNNING status, no action can be done")
 	else :
 		logging.info("Execution: " + execution.execution_type + " it is not compatible with add resource action")
+
+def find_first_node(sbatch_id, url):
+	"""
+	This method finds the first node of a job using squeue command
+	garciad@ns54 ~]$ squeue -j 7035 -o %N
+	NODELIST
+	ns51
+	"""
+
+	output = shell.execute_command("squeue", url , [ '-j', sbatch_id, '-o', '%N' ])
+
+	lines = output.decode('utf-8')
+	lines = lines.split("\n")
+
+	last = None
+	for line in (line for line in lines if line.rstrip('\n')):
+		last = line
+
+	last = last.strip()
+	nodes = last.split(',')
+	nodes = nodes[0]
+
+	if '[' in nodes :
+		parts = nodes.split('[')
+		node_name = parts[0]
+		node_numbers = parts[1]
+		first_number = node_numbers.split('-')[0]
+		return node_name + first_number
+	else :
+		return nodes

@@ -820,8 +820,9 @@ class ExecutorTests(MappingTest):
 		calls = [ call_1, call_2]
 		mock_shell.assert_has_calls(calls)
 
+	@mock.patch('executor.find_first_node')
 	@mock.patch("shell.execute_command")
-	def test_add_resource(self, mock_shell):
+	def test_add_resource(self, mock_shell, mock_find_node):
 		"""
 		It tests that it is possible to add a resource
 		"""
@@ -848,11 +849,13 @@ class ExecutorTests(MappingTest):
 
 		execution_configuration.testbed = testbed
 		execution.execution_configuration = execution_configuration
+		execution.slurm_sbatch_id = 21
 
-		
+		mock_find_node.return_value = 'ns31'
+
 		executor.add_resource(execution)
 
-		call_1 = call("adapt_compss_resources", "endpoint", [ '<master_node>', '<master_job_id>', 'CREATE SLURM-Cluster default', "image_file" ])
+		call_1 = call("adapt_compss_resources", "endpoint", [ 'ns31', 21, 'CREATE SLURM-Cluster default', "image_file" ])
 		calls = [ call_1 ]
 		mock_shell.assert_has_calls(calls)
 		
@@ -864,3 +867,46 @@ class ExecutorTests(MappingTest):
 			('root', 'INFO', 'Executing type corresponds with SINGULARITY_PM, trying adaptation'),
 		)
 		l.uninstall() # We uninstall the capture of the logger
+
+    
+	@mock.patch("shell.execute_command")
+	def test_find_first_node(self, mock_shell):
+		"""
+		Verifies that it is possible to find the first node under this outputs:
+		"""
+
+		# Sub Test 1
+		output = b'NODELIST\nns51\n'
+		mock_shell.return_value = output
+
+		node = executor.find_first_node(22, 'endpoint')
+		self.assertEquals(node, 'ns51')
+
+		# Sub Test 2
+		output = b'NODELIST\n   ns51      \n'
+		mock_shell.return_value = output
+
+		node = executor.find_first_node(22, 'endpoint')
+		self.assertEquals(node, 'ns51')
+
+		# Sub Test 3
+		output = b'NODELIST\n   ns[55-60]      \n'
+		mock_shell.return_value = output
+
+		node = executor.find_first_node(22, 'endpoint')
+		self.assertEquals(node, 'ns55')
+
+		# Sub Test 4
+		output = b'NODELIST\n   ns[53-60],ns34      \n'
+		mock_shell.return_value = output
+
+		node = executor.find_first_node(22, 'endpoint')
+		self.assertEquals(node, 'ns53')
+
+		call_1 = call("squeue", "endpoint", [ '-j', 22, '-o', '%N' ])
+		call_2 = call("squeue", "endpoint", [ '-j', 22, '-o', '%N' ])
+		call_3 = call("squeue", "endpoint", [ '-j', 22, '-o', '%N' ])
+		call_4 = call("squeue", "endpoint", [ '-j', 22, '-o', '%N' ])
+		calls = [ call_1, call_2, call_3, call_4 ]
+		mock_shell.assert_has_calls(calls)
+
