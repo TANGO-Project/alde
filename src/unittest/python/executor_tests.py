@@ -820,27 +820,41 @@ class ExecutorTests(MappingTest):
 		calls = [ call_1, call_2]
 		mock_shell.assert_has_calls(calls)
 
-	def test_add_resource(self):
+	@mock.patch("shell.execute_command")
+	def test_add_resource(self, mock_shell):
 		"""
 		It tests that it is possible to add a resource
 		"""
 
 		l = LogCapture() # we cature the logger
 
+		# Sub test 1 - Wrong type of Execution
 		execution = Execution("pepito", Execution.__status_running__)
-
 		executor.add_resource(execution)
 
+		# Sub test 2 - Execution not running in right state
 		execution = Execution(Executable.__type_singularity_pm__, Execution.__status_failed__)
 		executor.add_resource(execution)
 
+		# Sub test 3 - Execution should get a new resource
+		execution = Execution(Executable.__type_singularity_pm__, Execution.__status_running__)
 		executable = Executable()
 		executable.singularity_image_file = "image_file"
-		url = execution.execution_configuration.testbed.endpoint
-			singularity_image_file = execution.execution_configuration.executable.singularity_image_file
 
-		execution = Execution(Executable.__type_singularity_pm__, Execution.__status_running__)
+		execution_configuration = ExecutionConfiguration()
+		execution_configuration.executable = executable
+
+		testbed = Testbed( "testbed", True, "nice_testbed", "ssh", "endpoint")
+
+		execution_configuration.testbed = testbed
+		execution.execution_configuration = execution_configuration
+
+		
 		executor.add_resource(execution)
+
+		call_1 = call("adapt_compss_resources", "endpoint", [ '<master_node>', '<master_job_id>', 'CREATE SLURM-Cluster default', "image_file" ])
+		calls = [ call_1 ]
+		mock_shell.assert_has_calls(calls)
 		
 		# Checking that we are logging the correct message
 		l.check(
