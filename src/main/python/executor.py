@@ -414,6 +414,18 @@ def cancel_execution(execution, url):
 def add_resource(execution):
 	"""
 	it adds resources to a running execution
+
+	    adapt_compss_resources <master_node> <master_job_id> CREATE SLURM-Cluster default <singularity_image> 
 	"""
 
-	pass 
+	if (( execution.execution_type == execute_type_singularity_pm)) :
+		logging.info("Executing type corresponds with SINGULARITY_PM, trying adaptation")
+
+		if (( execution.status == Execution.__status_running__)) :
+			url = execution.execution_configuration.testbed.endpoint
+			singularity_image_file = execution.execution_configuration.executable.singularity_image_file
+			shell.execute_command('adapt_compss_resources', url, [ '<master_node>', '<master_job_id>', 'CREATE SLURM-Cluster default', singularity_image_file ]) ## TODO update master_node and master_job_id
+		else :
+			logging.info("Execution is not in RUNNING status, no action can be done")
+	else :
+		logging.info("Execution: " + execution.execution_type + " it is not compatible with add resource action")

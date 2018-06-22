@@ -14,6 +14,7 @@ from sqlalchemy_mapping_tests.mapping_tests import MappingTest
 from models import db, Execution, Deployment, ExecutionConfiguration, Testbed, Executable, ExecutionConfiguration, Application
 from uuid import UUID
 from unittest.mock import call
+from testfixtures import LogCapture
 
 class ExecutorTests(MappingTest):
 	"""
@@ -818,3 +819,34 @@ class ExecutorTests(MappingTest):
 		call_2 = call("scancel", "user@testbed.com", [ "2" ])
 		calls = [ call_1, call_2]
 		mock_shell.assert_has_calls(calls)
+
+	def test_add_resource(self):
+		"""
+		It tests that it is possible to add a resource
+		"""
+
+		l = LogCapture() # we cature the logger
+
+		execution = Execution("pepito", Execution.__status_running__)
+
+		executor.add_resource(execution)
+
+		execution = Execution(Executable.__type_singularity_pm__, Execution.__status_failed__)
+		executor.add_resource(execution)
+
+		executable = Executable()
+		executable.singularity_image_file = "image_file"
+		url = execution.execution_configuration.testbed.endpoint
+			singularity_image_file = execution.execution_configuration.executable.singularity_image_file
+
+		execution = Execution(Executable.__type_singularity_pm__, Execution.__status_running__)
+		executor.add_resource(execution)
+		
+		# Checking that we are logging the correct message
+		l.check(
+			('root', 'INFO', 'Execution: pepito it is not compatible with add resource action'),
+			('root', 'INFO', 'Executing type corresponds with SINGULARITY_PM, trying adaptation'),
+			('root', 'INFO', 'Execution is not in RUNNING status, no action can be done'),
+			('root', 'INFO', 'Executing type corresponds with SINGULARITY_PM, trying adaptation'),
+		)
+		l.uninstall() # We uninstall the capture of the logger
