@@ -423,10 +423,20 @@ def add_resource(execution):
 
 		if (( execution.status == Execution.__status_running__)) :
 			url = execution.execution_configuration.testbed.endpoint
+			enqueue_env_file = execution.execution_configuration.testbed.extra_config['enqueue_env_file']
 			singularity_image_file = execution.execution_configuration.executable.singularity_image_file
 			sbatch_id = execution.slurm_sbatch_id
 			node = find_first_node(sbatch_id, url)
-			shell.execute_command('adapt_compss_resources', url, [ node, sbatch_id, 'CREATE SLURM-Cluster default', singularity_image_file ]) ## TODO update master_node and master_job_id
+
+			command = "source"
+			params = []
+			params.append(enqueue_env_file)
+			params.append(";")
+			params.append(node)
+			params.append(sbatch_id)
+			params.append('CREATE SLURM-Cluster default')
+			params.append(singularity_image_file)
+			shell.execute_command(command, url, params)
 		else :
 			logging.info("Execution is not in RUNNING status, no action can be done")
 	else :
