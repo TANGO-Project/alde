@@ -857,7 +857,7 @@ class ExecutorTests(MappingTest):
 
 		executor.add_resource(execution)
 
-		call_1 = call('source', 'endpoint', ['source_file', ';', 'ns31', 21, 'CREATE SLURM-Cluster default', 'image_file'])
+		call_1 = call('source', 'endpoint', ['source_file', ';', 'adapt_compss_resources', 'ns31', 21, 'CREATE SLURM-Cluster default', 'image_file'])
 		calls = [ call_1 ]
 		mock_shell.assert_has_calls(calls)
 		

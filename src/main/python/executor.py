@@ -433,6 +433,7 @@ def add_resource(execution):
 			params = []
 			params.append(enqueue_env_file)
 			params.append(";")
+			params.append("adapt_compss_resources")
 			params.append(node)
 			params.append(sbatch_id)
 			params.append('CREATE SLURM-Cluster default')
