@@ -74,7 +74,7 @@ class ShellTests(unittest.TestCase):
 
         l = LogCapture() # we cature the logger
 
-        error = subprocess.CalledProcessError(returncode=255, cmd="ls")
+        error = subprocess.CalledProcessError(returncode=255, cmd="ls", output="failed")
         mock_subprocess.side_effect = error
 
         self.assertRaises(subprocess.CalledProcessError,
@@ -87,6 +87,7 @@ class ShellTests(unittest.TestCase):
             ('root', 'INFO', 'Executing: ls -la .'),
             ('root', 'ERROR', "Trying to execute command:  ls -la ."),
             ('root', 'ERROR', "Error: Command 'ls' returned non-zero exit status 255."),
+            ('root', 'ERROR', "failed"),
             ('root', 'ERROR', 'Trying to execute command at server ')
             )
         l.uninstall() # We uninstall the capture of the logger

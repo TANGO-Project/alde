@@ -33,6 +33,7 @@ def _execute_command(command):
     except subprocess.CalledProcessError as e:
         logging.error("Trying to execute command: " + str(cmd))
         logging.error('Error: %s', str(e))
+        logging.error(e.stdout)
         raise e
 
 def execute_command(command, server='', params=[]):
