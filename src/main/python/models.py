@@ -89,6 +89,7 @@ class Execution(db.Model):
     execution_configuration_id = db.Column(db.Integer, db.ForeignKey('execution_configurations.id'))
     execution_configuration = db.relationship("ExecutionConfiguration")
     slurm_sbatch_id = db.Column(db.Integer)
+    add_resource = False
 
     def __init__(self, execution_type, status):
         """Initiaze basic parameters of the class"""
