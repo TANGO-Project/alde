@@ -115,7 +115,7 @@ class ExecutorTests(MappingTest):
 
 		# We verify that the right method was called
 		t.join()
-		mock_singularity.assert_called_with(execution, execution_configuration.id, False, False)
+		mock_singularity.assert_called_with(execution, execution_configuration.id, False, False, '/profile_folder')
 
 		# SINGULARITY:SRUN
 		execution_configuration.execution_type = "SINGULARITY:SRUN"

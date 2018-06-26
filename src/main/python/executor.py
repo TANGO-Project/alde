@@ -32,6 +32,8 @@ def execute_application(execution_configuration, create_profile=False, use_store
 	# We create the execution
 	execution = Execution(execution_configuration.execution_type,
 						  execute_status_submitted)
+
+	profile_folder = app.config['APP_PROFILE_FOLDER']
 	
 	db.session.add(execution)
 
@@ -45,7 +47,7 @@ def execute_application(execution_configuration, create_profile=False, use_store
 		return t
 	elif execution.execution_type == execute_type_singularity_pm :
 		t = Thread(target=execute_application_type_singularity_pm, 
-		           args=(execution, execution_configuration.id, create_profile, use_stored_profile))
+		           args=(execution, execution_configuration.id, create_profile, use_stored_profile, profile_folder))
 		t.start()
 		return t
 	elif execution.execution_type == execute_type_singularity_srun :
@@ -61,7 +63,7 @@ def execute_application(execution_configuration, create_profile=False, use_store
 		execution.output = "No support for execurtion type: " + execution.execution_type
 		db.session.commit()
 
-def execute_application_type_singularity_pm(execution, identifier, create_profile=False, use_storage_profile=False):
+def execute_application_type_singularity_pm(execution, identifier, create_profile=False, use_storage_profile=False, profile_folder='.'):
 	"""
 	It executes a Singularity PM application in a targatted testbed
 	"""
@@ -69,7 +71,6 @@ def execute_application_type_singularity_pm(execution, identifier, create_profil
 	# If create_profile = True we need to create a profile and associate it with the execution
 	profile_file = ''
 	if create_profile :
-		profile_folder = app.config['APP_PROFILE_FOLDER']
 		profile_file = profile_folder + '/' + str(uuid.uuid4()) + '.profile'
 
 	# Lets recover all the information needed...execution_configuration
@@ -96,7 +97,7 @@ def execute_application_type_singularity_pm(execution, identifier, create_profil
 	params.append("--exec_time=" + str(execution_configuration.exec_time))
 	# If create profile
 	if create_profile :
-		params.append("--output_profile=<" + profile_file)
+		params.append("--output_profile=" + profile_file)
 	# If we use a profile  --output_profile=<path>
 	if use_storage_profile :
 		params.append("--input_profile=" + execution_configuration.profile_file)
