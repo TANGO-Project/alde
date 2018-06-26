@@ -846,6 +846,8 @@ class ExecutorTests(MappingTest):
 		execution_configuration.executable = executable
 
 		testbed = Testbed( "testbed", True, "nice_testbed", "ssh", "endpoint")
+		extra = {'enqueue_env_file': 'source_file'}
+		testbed.extra_config = extra
 
 		execution_configuration.testbed = testbed
 		execution.execution_configuration = execution_configuration
@@ -855,7 +857,7 @@ class ExecutorTests(MappingTest):
 
 		executor.add_resource(execution)
 
-		call_1 = call("adapt_compss_resources", "endpoint", [ 'ns31', 21, 'CREATE SLURM-Cluster default', "image_file" ])
+		call_1 = call('source', 'endpoint', ['source_file', ';', 'ns31', 21, 'CREATE SLURM-Cluster default', 'image_file'])
 		calls = [ call_1 ]
 		mock_shell.assert_has_calls(calls)
 		
