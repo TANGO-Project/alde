@@ -820,9 +820,10 @@ class ExecutorTests(MappingTest):
 		calls = [ call_1, call_2]
 		mock_shell.assert_has_calls(calls)
 
+	@mock.patch('executor.get_job_id_after_adaptation')
 	@mock.patch('executor.find_first_node')
 	@mock.patch("shell.execute_command")
-	def test_add_resource(self, mock_shell, mock_find_node):
+	def test_add_resource(self, mock_shell, mock_find_node, mock_get_job_id):
 		"""
 		It tests that it is possible to add a resource
 		"""
@@ -838,28 +839,56 @@ class ExecutorTests(MappingTest):
 		executor.add_resource(execution)
 
 		# Sub test 3 - Execution should get a new resource
-		execution = Execution(Executable.__type_singularity_pm__, Execution.__status_running__)
-		executable = Executable()
-		executable.singularity_image_file = "image_file"
-
-		execution_configuration = ExecutionConfiguration()
-		execution_configuration.executable = executable
-
 		testbed = Testbed( "testbed", True, "nice_testbed", "ssh", "endpoint")
 		extra = {'enqueue_env_file': 'source_file'}
 		testbed.extra_config = extra
+		db.session.add(testbed)
 
+		application = Application(name="super_app")
+		db.session.add(application)
+		db.session.commit() # So application and testbed get an id
+
+		executable = Executable()
+		executable.source_code_file = 'test.zip'
+		executable.compilation_script = 'gcc -X'
+		executable.compilation_type = "SLURM:SRUN"
+		executable.executable_file = "/usr/local/gromacs-4.6.7-cuda2/bin/mdrun"
+		executable.status = "COMPILED"
+		executable.singularity_image_file = "image_file"
+		executable.application = application
+		db.session.add(executable)
+		db.session.commit() # We do this so executable gets and id
+
+		deployment = Deployment()
+		deployment.testbed_id = testbed.id
+		deployment.executable_id = executable.id
+		db.session.add(deployment) # We add the executable to the db so it has an id
+
+		execution_configuration = ExecutionConfiguration()
+		execution_configuration.executable = executable
+		execution_configuration.application = application
 		execution_configuration.testbed = testbed
+		db.session.add(execution_configuration)
+		db.session.commit()
+
+		execution = Execution(Executable.__type_singularity_pm__, Execution.__status_running__)
 		execution.execution_configuration = execution_configuration
 		execution.slurm_sbatch_id = 21
+		db.session.add(execution)
+		db.session.commit()
 
 		mock_find_node.return_value = 'ns31'
+		mock_shell.return_value = b'COMPSS_HOME=/home_nfs/home_ejarquej/installations/2.2.6/COMPSs \n [Adaptation] writting command CREATE SLURM-Cluster default /home_nfs/home_ejarquej/matmul-cuda8-y3.img on /fslustre/tango/matmul/log_dir/.COMPSs/7240/adaptation/command_pipe \n [Adaptation] Reading result /fslustre/tango/matmul/log_dir/.COMPSs/7240/adaptation/result_pipe \n [Adaptation] Read ACK compss15039f76-c700-44af-b451-70c80f7eae6c \n [Adaptation]'
+		mock_get_job_id.return_value = '222'
+		call_get_job_id_1 = call('compss15039f76-c700-44af-b451-70c80f7eae6c', 'endpoint')
 
 		executor.add_resource(execution)
 
 		call_1 = call('source', 'endpoint', ['source_file', ';', 'adapt_compss_resources', 'ns31', 21, 'CREATE SLURM-Cluster default', 'image_file'])
 		calls = [ call_1 ]
 		mock_shell.assert_has_calls(calls)
+		calls_job_id = [ call_get_job_id_1 ]
+		mock_get_job_id.assert_has_calls(calls_job_id)
 		
 		# Checking that we are logging the correct message
 		l.check(
@@ -869,6 +898,9 @@ class ExecutorTests(MappingTest):
 			('root', 'INFO', 'Executing type corresponds with SINGULARITY_PM, trying adaptation'),
 		)
 		l.uninstall() # We uninstall the capture of the logger
+
+		# We verify the execution got the extra job id
+		execution = db.session.query(Execution).filter_by(execution_configuration_id=execution_configuration.id).first()
 
     
 	@mock.patch("shell.execute_command")

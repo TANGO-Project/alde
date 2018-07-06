@@ -441,7 +441,14 @@ def add_resource(execution):
 			output = shell.execute_command(command, url, params)
 
 			job_name = parse_add_resource_output(output)
-			extra_job_id = get_job_id_after_adaptation(job_name, url)
+			extra_job_id = get_job_id_after_adaptation(job_name, url) 
+
+			if extra_job_id != '' or extra_job_id is not None :
+				if execution.extra_slurm_job_id is None :
+					execution.extra_slurm_job_id = extra_job_id
+				else :
+					execution.extra_slurm_job_id = execution.extra_slurm_job_id + ' ' + extra_job_id
+				db.session.commit()
 		else :
 			logging.info("Execution is not in RUNNING status, no action can be done")
 	else :
