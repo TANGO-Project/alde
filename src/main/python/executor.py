@@ -525,3 +525,10 @@ def get_job_id_after_adaptation(job_name, url):
 	lines = lines.split("\n")
 
 	return lines[0].strip()
+
+def id_to_remove(ids):
+	"""
+	It takes a collection of string ids, if possible, it returns the last one
+	"""
+
+	pass
