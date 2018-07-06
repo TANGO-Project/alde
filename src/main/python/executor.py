@@ -438,7 +438,10 @@ def add_resource(execution):
 			params.append(sbatch_id)
 			params.append('CREATE SLURM-Cluster default')
 			params.append(singularity_image_file)
-			shell.execute_command(command, url, params)
+			output = shell.execute_command(command, url, params)
+
+			job_name = parse_add_resource_output(output)
+			extra_job_id = get_job_id_after_adaptation(job_name, url)
 		else :
 			logging.info("Execution is not in RUNNING status, no action can be done")
 	else :

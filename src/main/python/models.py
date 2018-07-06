@@ -89,6 +89,7 @@ class Execution(db.Model):
     execution_configuration_id = db.Column(db.Integer, db.ForeignKey('execution_configurations.id'))
     execution_configuration = db.relationship("ExecutionConfiguration")
     slurm_sbatch_id = db.Column(db.Integer)
+    extra_slurm_job_id = db.Column(db.String)
     add_resource = False
 
     def __init__(self, execution_type, status):

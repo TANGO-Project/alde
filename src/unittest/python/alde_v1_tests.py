@@ -888,7 +888,7 @@ class AldeV1Tests(TestCase):
 
         self.assertEquals(409, response.status_code)
         self.assertEquals(
-          'No status or add_resource field in the payload',
+          'No status, remove_resource, or add_resource field in the payload',
           response.json['message'])
 
         data = {'status': 'CANCEL'}
