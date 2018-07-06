@@ -187,7 +187,7 @@ def patch_execution_preprocessor(instance_id=None, data=None, **kw):
         elif 'add_resource' in data:
             executor.add_resource(execution)
         elif 'remove_resource' in data:
-            pass
+            executor.remove_resource(execution)
         else :
            raise flask_restless.ProcessingException(
                                 description='No status, remove_resource, or add_resource field in the payload',

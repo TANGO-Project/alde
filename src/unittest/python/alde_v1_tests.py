@@ -840,9 +840,10 @@ class AldeV1Tests(TestCase):
         calls = [ call_1, call_2, call_3, call_4, call_5 ]
         mock_execute_application.assert_has_calls(calls)
 
+    @mock.patch('executor.remove_resource')
     @mock.patch('executor.add_resource')
     @mock.patch('executor.cancel_execution')
-    def test_patch_execution_preprocessor(self, mock_executor_cancel, mock_executor_add):
+    def test_patch_execution_preprocessor(self, mock_executor_cancel, mock_executor_add, mock_executor_remove):
         """
         It test the correct work of the method of canceling an execution
         """
@@ -905,6 +906,13 @@ class AldeV1Tests(TestCase):
                                      content_type='application/json')
 
         mock_executor_add.assert_called_with(execution)
+
+        data = {'remove_resource': ''}
+        response = self.client.patch("/api/v1/executions/" + str(execution.id) ,
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        mock_executor_remove.assert_called_with(execution)
 
     @mock.patch('executor.upload_deployment')
     def test_post_deployment_preprocessor(self, mock_upload_deployment):

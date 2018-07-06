@@ -412,6 +412,14 @@ def cancel_execution(execution, url):
 		# Preparing the command to be executed
 		shell.execute_command('scancel', url, [ str(execution.slurm_sbatch_id) ])
 
+def remove_resource(execution):
+	"""
+	it removes resources to a running execution:
+		adapt_compss_resources <master_node> <master_job_id> REMOVE SLURM-Cluster <node_to_delete>
+	"""
+
+	pass
+
 def add_resource(execution):
 	"""
 	it adds resources to a running execution
