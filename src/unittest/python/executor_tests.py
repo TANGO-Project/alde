@@ -912,6 +912,41 @@ class ExecutorTests(MappingTest):
 		calls = [ call_1, call_2, call_3, call_4 ]
 		mock_shell.assert_has_calls(calls)
 
+	@mock.patch("shell.execute_command")
+	def test_get_job_id_after_adaptation(self, mock_shell):
+		"""
+		It tests the correct work of the execution of the following command
+		squeue --name=job_name -h -o %A
+		"""
+
+		# Test 1
+		output = b'7241\n'
+		mock_shell.return_value = output
+		call_mock_shell_1 = call("squeue", "endpoint", [ '--name=job_name_1', '-h', '-A', '%N' ])
+
+		identifier = executor.get_job_id_after_adaptation("job_name_1", "endpoint")
+		self.assertEquals('7241', identifier)
+
+		# Test 2
+		output = b'     7241      \n'
+		mock_shell.return_value = output
+		call_mock_shell_2 = call("squeue", "endpoint", [ '--name=job_name_2', '-h', '-A', '%N' ])
+
+		identifier = executor.get_job_id_after_adaptation("job_name_2", "endpoint")
+		self.assertEquals('7241', identifier)
+
+		# Test 3
+		output = b'\n'
+		mock_shell.return_value = output
+		call_mock_shell_3 = call("squeue", "endpoint", [ '--name=job_name_3', '-h', '-A', '%N' ])
+
+		identifier = executor.get_job_id_after_adaptation("job_name_3", "endpoint")
+		self.assertEquals('', identifier)
+
+		# We verify all the calls to the mock
+		calls = [ call_mock_shell_1, call_mock_shell_2, call_mock_shell_3]
+		mock_shell.assert_has_calls(calls)
+
 	def test_parse_add_resource_output(self):
 		"""
 		Checks that the parser to get the job name
@@ -921,3 +956,7 @@ class ExecutorTests(MappingTest):
 		output = b'COMPSS_HOME=/home_nfs/home_ejarquej/installations/2.2.6/COMPSs \n [Adaptation] writting command CREATE SLURM-Cluster default /home_nfs/home_ejarquej/matmul-cuda8-y3.img on /fslustre/tango/matmul/log_dir/.COMPSs/7240/adaptation/command_pipe \n [Adaptation] Reading result /fslustre/tango/matmul/log_dir/.COMPSs/7240/adaptation/result_pipe \n [Adaptation] Read ACK compss15039f76-c700-44af-b451-70c80f7eae6c \n [Adaptation]'
 		output = executor.parse_add_resource_output(output)
 		self.assertEquals('compss15039f76-c700-44af-b451-70c80f7eae6c', output)
+
+		output = b'COMPSS_HOME=/home_nfs/home_ejarquej/installations/2.2.6/COMPSs \n [Adaptation] writting command CREATE SLURM-Cluster default /home_nfs/home_ejarquej/matmul-cuda8-y3.img on /fslustre/tango/matmul/log_dir/.COMPSs/7240/adaptation/command_pipe \n [Adaptation] Reading result /fslustre/tango/matmul/log_dir/.COMPSs/7240/adaptation/result_pipe \n [Adaptation] Read A\n [Adaptation]'
+		output = executor.parse_add_resource_output(output)
+		self.assertEquals('', output)

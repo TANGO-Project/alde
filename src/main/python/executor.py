@@ -487,5 +487,23 @@ def parse_add_resource_output(output):
 	for line in (line for line in lines if line.rstrip('\n')):
 		if '[Adaptation] Read ACK' in line:
 			searched_line = line
-			
-	return searched_line.split()[-1]
+
+	items = searched_line.split()
+
+	if len(items) > 0:
+		return searched_line.split()[-1]
+	else :
+		 return ''
+
+def get_job_id_after_adaptation(job_name, url):
+	"""
+	It executes the following squeue line to get the job ID
+	squeue --name=job_name -h -o %A
+	"""
+
+	output = shell.execute_command("squeue", url , [ '--name=' + job_name, '-h', '-A', '%N' ])
+
+	lines = output.decode('utf-8')
+	lines = lines.split("\n")
+
+	return lines[0].strip()
