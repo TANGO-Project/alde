@@ -912,3 +912,12 @@ class ExecutorTests(MappingTest):
 		calls = [ call_1, call_2, call_3, call_4 ]
 		mock_shell.assert_has_calls(calls)
 
+	def test_parse_add_resource_output(self):
+		"""
+		Checks that the parser to get the job name
+		of COMPSs output when adding a resource works as expected
+		"""
+		
+		output = b'COMPSS_HOME=/home_nfs/home_ejarquej/installations/2.2.6/COMPSs \n [Adaptation] writting command CREATE SLURM-Cluster default /home_nfs/home_ejarquej/matmul-cuda8-y3.img on /fslustre/tango/matmul/log_dir/.COMPSs/7240/adaptation/command_pipe \n [Adaptation] Reading result /fslustre/tango/matmul/log_dir/.COMPSs/7240/adaptation/result_pipe \n [Adaptation] Read ACK compss15039f76-c700-44af-b451-70c80f7eae6c \n [Adaptation]'
+		output = executor.parse_add_resource_output(output)
+		self.assertEquals('compss15039f76-c700-44af-b451-70c80f7eae6c', output)

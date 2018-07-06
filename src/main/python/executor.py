@@ -473,3 +473,19 @@ def find_first_node(sbatch_id, url):
 		return node_name + first_number
 	else :
 		return nodes
+
+def parse_add_resource_output(output):
+	"""
+	It parses the add resource output of COMPs to 
+	get the job name
+	"""
+
+	lines = output.decode('utf-8')
+	lines = lines.split("\n")
+
+	searched_line = ''
+	for line in (line for line in lines if line.rstrip('\n')):
+		if '[Adaptation] Read ACK' in line:
+			searched_line = line
+			
+	return searched_line.split()[-1]
