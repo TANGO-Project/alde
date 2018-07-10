@@ -1018,3 +1018,110 @@ class ExecutorTests(MappingTest):
 		id_returned, ids = executor.id_to_remove(ids)
 		self.assertEquals('23', id_returned)
 		self.assertEquals('', ids)
+
+	@mock.patch('executor.find_first_node')
+	@mock.patch("shell.execute_command")
+	def test_remove_resource(self, mock_shell, mock_first_node): 
+		"""
+		It tests that it is possible to add a resource
+		"""
+
+		l = LogCapture() # we cature the logger
+
+		# Sub test 1 - Wrong type of Execution
+		execution = Execution("pepito", Execution.__status_running__)
+		executor.remove_resource(execution)
+
+		# Sub test 2 - Execution not running in right state
+		execution = Execution(Executable.__type_singularity_pm__, Execution.__status_failed__)
+		executor.remove_resource(execution)
+
+		# Sub test 3 - Execution should try to remove a new resource but it is not possible
+		testbed = Testbed( "testbed", True, "nice_testbed", "ssh", "endpoint")
+		extra = {'enqueue_env_file': 'source_file'}
+		testbed.extra_config = extra
+		db.session.add(testbed)
+
+		application = Application(name="super_app")
+		db.session.add(application)
+		db.session.commit() # So application and testbed get an id
+
+		executable = Executable()
+		executable.source_code_file = 'test.zip'
+		executable.compilation_script = 'gcc -X'
+		executable.compilation_type = "SLURM:SRUN"
+		executable.executable_file = "/usr/local/gromacs-4.6.7-cuda2/bin/mdrun"
+		executable.status = "COMPILED"
+		executable.singularity_image_file = "image_file"
+		executable.application = application
+		db.session.add(executable)
+		db.session.commit() # We do this so executable gets and id
+
+		deployment = Deployment()
+		deployment.testbed_id = testbed.id
+		deployment.executable_id = executable.id
+		db.session.add(deployment) # We add the executable to the db so it has an id
+
+		execution_configuration = ExecutionConfiguration()
+		execution_configuration.executable = executable
+		execution_configuration.application = application
+		execution_configuration.testbed = testbed
+		db.session.add(execution_configuration)
+		db.session.commit()
+
+		execution = Execution(Executable.__type_singularity_pm__, Execution.__status_running__)
+		execution.execution_configuration = execution_configuration
+		execution.slurm_sbatch_id = 21
+		execution.extra_slurm_job_id = ''
+		db.session.add(execution)
+		db.session.commit()
+
+		executor.remove_resource(execution)
+
+		# Sub text 4 - Trying to remove a resource but we get an error
+		execution.extra_slurm_job_id = '34 35'
+		db.session.add(execution)
+		db.session.commit()
+
+		mock_shell.return_value = b'Something\n fishy\n happening here...'
+		mock_first_node.return_value = 'ns31'
+
+		executor.remove_resource(execution)
+		
+		call_1 = call('source', 'endpoint', ['source_file', ';', 'adapt_compss_resources', 'ns31', 21, 'REMOVE SLURM-Cluster', '35'])
+
+		# Sub text 5 - Now wverything should wokr
+		mock_shell.return_value = b'Cluster default /home_nfs/home_ejarquej/matmul-cuda8-y3.img\n     COMPSS_HOME=/home_nfs/home_ejarquej/installations/2.2.6/COMPSs\n     [Adaptation] writting command CREATE SLURM-Cluster default /home_nfs/home_ejarquej/matmul-cuda8-y3.img on /fslustre/tango/matmul/log_dir/.COMPSs/7065/adaptation/command_pipe\n     [Adaptation] Reading result /fslustre/tango/matmul/log_dir/.COMPSs/7065/adaptation/result_pipe\n     [Adaptation] Read ACK\n    [Adaptation]'
+		
+		executor.remove_resource(execution)
+		execution = db.session.query(Execution).filter_by(execution_configuration_id=execution_configuration.id).first()
+		self.assertEquals('34', execution.extra_slurm_job_id)
+		
+		calls = [ call_1, call_1 ]
+		mock_shell.assert_has_calls(calls)
+		
+		# Checking that we are logging the correct message
+		l.check(
+			('root', 'INFO', 'Execution: pepito it is not compatible with add resource action'),
+			('root', 'INFO', 'Executing type corresponds with SINGULARITY_PM, trying adaptation'),
+			('root', 'INFO', 'Execution is not in RUNNING status, no action can be done'),
+			('root', 'INFO', 'Executing type corresponds with SINGULARITY_PM, trying adaptation'),
+			('root', 'INFO', 'No extra jobs to be able to delete'),
+			('root', 'INFO', 'Executing type corresponds with SINGULARITY_PM, trying adaptation'),
+			('root', 'INFO', 'There was an error in the adaptation:'),
+ 			('root', 'INFO', 'Something\n fishy\n happening here...'),
+			('root', 'INFO', 'Executing type corresponds with SINGULARITY_PM, trying adaptation'),
+			('root', 'INFO', 'Adaptation performed ok')
+		)
+		l.uninstall() # We uninstall the capture of the logger
+
+	def test_verify_adaptation_went_ok(self):
+		"""
+		Verifies the correct work of the method verify_adaptation_went_ok
+		"""
+
+		not_ok = b'Something\n fishy\n happening here...'
+		ok = b'Cluster default /home_nfs/home_ejarquej/matmul-cuda8-y3.img\n     COMPSS_HOME=/home_nfs/home_ejarquej/installations/2.2.6/COMPSs\n     [Adaptation] writting command CREATE SLURM-Cluster default /home_nfs/home_ejarquej/matmul-cuda8-y3.img on /fslustre/tango/matmul/log_dir/.COMPSs/7065/adaptation/command_pipe\n     [Adaptation] Reading result /fslustre/tango/matmul/log_dir/.COMPSs/7065/adaptation/result_pipe\n     [Adaptation] Read ACK\n    [Adaptation]'
+
+		self.assertFalse(executor.verify_adaptation_went_ok(not_ok))
+		self.assertTrue(executor.verify_adaptation_went_ok(ok))

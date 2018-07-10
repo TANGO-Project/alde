@@ -418,7 +418,44 @@ def remove_resource(execution):
 		adapt_compss_resources <master_node> <master_job_id> REMOVE SLURM-Cluster <node_to_delete>
 	"""
 
-	pass
+	if (( execution.execution_type == execute_type_singularity_pm)) :
+		logging.info("Executing type corresponds with SINGULARITY_PM, trying adaptation")
+
+		if (( execution.status == Execution.__status_running__)) :
+			url = execution.execution_configuration.testbed.endpoint
+			enqueue_env_file = execution.execution_configuration.testbed.extra_config['enqueue_env_file']
+			sbatch_id = execution.slurm_sbatch_id
+			id_returned, ids = id_to_remove(execution.extra_slurm_job_id)
+			
+			if id_returned is not None :
+				node = find_first_node(sbatch_id, url)
+
+				command = "source"
+				params = []
+				params.append(enqueue_env_file)
+				params.append(";")
+				params.append("adapt_compss_resources")
+				params.append(node)
+				params.append(sbatch_id)
+				params.append('REMOVE SLURM-Cluster')
+				params.append(id_returned)
+				output = shell.execute_command(command, url, params)
+
+				if verify_adaptation_went_ok(output) :
+					logging.info("Adaptation performed ok")
+					execution.extra_slurm_job_id = ids
+					db.session.commit()
+				else:
+					logging.info("There was an error in the adaptation:")
+					output = output.decode('utf-8')
+					logging.info(output)
+					
+			else :
+				logging.info("No extra jobs to be able to delete")
+		else :
+			logging.info("Execution is not in RUNNING status, no action can be done")
+	else :
+		logging.info("Execution: " + execution.execution_type + " it is not compatible with add resource action")
 
 def add_resource(execution):
 	"""
@@ -542,3 +579,27 @@ def id_to_remove(ids):
 		last = list_of_ids.pop()
 		ids = ' '.join(list_of_ids)
 		return last, ids
+
+def verify_adaptation_went_ok(output):
+	"""
+	It verifies the message has got an ACK
+
+	Cluster default /home_nfs/home_ejarquej/matmul-cuda8-y3.img
+    COMPSS_HOME=/home_nfs/home_ejarquej/installations/2.2.6/COMPSs
+    [Adaptation] writting command CREATE SLURM-Cluster default /home_nfs/home_ejarquej/matmul-cuda8-y3.img on /fslustre/tango/matmul/log_dir/.COMPSs/7065/adaptation/command_pipe
+    [Adaptation] Reading result /fslustre/tango/matmul/log_dir/.COMPSs/7065/adaptation/result_pipe
+    [Adaptation] Read ACK
+    [Adaptation]
+
+	it returns true if the message has [Adaptation] Read ACK, false otherwise
+	"""
+
+	lines = output.decode('utf-8')
+	lines = lines.split("\n")
+
+	ok = False
+	for line in (line for line in lines if line.rstrip('\n')):
+		if '[Adaptation] Read ACK' in line:
+			ok = True
+
+	return ok
