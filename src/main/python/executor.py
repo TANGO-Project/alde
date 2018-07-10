@@ -529,6 +529,16 @@ def get_job_id_after_adaptation(job_name, url):
 def id_to_remove(ids):
 	"""
 	It takes a collection of string ids, if possible, it returns the last one
+
+	Returns none if ids are empty
 	"""
 
-	pass
+	if ids is None :
+		return None, None
+	elif ids == '' :
+		return None, ''
+	else :
+		list_of_ids = ids.split()
+		last = list_of_ids.pop()
+		ids = ' '.join(list_of_ids)
+		return last, ids

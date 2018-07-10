@@ -992,3 +992,29 @@ class ExecutorTests(MappingTest):
 		output = b'COMPSS_HOME=/home_nfs/home_ejarquej/installations/2.2.6/COMPSs \n [Adaptation] writting command CREATE SLURM-Cluster default /home_nfs/home_ejarquej/matmul-cuda8-y3.img on /fslustre/tango/matmul/log_dir/.COMPSs/7240/adaptation/command_pipe \n [Adaptation] Reading result /fslustre/tango/matmul/log_dir/.COMPSs/7240/adaptation/result_pipe \n [Adaptation] Read A\n [Adaptation]'
 		output = executor.parse_add_resource_output(output)
 		self.assertEquals('', output)
+
+	def test_id_to_remove(self):
+		"""
+		It tests the correct work of executor.id_to_remove method
+		"""
+
+		ids = ''
+
+		id_returned, ids = executor.id_to_remove(ids)
+		self.assertIsNone(id_returned)
+		self.assertEquals('', ids)
+
+		ids = None
+		id_returned, ids = executor.id_to_remove(ids)
+		self.assertIsNone(id_returned)
+		self.assertIsNone(ids)
+
+		ids = '23 33 43'
+		id_returned, ids = executor.id_to_remove(ids)
+		self.assertEquals('43', id_returned)
+		self.assertEquals('23 33', ids)
+
+		ids = '23'
+		id_returned, ids = executor.id_to_remove(ids)
+		self.assertEquals('23', id_returned)
+		self.assertEquals('', ids)
