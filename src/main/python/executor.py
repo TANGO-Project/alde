@@ -556,7 +556,7 @@ def get_job_id_after_adaptation(job_name, url):
 	squeue --name=job_name -h -o %A
 	"""
 
-	output = shell.execute_command("squeue", url , [ '--name=' + job_name, '-h', '-A', '%N' ])
+	output = shell.execute_command("squeue", url , [ '--name=' + job_name, '-h', '-o', '%A' ])
 
 	lines = output.decode('utf-8')
 	lines = lines.split("\n")

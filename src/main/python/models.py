@@ -91,6 +91,7 @@ class Execution(db.Model):
     slurm_sbatch_id = db.Column(db.Integer)
     extra_slurm_job_id = db.Column(db.String)
     add_resource = False
+    remove_resource = False
 
     def __init__(self, execution_type, status):
         """Initiaze basic parameters of the class"""

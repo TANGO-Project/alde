@@ -954,7 +954,7 @@ class ExecutorTests(MappingTest):
 		# Test 1
 		output = b'7241\n'
 		mock_shell.return_value = output
-		call_mock_shell_1 = call("squeue", "endpoint", [ '--name=job_name_1', '-h', '-A', '%N' ])
+		call_mock_shell_1 = call("squeue", "endpoint", [ '--name=job_name_1', '-h', '-o', '%A' ])
 
 		identifier = executor.get_job_id_after_adaptation("job_name_1", "endpoint")
 		self.assertEquals('7241', identifier)
@@ -962,7 +962,7 @@ class ExecutorTests(MappingTest):
 		# Test 2
 		output = b'     7241      \n'
 		mock_shell.return_value = output
-		call_mock_shell_2 = call("squeue", "endpoint", [ '--name=job_name_2', '-h', '-A', '%N' ])
+		call_mock_shell_2 = call("squeue", "endpoint", [ '--name=job_name_2', '-h', '-o', '%A' ])
 
 		identifier = executor.get_job_id_after_adaptation("job_name_2", "endpoint")
 		self.assertEquals('7241', identifier)
@@ -970,7 +970,7 @@ class ExecutorTests(MappingTest):
 		# Test 3
 		output = b'\n'
 		mock_shell.return_value = output
-		call_mock_shell_3 = call("squeue", "endpoint", [ '--name=job_name_3', '-h', '-A', '%N' ])
+		call_mock_shell_3 = call("squeue", "endpoint", [ '--name=job_name_3', '-h', '-o', '%A' ])
 
 		identifier = executor.get_job_id_after_adaptation("job_name_3", "endpoint")
 		self.assertEquals('', identifier)
