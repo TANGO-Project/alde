@@ -282,7 +282,6 @@ def create_app_v1(sql_db_url, port, app_folder, profile_folder, app_types):
     app.config['APP_FOLDER'] = app_folder
     app.config['APP_PROFILE_FOLDER'] = profile_folder
     app.config['APP_TYPES'] = app_types
-    app_upload_folder = app_folder
     app.config.from_object(Config())
     db.init_app(app)
     db.app=app
