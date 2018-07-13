@@ -11,6 +11,7 @@ import slurm
 import logging
 import executor
 from flask_apscheduler import APScheduler
+from flask import current_app as current
 from models import db, Application, ExecutionConfiguration, Testbed, Node, Memory, CPU, MCP, GPU, Deployment, Executable, Execution
 
 url_prefix_v1='/api/v1'
@@ -249,8 +250,31 @@ def post_deployment_postprocessor(result=None):
 
     executor.upload_deployment(executable, testbed)
 
+def post_application_preprocessor(data=None, **kw):
+    """
+    It is going to start the execution of an application in the selected testbed
+    """
 
-def create_app_v1(sql_db_url, port, app_folder, profile_folder):
+    pass 
+
+    #app_types 
+
+    #if 'application_type' in data :
+
+def patch_application_preprocessor(instance_id=None, data=None, **kw):
+    """
+    It is going to start the execution of an application in the selected testbed
+    """
+
+    pass 
+
+    #app_types 
+
+    #if 'application_type' in data :
+        
+
+
+def create_app_v1(sql_db_url, port, app_folder, profile_folder, app_types):
     """
     It creates the Flask REST app service
     """
@@ -264,6 +288,7 @@ def create_app_v1(sql_db_url, port, app_folder, profile_folder):
     app.config['PRESERVE_CONTEXT_ON_EXCEPTION'] = False
     app.config['APP_FOLDER'] = app_folder
     app.config['APP_PROFILE_FOLDER'] = profile_folder
+    app.config['APP_TYPES'] = app_types
     app_upload_folder = app_folder
     app.config.from_object(Config())
     db.init_app(app)
@@ -275,6 +300,10 @@ def create_app_v1(sql_db_url, port, app_folder, profile_folder):
     # Create the REST methods for an Application
     manager.create_api(Application,
                        methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
+                       preprocessors={
+                           'POST': [post_application_preprocessor],
+                           'PATCH_SINGLE': [patch_application_preprocessor]
+                       },
                        url_prefix=url_prefix_v1, results_per_page=-1)
 
     # Create the REST API for the Executable Configuration

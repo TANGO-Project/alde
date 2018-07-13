@@ -72,6 +72,8 @@ class Execution(db.Model):
     """
     Objet that represents the execution of an application with its
     different states
+
+    ALTER TABLE executions ADD COLUMN extra_slurm_job_id VARCHAR;
     """
     __status_running__ = "RUNNING"
     __status_finished__ = "COMPLETED"
@@ -91,7 +93,6 @@ class Execution(db.Model):
     slurm_sbatch_id = db.Column(db.Integer)
     extra_slurm_job_id = db.Column(db.String)
     add_resource = False
-    remove_resource = False
 
     def __init__(self, execution_type, status):
         """Initiaze basic parameters of the class"""
@@ -141,6 +142,7 @@ class Application(db.Model):
     __tablename__ = 'applications'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
+    application_type = db.Column(db.String)
     execution_configurations = db.relationship("ExecutionConfiguration", order_by=ExecutionConfiguration.id, back_populates="application")
     executables = db.relationship("Executable", order_by=Executable.id, back_populates="application")
 

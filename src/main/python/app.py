@@ -53,7 +53,7 @@ def main(): # pragma: no cover
     conf = load_config() # pragma: no cover
 
     logger.info("Starting ALDE") # pragma: no cover
-    app = alde.create_app_v1(conf['SQL_LITE_URL'], conf['PORT'], conf['APP_UPLOAD_FOLDER'], conf['APP_PROFILE_FOLDER']) # pragma: no cover
+    app = alde.create_app_v1(conf['SQL_LITE_URL'], conf['PORT'], conf['APP_UPLOAD_FOLDER'], conf['APP_PROFILE_FOLDER'], conf['APP_TYPES']) # pragma: no cover
 
     # We start the Flask loop
     db.create_all() # pragma: no cover
