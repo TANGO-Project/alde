@@ -31,15 +31,16 @@ def load_config():
     logger.info("Loading configuration")
     config = configparser.ConfigParser()
     config.read('alde_configuration.ini')
-    print(config.sections())
     default = config['DEFAULT']
     print(default)
+    app_types = [e.strip() for e in default['APP_TYPES'].split(',')]
 
     conf = {
         'SQL_LITE_URL' : default['SQL_LITE_URL'],
         'PORT' : default['PORT'],
         'APP_UPLOAD_FOLDER' : default['APP_UPLOAD_FOLDER'],
-        'APP_PROFILE_FOLDER' : default['APP_PROFILE_FOLDER']
+        'APP_PROFILE_FOLDER' : default['APP_PROFILE_FOLDER'],
+        'APP_TYPES' : app_types
     }
 
     return conf
