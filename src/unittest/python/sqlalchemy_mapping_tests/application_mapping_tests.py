@@ -19,7 +19,8 @@ class ApplicationMappingTest(MappingTest):
         """It test basic CRUD operations of an Application Class"""
 
         # We verify that the object is not in the db after creating
-        application = Application("AppName")
+        application = Application()
+        application.name = 'AppName'
         application.application_type = "app_type"
         self.assertIsNone(application.id)
 
@@ -51,7 +52,8 @@ class ApplicationMappingTest(MappingTest):
         """
 
         # We create an application
-        application = Application("AppName")
+        application = Application()
+        application.name = 'AppName'
 
 
         # We create several ExecutionConfigurations
@@ -87,7 +89,8 @@ class ApplicationMappingTest(MappingTest):
         """
 
         # We create an application
-        application = Application("AppName")
+        application = Application()
+        application.name = 'AppName'
         executable_1 = Executable()
         executable_1.source_code_file = "source1"
         executable_1.compilation_script = "script1"

@@ -42,8 +42,10 @@ class AldeV1Tests(TestCase):
         db.create_all()
 
         # We store some Applications in the db for the tests
-        application_1 = Application("AppName_1")
-        application_2 = Application("AppName_2")
+        application_1 = Application()
+        application_1.name = 'AppName_1'
+        application_2 = Application()
+        application_2.name = 'AppName_2'
 
         # Adding executing scripts
         execution_script_1 = ExecutionConfiguration()
@@ -1002,3 +1004,48 @@ class AldeV1Tests(TestCase):
         testbed = db.session.query(Testbed).filter_by(id=3).first()
 
         mock_upload_deployment.assert_called_with(executable, testbed)
+    
+    def test_post_and_patch_application_preprocessor(self):
+        """
+        It verifies the correct work of the method: post application prerocessor
+        """
+
+        data = {
+            'name': 'app_name',
+        }
+
+        response = self.client.post("/api/v1/applications",
+                                    data=json.dumps(data),
+                                    content_type="application/json")
+        
+        self.assertEquals(201, response.status_code)
+        application = response.json
+        self.assertEquals('app_name', application['name'])
+
+        data = {
+            'name': 'app_name',
+            'application_type': 'pepito'
+        }
+
+        response = self.client.post("/api/v1/applications",
+                                    data=json.dumps(data),
+                                    content_type="application/json")
+        
+        self.assertEquals(406, response.status_code)
+        self.assertEquals(
+          'Application type pepito not supported',
+          response.json['message'])
+
+        data = {
+            'name': 'app_name',
+            'application_type': 'MOULDABLE'
+        }
+
+        response = self.client.post("/api/v1/applications",
+                                    data=json.dumps(data),
+                                    content_type="application/json")
+        
+        self.assertEquals(201, response.status_code)
+        application = response.json
+        self.assertEquals('app_name', application['name'])
+        self.assertEquals('MOULDABLE', application['application_type'])

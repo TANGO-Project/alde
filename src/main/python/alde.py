@@ -250,28 +250,21 @@ def post_deployment_postprocessor(result=None):
 
     executor.upload_deployment(executable, testbed)
 
-def post_application_preprocessor(data=None, **kw):
+def post_and_patch_application_preprocessor(data=None, **kw):
     """
     It is going to start the execution of an application in the selected testbed
     """
+    
+    app_types = current.config['APP_TYPES']
 
-    pass 
-
-    #app_types 
-
-    #if 'application_type' in data :
-
-def patch_application_preprocessor(instance_id=None, data=None, **kw):
-    """
-    It is going to start the execution of an application in the selected testbed
-    """
-
-    pass 
-
-    #app_types 
-
-    #if 'application_type' in data :
-        
+    if 'application_type' in data :
+        if data['application_type'] in app_types :
+            pass
+        else :
+            raise flask_restless.ProcessingException(
+                description='Application type ' + data['application_type'] + ' not supported',
+                code=406
+            )
 
 
 def create_app_v1(sql_db_url, port, app_folder, profile_folder, app_types):
@@ -301,8 +294,8 @@ def create_app_v1(sql_db_url, port, app_folder, profile_folder, app_types):
     manager.create_api(Application,
                        methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
                        preprocessors={
-                           'POST': [post_application_preprocessor],
-                           'PATCH_SINGLE': [patch_application_preprocessor]
+                           'POST': [post_and_patch_application_preprocessor],
+                           'PATCH_SINGLE': [post_and_patch_application_preprocessor]
                        },
                        url_prefix=url_prefix_v1, results_per_page=-1)
 

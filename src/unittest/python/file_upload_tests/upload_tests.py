@@ -47,7 +47,8 @@ class ApplicationMappingTest(LiveServerTestCase):
 		app.register_blueprint(upload.upload_blueprint, url_prefix=upload_prefix)
 
 		# We create the application and we store it in the db
-		application = Application("AppName")
+		application = Application()
+		application.name = "AppName"
 		db.session.add(application)
 		db.session.commit()
 

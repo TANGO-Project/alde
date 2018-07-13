@@ -18,7 +18,8 @@ class ApplicationTest(unittest.TestCase):
     def test_initialization_application(self):
         """Test the initialization method of the class Application"""
 
-        application = Application("name")
+        application = Application()
+        application.name = "name"
         self.assertEquals("name", application.name)
         application.application_type = "XXX"
         self.assertEquals("XXX", application.application_type)

@@ -146,11 +146,6 @@ class Application(db.Model):
     execution_configurations = db.relationship("ExecutionConfiguration", order_by=ExecutionConfiguration.id, back_populates="application")
     executables = db.relationship("Executable", order_by=Executable.id, back_populates="application")
 
-    def __init__(self, name):
-        """Initializes the basic parameters of the class"""
-
-        self.name = name
-
 class Memory(db.Model):
     """
     Object model of the RAM that can have a node in the Application
