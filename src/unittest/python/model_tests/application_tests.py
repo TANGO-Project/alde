@@ -20,6 +20,8 @@ class ApplicationTest(unittest.TestCase):
 
         application = Application("name")
         self.assertEquals("name", application.name)
+        application.application_type = "XXX"
+        self.assertEquals("XXX", application.application_type)
 
     def test_initialization_execution_configuration(self):
         """Test the initialization method of the class Execution Scripts"""

@@ -20,6 +20,7 @@ class ApplicationMappingTest(MappingTest):
 
         # We verify that the object is not in the db after creating
         application = Application("AppName")
+        application.application_type = "app_type"
         self.assertIsNone(application.id)
 
         # We store the object in the db
@@ -29,6 +30,7 @@ class ApplicationMappingTest(MappingTest):
         application = db.session.query(Application).filter_by(name='AppName').first()
         self.assertIsNotNone(application.id)
         self.assertEquals("AppName", application.name)
+        self.assertEquals("app_type", application.application_type)
 
         # We check that we can update the application
         application.name = 'pepito'
