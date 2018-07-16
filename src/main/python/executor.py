@@ -416,6 +416,7 @@ def remove_resource(execution):
 	"""
 	it removes resources to a running execution:
 		adapt_compss_resources <master_node> <master_job_id> REMOVE SLURM-Cluster <node_to_delete>
+		adapt_compss_resources ns51 7262 REMOVE SLURM-Cluster ns50
 	"""
 
 	if (( execution.execution_type == execute_type_singularity_pm)) :
@@ -429,6 +430,7 @@ def remove_resource(execution):
 			
 			if id_returned is not None :
 				node = find_first_node(sbatch_id, url)
+				node_job_to_remove = find_first_node(id_returned, url)
 
 				command = "source"
 				params = []
@@ -438,7 +440,7 @@ def remove_resource(execution):
 				params.append(node)
 				params.append(sbatch_id)
 				params.append('REMOVE SLURM-Cluster')
-				params.append(id_returned)
+				params.append(node_job_to_remove)
 				output = shell.execute_command(command, url, params)
 
 				if verify_adaptation_went_ok(output) :

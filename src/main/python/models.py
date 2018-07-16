@@ -143,6 +143,12 @@ class Application(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     application_type = db.Column(db.String)
+    max_power = db.Column(db.Float)
+    max_power_units = db.Column(db.String)
+    max_energy = db.Column(db.Float)
+    max_energy_units = db.Column(db.String)
+    priority = db.Column(db.Integer)
+    deadline = db.Column(db.Integer)
     execution_configurations = db.relationship("ExecutionConfiguration", order_by=ExecutionConfiguration.id, back_populates="application")
     executables = db.relationship("Executable", order_by=Executable.id, back_populates="application")
 

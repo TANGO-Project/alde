@@ -1088,7 +1088,7 @@ class ExecutorTests(MappingTest):
 
 		executor.remove_resource(execution)
 		
-		call_1 = call('source', 'endpoint', ['source_file', ';', 'adapt_compss_resources', 'ns31', 21, 'REMOVE SLURM-Cluster', '35'])
+		call_1 = call('source', 'endpoint', ['source_file', ';', 'adapt_compss_resources', 'ns31', 21, 'REMOVE SLURM-Cluster', 'ns31'])
 
 		# Sub text 5 - Now wverything should wokr
 		mock_shell.return_value = b'Cluster default /home_nfs/home_ejarquej/matmul-cuda8-y3.img\n     COMPSS_HOME=/home_nfs/home_ejarquej/installations/2.2.6/COMPSs\n     [Adaptation] writting command CREATE SLURM-Cluster default /home_nfs/home_ejarquej/matmul-cuda8-y3.img on /fslustre/tango/matmul/log_dir/.COMPSs/7065/adaptation/command_pipe\n     [Adaptation] Reading result /fslustre/tango/matmul/log_dir/.COMPSs/7065/adaptation/result_pipe\n     [Adaptation] Read ACK\n    [Adaptation]'
@@ -1096,9 +1096,16 @@ class ExecutorTests(MappingTest):
 		executor.remove_resource(execution)
 		execution = db.session.query(Execution).filter_by(execution_configuration_id=execution_configuration.id).first()
 		self.assertEquals('34', execution.extra_slurm_job_id)
-		
+
 		calls = [ call_1, call_1 ]
 		mock_shell.assert_has_calls(calls)
+
+		call_first_node_1 = call(21, 'endpoint')
+		call_first_node_2 = call('35', 'endpoint')
+		call_first_node_3 = call(21, 'endpoint')
+		call_first_node_4 = call('35', 'endpoint')
+		calls = [call_first_node_1, call_first_node_2, call_first_node_3, call_first_node_4]
+		mock_first_node.assert_has_calls(calls)
 		
 		# Checking that we are logging the correct message
 		l.check(
