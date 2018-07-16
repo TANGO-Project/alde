@@ -100,6 +100,17 @@ class Execution(db.Model):
         self.execution_type = execution_type
         self.status = status
 
+    def get_number_extra_jobs(self):
+        """
+        It returns the totaln number of
+        extra jobs ids stored in extra_slurm_job_id
+        """
+
+        if self.extra_slurm_job_id :
+            return len(self.extra_slurm_job_id.split())
+        else :
+            return 0
+
 
 class ExecutionConfiguration(db.Model):
     """
@@ -149,6 +160,8 @@ class Application(db.Model):
     max_energy_units = db.Column(db.String)
     priority = db.Column(db.Integer)
     deadline = db.Column(db.Integer)
+    scaling_upper_bound = db.Column(db.Integer)
+    scaling_lower_bound = db.Column(db.Integer)
     execution_configurations = db.relationship("ExecutionConfiguration", order_by=ExecutionConfiguration.id, back_populates="application")
     executables = db.relationship("Executable", order_by=Executable.id, back_populates="application")
 

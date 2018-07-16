@@ -21,3 +21,20 @@ class ExecutionTests(unittest.TestCase):
 
 		self.assertEquals("execution_type", execution.execution_type)
 		self.assertEquals("status", execution.status)
+	
+	def test_get_number_extra_jobs(self):
+		"""
+		Tests the correct work of the method  get_number_extra_jobs
+		"""
+
+		execution = Execution("execution_type", "status")
+		self.assertEquals(0, execution.get_number_extra_jobs())
+
+		execution.extra_slurm_job_id = ''
+		self.assertEquals(0, execution.get_number_extra_jobs())
+
+		execution.extra_slurm_job_id = '     '
+		self.assertEquals(0, execution.get_number_extra_jobs())
+
+		execution.extra_slurm_job_id = ' 12    232   4443  5663     23234        '
+		self.assertEquals(5, execution.get_number_extra_jobs())
