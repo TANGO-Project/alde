@@ -30,8 +30,9 @@ def execute_application(execution_configuration, create_profile=False, use_store
 	"""
 
 	# We create the execution
-	execution = Execution(execution_configuration.execution_type,
-						  execute_status_submitted)
+	execution = Execution()
+	execution.execution_type = execution_configuration.execution_type
+	execution.status = execute_status_submitted
 
 	profile_folder = app.config['APP_PROFILE_FOLDER']
 	
@@ -109,7 +110,9 @@ def execute_application_type_singularity_pm(execution, identifier, create_profil
 	output = shell.execute_command(command, endpoint, params)
 	sbatch_id = __extract_id_from_sigularity_pm_app__(output)
 	
-	execution = Execution(execution_configuration.execution_type, Execution.__status_running__)
+	execution = Execution()
+	execution.execution_type = execution_configuration.execution_type
+	execution.status = Execution.__status_running__
 	execution_configuration.executions.append(execution)
 	# if we create the profile, we add it to the execution configuration
 	if create_profile :
@@ -220,7 +223,9 @@ def __launch_execution__(command, endpoint, params, execution_configuration):
 	output = shell.execute_command(command, endpoint, params)
 	sbatch_id = __extract_id_from_squeue__(output)
 	
-	execution = Execution(execution_configuration.execution_type, Execution.__status_running__)
+	execution = Execution()
+	execution.execution_type = execution_configuration.execution_type
+	execution.status = Execution.__status_running__
 	execution_configuration.executions.append(execution)
 	execution.slurm_sbatch_id = sbatch_id
 	db.session.commit()
@@ -290,7 +295,9 @@ def execute_application_type_slurm_sbatch(execution, identifier):
 
 		sbatch_id = __extract_id_from_sbatch__(output)
 		
-		execution = Execution(execution_configuration.execution_type, Execution.__status_running__)
+		execution = Execution()
+		execution.execution_type = execution_configuration.execution_type
+		execution.status = Execution.__status_running__
 		execution_configuration.executions.append(execution)
 		execution.slurm_sbatch_id = sbatch_id
 		db.session.commit()
@@ -471,31 +478,42 @@ def add_resource(execution):
 
 		if (( execution.status == Execution.__status_running__)) :
 			url = execution.execution_configuration.testbed.endpoint
+			scaling_upper_bound = execution.execution_configuration.application.scaling_upper_bound
 			enqueue_env_file = execution.execution_configuration.testbed.extra_config['enqueue_env_file']
 			singularity_image_file = execution.execution_configuration.executable.singularity_image_file
 			sbatch_id = execution.slurm_sbatch_id
-			node = find_first_node(sbatch_id, url)
 
-			command = "source"
-			params = []
-			params.append(enqueue_env_file)
-			params.append(";")
-			params.append("adapt_compss_resources")
-			params.append(node)
-			params.append(sbatch_id)
-			params.append('CREATE SLURM-Cluster default')
-			params.append(singularity_image_file)
-			output = shell.execute_command(command, url, params)
 
-			job_name = parse_add_resource_output(output)
-			extra_job_id = get_job_id_after_adaptation(job_name, url) 
+			upper_bound_ok = True
+			if ( scaling_upper_bound is not None ) and ( scaling_upper_bound != 0 ) :
+				if scaling_upper_bound <= execution.get_number_extra_jobs() :
+					upper_bound_ok = False
 
-			if extra_job_id != '' or extra_job_id is not None :
-				if execution.extra_slurm_job_id is None :
-					execution.extra_slurm_job_id = extra_job_id
-				else :
-					execution.extra_slurm_job_id = execution.extra_slurm_job_id + ' ' + extra_job_id
-				db.session.commit()
+			if upper_bound_ok :
+				node = find_first_node(sbatch_id, url)
+
+				command = "source"
+				params = []
+				params.append(enqueue_env_file)
+				params.append(";")
+				params.append("adapt_compss_resources")
+				params.append(node)
+				params.append(sbatch_id)
+				params.append('CREATE SLURM-Cluster default')
+				params.append(singularity_image_file)
+				output = shell.execute_command(command, url, params)
+
+				job_name = parse_add_resource_output(output)
+				extra_job_id = get_job_id_after_adaptation(job_name, url) 
+
+				if extra_job_id != '' or extra_job_id is not None :
+					if execution.extra_slurm_job_id is None :
+						execution.extra_slurm_job_id = extra_job_id
+					else :
+						execution.extra_slurm_job_id = execution.extra_slurm_job_id + ' ' + extra_job_id
+					db.session.commit()
+			else :
+				logging.info('Execution already reached its maximum number of extra jobs, no adaptation possible')
 		else :
 			logging.info("Execution is not in RUNNING status, no action can be done")
 	else :

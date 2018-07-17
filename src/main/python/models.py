@@ -94,12 +94,6 @@ class Execution(db.Model):
     extra_slurm_job_id = db.Column(db.String)
     add_resource = False
 
-    def __init__(self, execution_type, status):
-        """Initiaze basic parameters of the class"""
-
-        self.execution_type = execution_type
-        self.status = status
-
     def get_number_extra_jobs(self):
         """
         It returns the totaln number of

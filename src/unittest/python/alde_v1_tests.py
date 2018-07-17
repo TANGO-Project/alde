@@ -80,7 +80,9 @@ class AldeV1Tests(TestCase):
         db.session.add(node_1)
         db.session.add(node_2)
 
-        execution = Execution("execution_type", "status")
+        execution = Execution()
+        execution.execution_type = "execution_type"
+        execution.status = "status"
         db.session.add(execution)
 
 
@@ -871,8 +873,9 @@ class AldeV1Tests(TestCase):
         execution_configuration.testbed = testbed
         db.session.add(execution_configuration)
         db.session.commit()
-        execution = Execution(Executable.__type_singularity_srun__,
-                          Execution.__status_running__)
+        execution = Execution()
+        execution.execution_type = Executable.__type_singularity_srun__
+        execution.status = Execution.__status_running__
         execution.execution_configuration = execution_configuration
         db.session.add(execution)
         db.session.commit()

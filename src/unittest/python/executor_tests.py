@@ -214,8 +214,9 @@ class ExecutorTests(MappingTest):
 		mock_shell.return_value = output
 
 		# TEST starts here:
-		execution = Execution(execution_config.execution_type,
-						  executor.execute_status_submitted)
+		execution = Execution()
+		execution.execution_type = execution_config.execution_type
+		execution.status = executor.execute_status_submitted
 		executor.execute_application_type_singularity_pm(execution, execution_config.id)
 
 		mock_shell.assert_called_with("source",
@@ -248,8 +249,9 @@ class ExecutorTests(MappingTest):
 		execution_config.profile_file = "/tmp/surperprofile.profile"
 		db.session.commit()
 
-		execution = Execution(execution_config.execution_type,
-						  executor.execute_status_submitted)
+		execution = Execution()
+		execution.execution_type = execution_config.execution_type
+		execution.status = executor.execute_status_submitted
 		executor.execute_application_type_singularity_pm(execution, execution_config.id, use_storage_profile=True)
 
 		mock_shell.assert_called_with("source",
@@ -335,7 +337,9 @@ class ExecutorTests(MappingTest):
 		db.session.add(execution_config)
 		db.session.commit()
 
-		execution = Execution("SLURM:SBATCH", executor.execute_status_submitted)
+		execution = Execution()
+		execution.exectution_type = "SLURM:SBATCH"
+		execution.status =  executor.execute_status_submitted
 
 		executor.execute_application_type_slurm_sbatch(execution, execution_config.id)
 
@@ -350,7 +354,9 @@ class ExecutorTests(MappingTest):
 
 		execution.status = executor.execute_status_submitted
 
-		execution = Execution("SLURM:SBATCH", executor.execute_status_submitted)
+		execution = Execution()
+		execution.execution_type = "SLURM:SBATCH"
+		execution.status = executor.execute_status_submitted
 
 		executor.execute_application_type_slurm_sbatch(execution, execution_config.id)
 
@@ -368,7 +374,9 @@ class ExecutorTests(MappingTest):
 
 		execution.status = executor.execute_status_submitted
 
-		execution = Execution("SLURM:SBATCH", executor.execute_status_submitted)
+		execution = Execution()
+		execution.execution_type = "SLURM:SBATCH"
+		execution.status = executor.execute_status_submitted
 
 		executor.execute_application_type_slurm_sbatch(execution, execution_config.id)
 
@@ -390,9 +398,15 @@ class ExecutorTests(MappingTest):
 		works as expected
 		"""
 
-		execution_1 = Execution("typeX", Execution.__status_running__)
-		execution_2 = Execution(Executable.__type_singularity_pm__, Execution.__status_finished__)
-		execution_3 = Execution(Executable.__type_singularity_pm__, Execution.__status_running__)
+		execution_1 = Execution()
+		execution_1.execution_type = "typeX"
+		execution_1.status = Execution.__status_running__
+		execution_2 = Execution()
+		execution_2.execution_type = Executable.__type_singularity_pm__
+		execution_2.status = Execution.__status_finished__
+		execution_3 = Execution()
+		execution_3.execution_type = Executable.__type_singularity_pm__
+		execution_3.status = Execution.__status_running__
 
 		mock_monitor.return_value = 'pepito'
 
@@ -414,7 +428,9 @@ class ExecutorTests(MappingTest):
 		is working
 		"""
 
-		execution = Execution("typeX", "xxx")
+		execution = Execution()
+		execution.execution_type = "typeX"
+		execution.status = "xxx"
 		execution.slurm_sbatch_id = 1
 		execution_configuration = ExecutionConfiguration()
 		execution.execution_configuration=execution_configuration
@@ -578,8 +594,9 @@ class ExecutorTests(MappingTest):
 		mock_shell.return_value = output
 
 		# TEST starts here:
-		execution = Execution(execution_config.execution_type,
-						  executor.execute_status_submitted)
+		execution = Execution()
+		execution.execution_type = execution_config.execution_type
+		execution.status = executor.execute_status_submitted
 		executor.execute_application_type_singularity_srun(execution, execution_config.id)
 
 		execution = db.session.query(Execution).filter_by(execution_configuration_id=execution_config.id).first()
@@ -623,8 +640,9 @@ class ExecutorTests(MappingTest):
 		db.session.add(execution_config)
 		db.session.commit()
 
-		execution = Execution(execution_config.execution_type,
-						  executor.execute_status_submitted)
+		execution = Execution()
+		execution.execution_type = execution_config.execution_type
+		execution.status = executor.execute_status_submitted
 		executor.execute_application_type_singularity_srun(execution, execution_config.id)
 
 		execution = db.session.query(Execution).filter_by(execution_configuration_id=execution_config.id).first()
@@ -711,8 +729,9 @@ class ExecutorTests(MappingTest):
 		mock_shell.return_value = output
 
 		# TEST starts here:
-		execution = Execution(execution_config.execution_type,
-						  executor.execute_status_submitted)
+		execution = Execution()
+		execution.execution_type = execution_config.execution_type
+		execution.execution_type = executor.execute_status_submitted
 		executor.execute_application_type_slurm_srun(execution, execution_config.id)
 
 		execution = db.session.query(Execution).filter_by(execution_configuration_id=execution_config.id).first()
@@ -756,8 +775,8 @@ class ExecutorTests(MappingTest):
 		db.session.add(execution_config)
 		db.session.commit()
 
-		execution = Execution(execution_config.execution_type,
-						  executor.execute_status_submitted)
+		execution.execution_type = execution_config.execution_type
+		execution.status = executor.execute_status_submitted
 		executor.execute_application_type_slurm_srun(execution, execution_config.id)
 
 		execution = db.session.query(Execution).filter_by(execution_configuration_id=execution_config.id).first()
@@ -797,17 +816,21 @@ class ExecutorTests(MappingTest):
 		"""
 
 		# We create the execution objects to test
-		execution_1 = Execution(Executable.__type_singularity_srun__,
-						  Execution.__status_running__)
+		execution_1 = Execution()
+		execution_1.execution_type = Executable.__type_singularity_srun__
+		execution_1.status = Execution.__status_running__
 		execution_1.slurm_sbatch_id = 1
-		execution_2 = Execution(Executable.__type_singularity_pm__,
-						  Execution.__status_running__)
+		execution_2 = Execution()
+		execution_2.execution_type = Executable.__type_singularity_pm__
+		execution_2.status = Execution.__status_running__
 		execution_2.slurm_sbatch_id = 2
-		execution_3 = Execution("other_type",
-						  Execution.__status_running__)
+		execution_3 = Execution()
+		execution_3.execution_type = "other_type"
+		execution_3.status = Execution.__status_running__
 		execution_3.slurm_sbatch_id = 3
-		execution_4 = Execution(Executable.__type_singularity_srun__,
-						  Execution.__status_finished__)
+		execution_4 = Execution()
+		execution_4.execution_type = Executable.__type_singularity_pm__
+		execution_4.status = Execution.__status_finished__
 		execution_4.slurm_sbatch_id = 4
 
 		executor.cancel_execution(execution_1, "user@testbed.com")
@@ -831,11 +854,15 @@ class ExecutorTests(MappingTest):
 		l = LogCapture() # we cature the logger
 
 		# Sub test 1 - Wrong type of Execution
-		execution = Execution("pepito", Execution.__status_running__)
+		execution = Execution()
+		execution.execution_type = "pepito"
+		execution.status = Execution.__status_running__
 		executor.add_resource(execution)
 
 		# Sub test 2 - Execution not running in right state
-		execution = Execution(Executable.__type_singularity_pm__, Execution.__status_failed__)
+		execution = Execution()
+		execution.execution_type = Executable.__type_singularity_pm__
+		execution.status = Execution.__status_failed__
 		executor.add_resource(execution)
 
 		# Sub test 3 - Execution should get a new resource
@@ -871,7 +898,9 @@ class ExecutorTests(MappingTest):
 		db.session.add(execution_configuration)
 		db.session.commit()
 
-		execution = Execution(Executable.__type_singularity_pm__, Execution.__status_running__)
+		execution = Execution()
+		execution.execution_type = Executable.__type_singularity_pm__
+		execution.status = Execution.__status_running__
 		execution.execution_configuration = execution_configuration
 		execution.slurm_sbatch_id = 21
 		db.session.add(execution)
@@ -889,6 +918,18 @@ class ExecutorTests(MappingTest):
 		mock_shell.assert_has_calls(calls)
 		calls_job_id = [ call_get_job_id_1 ]
 		mock_get_job_id.assert_has_calls(calls_job_id)
+
+		# We verify the execution got the extra job id
+		execution = db.session.query(Execution).filter_by(execution_configuration_id=execution_configuration.id).first()
+		self.assertEquals('222', execution.extra_slurm_job_id)
+
+		# We now check it works with an application upperbound
+		application.scaling_upper_bound = 2
+		execution.extra_slurm_job_id = '22 23'
+		db.session.commit()
+
+		executor.add_resource(execution)
+
 		
 		# Checking that we are logging the correct message
 		l.check(
@@ -896,11 +937,12 @@ class ExecutorTests(MappingTest):
 			('root', 'INFO', 'Executing type corresponds with SINGULARITY_PM, trying adaptation'),
 			('root', 'INFO', 'Execution is not in RUNNING status, no action can be done'),
 			('root', 'INFO', 'Executing type corresponds with SINGULARITY_PM, trying adaptation'),
+			('root', 'INFO', 'Executing type corresponds with SINGULARITY_PM, trying adaptation'),
+			('root', 'INFO', 'Execution already reached its maximum number of extra jobs, no adaptation possible')
 		)
 		l.uninstall() # We uninstall the capture of the logger
 
-		# We verify the execution got the extra job id
-		execution = db.session.query(Execution).filter_by(execution_configuration_id=execution_configuration.id).first()
+		
 
     
 	@mock.patch("shell.execute_command")
@@ -1029,11 +1071,15 @@ class ExecutorTests(MappingTest):
 		l = LogCapture() # we cature the logger
 
 		# Sub test 1 - Wrong type of Execution
-		execution = Execution("pepito", Execution.__status_running__)
+		execution = Execution()
+		execution.execution_type = "pepito"
+		execution.status = Execution.__status_running__
 		executor.remove_resource(execution)
 
 		# Sub test 2 - Execution not running in right state
-		execution = Execution(Executable.__type_singularity_pm__, Execution.__status_failed__)
+		execution = Execution()
+		execution.execution_type = Executable.__type_singularity_pm__
+		execution.status = Execution.__status_failed__
 		executor.remove_resource(execution)
 
 		# Sub test 3 - Execution should try to remove a new resource but it is not possible
@@ -1069,7 +1115,9 @@ class ExecutorTests(MappingTest):
 		db.session.add(execution_configuration)
 		db.session.commit()
 
-		execution = Execution(Executable.__type_singularity_pm__, Execution.__status_running__)
+		execution = Execution()
+		execution.execution_type = Executable.__type_singularity_pm__
+		execution.status = Execution.__status_running__
 		execution.execution_configuration = execution_configuration
 		execution.slurm_sbatch_id = 21
 		execution.extra_slurm_job_id = ''
