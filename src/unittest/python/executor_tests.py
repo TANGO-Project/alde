@@ -338,7 +338,7 @@ class ExecutorTests(MappingTest):
 		db.session.commit()
 
 		execution = Execution()
-		execution.exectution_type = "SLURM:SBATCH"
+		execution.execution_type = "SLURM:SBATCH"
 		execution.status =  executor.execute_status_submitted
 
 		executor.execute_application_type_slurm_sbatch(execution, execution_config.id)

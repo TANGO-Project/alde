@@ -20,7 +20,9 @@ class ExecutionMappingTest(MappingTest):
 
 		# We verify that the object is not in the db after creating it
 
-		execution = Execution("execution_type", "status")
+		execution = Execution()
+		execution.execution_type = "execution_type"
+		execution.status = "status"
 		self.assertIsNone(execution.id)
 
 		# We store the object in the db

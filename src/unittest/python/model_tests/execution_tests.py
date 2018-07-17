@@ -17,7 +17,9 @@ class ExecutionTests(unittest.TestCase):
 	def test_initialization_execution(self):
 		"""Test the initializacion method of the class Execution"""
 
-		execution = Execution("execution_type", "status")
+		execution = Execution()
+		execution.execution_type = "execution_type"
+		execution.status = "status"
 
 		self.assertEquals("execution_type", execution.execution_type)
 		self.assertEquals("status", execution.status)
@@ -27,7 +29,9 @@ class ExecutionTests(unittest.TestCase):
 		Tests the correct work of the method  get_number_extra_jobs
 		"""
 
-		execution = Execution("execution_type", "status")
+		execution = Execution()
+		execution.execution_type = "execution_type"
+		execution.status = "status"
 		self.assertEquals(0, execution.get_number_extra_jobs())
 
 		execution.extra_slurm_job_id = ''
