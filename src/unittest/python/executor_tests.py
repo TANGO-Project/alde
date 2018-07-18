@@ -838,9 +838,24 @@ class ExecutorTests(MappingTest):
 		executor.cancel_execution(execution_3, "user@testbed.com")
 		executor.cancel_execution(execution_4, "user@testbed.com")
 
+		execution_2.extra_slurm_job_id = None
+		executor.cancel_execution(execution_2, "user@testbed.com")
+
+		execution_2.extra_slurm_job_id = ''
+		executor.cancel_execution(execution_2, "user@testbed.com")
+
+		execution_2.extra_slurm_job_id = '34 54 33'
+		executor.cancel_execution(execution_2, "user@testbed.com")
+
 		call_1 = call("scancel", "user@testbed.com", [ "1" ])
 		call_2 = call("scancel", "user@testbed.com", [ "2" ])
-		calls = [ call_1, call_2]
+		call_3 = call("scancel", "user@testbed.com", [ "2" ])
+		call_4 = call("scancel", "user@testbed.com", [ "2" ])
+		call_5 = call("scancel", "user@testbed.com", [ "34" ])
+		call_6 = call("scancel", "user@testbed.com", [ "54" ])
+		call_7 = call("scancel", "user@testbed.com", [ "33" ])
+		call_8 = call("scancel", "user@testbed.com", [ "2" ])
+		calls = [ call_1, call_2, call_3, call_4, call_5, call_6, call_7, call_8 ]
 		mock_shell.assert_has_calls(calls)
 
 	@mock.patch('executor.get_job_id_after_adaptation')

@@ -416,7 +416,11 @@ def cancel_execution(execution, url):
 	"""
 
 	if (( execution.execution_type == execute_type_singularity_pm ) or ( execution.execution_type == execute_type_singularity_srun ) or ( execution.execution_type == execute_type_singularity_srun ) or ( execution.execution_type == execute_type_slurm_srun )) and ( execution.status == Execution.__status_running__ ) :
-		# Preparing the command to be executed
+		
+		if execution.extra_slurm_job_id is not None and execution.extra_slurm_job_id != '' :
+			for id_to_remove in execution.extra_slurm_job_id.split():
+				shell.execute_command('scancel', url, [ id_to_remove ])
+
 		shell.execute_command('scancel', url, [ str(execution.slurm_sbatch_id) ])
 
 def remove_resource(execution):
