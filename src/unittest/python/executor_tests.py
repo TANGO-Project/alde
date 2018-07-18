@@ -515,12 +515,32 @@ class ExecutorTests(MappingTest):
 
 		self.assertEquals('UNKNOWN', status)
 
+		# TEST TIMEOUT
+		output = b'       JobID   NNodes      State ExitCode DerivedExitCode        Comment \n------------ -------- ---------- -------- --------------- -------------- \n4340                1  UNKNOWN      0:0             1:0                \n4340.batch          1  TIMEOUT      0:0                                \n4340.0              1  UNKNOWN      0:0                                \n4340.1              1     UNKNOWN      1:0 '
+
+		mock_shell.return_value = output
+
+		status = executor._parse_sacct_output(4340, 'test@pepito.com')
+
+		self.assertEquals('TIMEOUT', status)
+
+		# TEST CANCELLED
+		output = b'       JobID   NNodes      State ExitCode DerivedExitCode        Comment \n------------ -------- ---------- -------- --------------- -------------- \n4340                1  CANCELLED      0:0             1:0                \n4340.batch          1  UNKNOWN      0:0                                \n4340.0              1  UNKNOWN      0:0                                \n4340.1              1     UNKNOWN      1:0 '
+
+		mock_shell.return_value = output
+
+		status = executor._parse_sacct_output(4340, 'test@pepito.com')
+
+		self.assertEquals('CANCELLED', status)
+
 		call_1 = call('sacct', server='test@pepito.com', params=['-j', 4340, '-o', 'JobID,NNodes,State,ExitCode,DerivedExitcode,Comment'])
 		call_2 = call('sacct', server='test@pepito.com', params=['-j', 4340, '-o', 'JobID,NNodes,State,ExitCode,DerivedExitcode,Comment'])
 		call_3 = call('sacct', server='test@pepito.com', params=['-j', 4340, '-o', 'JobID,NNodes,State,ExitCode,DerivedExitcode,Comment'])
 		call_4 = call('sacct', server='test@pepito.com', params=['-j', 4340, '-o', 'JobID,NNodes,State,ExitCode,DerivedExitcode,Comment'])
 		call_5 = call('sacct', server='test@pepito.com', params=['-j', 4340, '-o', 'JobID,NNodes,State,ExitCode,DerivedExitcode,Comment'])
-		calls = [ call_1, call_2, call_3, call_4, call_5]
+		call_6 = call('sacct', server='test@pepito.com', params=['-j', 4340, '-o', 'JobID,NNodes,State,ExitCode,DerivedExitcode,Comment'])
+		call_7 = call('sacct', server='test@pepito.com', params=['-j', 4340, '-o', 'JobID,NNodes,State,ExitCode,DerivedExitcode,Comment'])
+		calls = [ call_1, call_2, call_3, call_4, call_5, call_6, call_7]
 		mock_shell.assert_has_calls(calls)
 
 	def test__extract_id_from_squeue__(self):

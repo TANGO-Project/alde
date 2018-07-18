@@ -390,6 +390,10 @@ def _parse_sacct_output(id, url):
 		return 'FAILED'
 	elif output.count(b'COMPLETED') >= 1:
 		return 'COMPLETED'
+	elif output.count(b'TIMEOUT') >= 1:
+		return 'TIMEOUT'
+	elif output.count(b'CANCELLED') >= 1:
+		return 'CANCELLED'
 	else:
 		return 'UNKNOWN'
 	
