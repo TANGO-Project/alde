@@ -92,6 +92,7 @@ class Execution(db.Model):
     execution_configuration = db.relationship("ExecutionConfiguration")
     slurm_sbatch_id = db.Column(db.Integer)
     extra_slurm_job_id = db.Column(db.String)
+    
     add_resource = False
 
     def get_number_extra_jobs(self):
