@@ -15,6 +15,12 @@ from sqlalchemy.ext.mutable import MutableDict
 
 db = SQLAlchemy()
 
+# This table makes the many to many relation between execution and nodes
+execution_nodes_association_table = db.Table('executions_nodes', db.metadata,
+    db.Column('execution_id', db.Integer, db.ForeignKey('executions.id')),
+    db.Column('node_id', db.Integer, db.ForeignKey('nodes.id'))
+)
+
 class Deployment(db.Model):
     """
     This class represents the code being uploaded to a testbed
@@ -92,6 +98,7 @@ class Execution(db.Model):
     execution_configuration = db.relationship("ExecutionConfiguration")
     slurm_sbatch_id = db.Column(db.Integer)
     extra_slurm_job_id = db.Column(db.String)
+    nodes = db.relationship("Node", secondary=execution_nodes_association_table)
     
     add_resource = False
 

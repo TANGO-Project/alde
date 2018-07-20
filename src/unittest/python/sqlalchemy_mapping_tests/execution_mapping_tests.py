@@ -7,7 +7,7 @@
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
 from sqlalchemy_mapping_tests.mapping_tests import MappingTest
-from models import db, Execution
+from models import db, Execution, Node
 
 class ExecutionMappingTest(MappingTest):
 	"""
@@ -45,3 +45,35 @@ class ExecutionMappingTest(MappingTest):
 		db.session.delete(execution_2)
 		count = db.session.query(Execution).filter_by(execution_type="X").count()
 		self.assertEquals(0, count)
+
+	def test_many_to_many_relations_with_nodes(self):
+		"""
+		It tests the many to many relations with Nodes
+		"""
+
+		node_1 = Node("node1", False)
+		node_2 = Node("node2", False)
+		db.session.add(node_1)
+		db.session.add(node_2)
+
+		execution_1 = Execution()
+		execution_1.status = "x1"
+		execution_2 = Execution()
+		execution_2.status = "x2"
+		db.session.add(execution_1)
+		db.session.add(execution_2)
+
+		db.session.commit()
+
+		execution_1.nodes = [ node_1, node_2 ]
+		execution_2.nodes = [ node_2, node_1 ]
+
+		db.session.commit()
+
+		execution = db.session.query(Execution).filter_by(status="x1").first()
+		self.assertEquals(node_1, execution.nodes[0])
+		self.assertEquals(node_2, execution.nodes[1])
+
+		execution = db.session.query(Execution).filter_by(status="x2").first()
+		self.assertEquals(node_2, execution.nodes[0])
+		self.assertEquals(node_1, execution.nodes[1])
