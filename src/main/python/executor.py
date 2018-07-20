@@ -631,3 +631,19 @@ def verify_adaptation_went_ok(output):
 			ok = True
 
 	return ok
+
+def __list_nodes_from_squeue__(squeueue_id):
+	"""
+	[garciad@ns54 ~]$ squeue -j 7286 -h -o "%A %N"
+	7286 ns51
+	[garciad@ns54 ~]$ squeue -j 7286 -h -o "%N"
+	ns51
+	[garciad@ns54 ~]$ squeue -j 7286 -h -o "%N"
+	ns51
+	[garciad@ns54 ~]$ squeue -j 7286 -h -o "%N"
+	ns51
+	[garciad@ns54 ~]$ squeue -j 7286 -h -o "%N"
+	[garciad@ns54 ~]$ 
+	"""
+
+	pass
