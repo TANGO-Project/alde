@@ -97,7 +97,6 @@ class Execution(db.Model):
     execution_configuration_id = db.Column(db.Integer, db.ForeignKey('execution_configurations.id'))
     execution_configuration = db.relationship("ExecutionConfiguration")
     slurm_sbatch_id = db.Column(db.Integer)
-    extra_slurm_job_id = db.Column(db.String)
     nodes = db.relationship("Node", secondary=execution_nodes_association_table)
     parent_id = db.Column(db.Integer, db.ForeignKey('executions.id'))
     children = db.relationship("Execution",
@@ -111,10 +110,7 @@ class Execution(db.Model):
         extra jobs ids stored in extra_slurm_job_id
         """
 
-        if self.extra_slurm_job_id :
-            return len(self.extra_slurm_job_id.split())
-        else :
-            return 0
+        return len(self.children)
 
 
 class ExecutionConfiguration(db.Model):

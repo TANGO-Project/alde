@@ -117,3 +117,29 @@ class ExecutionMappingTest(MappingTest):
 
 		child_2 = db.session.query(Execution).filter_by(status="x3").first()
 		self.assertEquals(parent, child_2.parent)
+
+	def test_get_number_extra_jobs(self):
+		"""
+		It returns the total number of extra jobs ids
+		"""
+
+		parent = Execution()
+		parent.status = "x1"
+		db.session.add(parent)
+		db.session.commit()
+
+		# Empty list of children
+		self.assertEquals(0, parent.get_number_extra_jobs())
+
+		# We add childer
+		child_1 = Execution()
+		child_1.status = "x2"
+		parent.children.append(child_1)
+
+		child_2 = Execution()
+		child_2.status = "x3"
+		parent.children.append(child_2)
+
+		db.session.commit()
+
+		self.assertEquals(2, parent.get_number_extra_jobs())
