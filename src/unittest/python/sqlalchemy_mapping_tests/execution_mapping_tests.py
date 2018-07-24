@@ -81,3 +81,39 @@ class ExecutionMappingTest(MappingTest):
 		execution = db.session.query(Execution).filter_by(status="x2").first()
 		self.assertEquals(node_2, execution.nodes[0])
 		self.assertEquals(node_1, execution.nodes[1])
+
+	def test_child_parent_relationship(self):
+		"""
+		It tests the child parent relationship between several executions
+		"""
+
+		parent = Execution()
+		parent.status = "x1"
+		db.session.add(parent)
+		db.session.commit()
+
+		# Empty list of children
+		parent = db.session.query(Execution).filter_by(status="x1").first()
+		self.assertEquals(0, len(parent.children))
+
+		# We add childer
+		child_1 = Execution()
+		child_1.status = "x2"
+		parent.children.append(child_1)
+
+		child_2 = Execution()
+		child_2.status = "x3"
+		parent.children.append(child_2)
+
+		db.session.commit()
+
+		parent = db.session.query(Execution).filter_by(status="x1").first()
+		self.assertEquals(2, len(parent.children))
+		self.assertEquals(child_1, parent.children[0])
+		self.assertEquals(child_2, parent.children[1])
+
+		child_1 = db.session.query(Execution).filter_by(status="x2").first()
+		self.assertEquals(parent, child_1.parent)
+
+		child_2 = db.session.query(Execution).filter_by(status="x3").first()
+		self.assertEquals(parent, child_2.parent)

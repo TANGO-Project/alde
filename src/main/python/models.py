@@ -99,7 +99,10 @@ class Execution(db.Model):
     slurm_sbatch_id = db.Column(db.Integer)
     extra_slurm_job_id = db.Column(db.String)
     nodes = db.relationship("Node", secondary=execution_nodes_association_table)
-    
+    parent_id = db.Column(db.Integer, db.ForeignKey('executions.id'))
+    children = db.relationship("Execution",
+                backref=db.backref('parent', remote_side=[id])
+            )
     add_resource = False
 
     def get_number_extra_jobs(self):
