@@ -51,8 +51,12 @@ class ExecutionMappingTest(MappingTest):
 		It tests the many to many relations with Nodes
 		"""
 
-		node_1 = Node("node1", False)
-		node_2 = Node("node2", False)
+		node_1 = Node()
+		node_1.name = "node1"
+		node_1.information_retrieved = False
+		node_2 = Node()
+		node_2.name = "node2"
+		node_2.information_retrieved = False
 		db.session.add(node_1)
 		db.session.add(node_2)
 

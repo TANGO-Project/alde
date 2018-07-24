@@ -18,18 +18,9 @@ class NodeTest(unittest.TestCase):
     def setUp(self):
         """ Initializes the node object to use in the rest of tests """
 
-        self.node = Node("node1", True)
-
-    def test_initialization(self):
-        """ Test that an object of node class is initializated correctly """
-
-        self.assertEquals("node1", self.node.name)
-        self.assertTrue(self.node.information_retrieved)
-        self.assertEquals([], self.node.cpus)
-        self.assertEquals([], self.node.gpus)
-        self.assertEquals([], self.node.mcps)
-        self.assertEquals([], self.node.memories)
-        self.assertEquals({}, self.node.status)
+        self.node = Node()
+        self.node.name = "node1"
+        self.node.information_retrieved = True
 
     def test_add_memory(self):
         """

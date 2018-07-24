@@ -277,6 +277,7 @@ class GPU(Processor, db.Model):
 
 class MCP(GPU):
     """ This class representes a Many Core Processor """
+    node = db.relationship("Node", back_populates="mcps")
 
     def __init__(self, vendor_id, model_name):
         """Initializes the basic attributes of a MCP"""
@@ -301,19 +302,9 @@ class Node(db.Model):
     testbed = db.relationship("Testbed", back_populates="nodes")
     cpus = db.relationship("CPU", order_by=CPU.id, back_populates="node")
     gpus = db.relationship("GPU", order_by=GPU.id, back_populates="node")
+    mcps = db.relationship("MCP", order_by=MCP.id, back_populates="node")
     memories = db.relationship("Memory", order_by=Memory.id, back_populates="node")
-
-    def __init__(self, name, information_retrieved):
-        """ Initialize the basis attributes for the testbed class """
-
-        self.name = name
-        self.disabled = False
-        self.information_retrieved = information_retrieved
-        self.cpus = []
-        self.gpus = []
-        self.mcps = []
-        self.memories = []
-        self.status = {}
+    status = {}
 
     def add_cpu(self, cpu):
         """ It adds a new cpu element to the node """

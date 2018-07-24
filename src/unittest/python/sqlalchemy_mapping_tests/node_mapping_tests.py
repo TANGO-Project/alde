@@ -19,7 +19,9 @@ class NodeMappingTest(MappingTest):
         """ It tests the basic CRUD operations of an Node class """
 
         # We verify the object is not in the db after creating it
-        node = Node("node1", True)
+        node = Node()
+        node.name = "node1"
+        node.information_retrieved = True
         self.assertIsNone(node.id)
 
         # We store the object in the db
@@ -50,6 +52,8 @@ class NodeMappingTest(MappingTest):
 
         # We create a node
         node = Node("node1", True)
+        node.name = "node1"
+        node.information_retrieved = True
 
         # We add several CPUs to it
         node.cpus = [
@@ -82,7 +86,9 @@ class NodeMappingTest(MappingTest):
         """
 
         # We create a node
-        node = Node("node1", True)
+        node = Node()
+        node.name = "node1"
+        node.information_retrieved = True
 
         # We add several CPUs to it
         node.gpus = [
@@ -115,7 +121,9 @@ class NodeMappingTest(MappingTest):
         """
 
         # We create a node
-        node = Node("node1", True)
+        node = Node()
+        node.name = "node1"
+        node.information_retrieved = True
 
         # We add several CPUs to it
         node.memories = [
