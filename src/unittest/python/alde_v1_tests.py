@@ -75,8 +75,12 @@ class AldeV1Tests(TestCase):
         db.session.add(deployment)
 
         # We store some nodes in the db for the tests
-        node_1 = Node("node_1", True)
-        node_2 = Node("node_2", False)
+        node_1 = Node()
+        node_1.name = "node_1"
+        node_1.information_retrieved = True
+        node_2 = Node()
+        node_2.name = "node_2"
+        node_2.information_retrieved = False
         db.session.add(node_1)
         db.session.add(node_2)
 
@@ -504,7 +508,9 @@ class AldeV1Tests(TestCase):
         """
 
         # Node not associated to any db
-        node = Node("xxx", True)
+        node = Node()
+        node.name = "xxx"
+        node.information_retrieved = True
 
         is_possible = alde.can_create_the_node(node)
         self.assertEquals(True, is_possible['create'])
@@ -533,7 +539,9 @@ class AldeV1Tests(TestCase):
         self.assertEquals('', is_possible['reason'])
 
         # Testbed info is passed by the url:
-        node = Node("xxx", True)
+        node = Node()
+        node.name = "xxx"
+        node.information_retrieved = True
         ## Testbed does not allow it
         is_possible = alde.can_create_the_node(node, testbed_id=1)
         self.assertEquals(False, is_possible['create'])

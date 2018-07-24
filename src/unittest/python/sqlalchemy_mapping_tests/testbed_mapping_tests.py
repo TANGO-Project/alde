@@ -62,10 +62,16 @@ class TestbedMappingTest(MappingTest):
         testbed = Testbed("name", True, "slurm", "ssh", "user@server", ['slurm'])
 
         # We create several nodes
-        testbed.nodes = [
-                           Node("node1", True),
-                           Node("node2", False),
-                           Node("node3", True) ]
+        node_1 = Node()
+        node_1.name = "node1"
+        node_1.information_retrieved = True
+        node_2 = Node()
+        node_2.name = "node2"
+        node_2.information_retrieved = False
+        node_3 = Node()
+        node_3.name = "node3"
+        node_3.information_retrieved = True
+        testbed.nodes = [ node_1, node_2, node_3 ]
 
         # We save everything to the db
         db.session.add(testbed)

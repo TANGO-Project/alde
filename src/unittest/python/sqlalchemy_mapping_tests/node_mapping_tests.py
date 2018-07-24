@@ -51,7 +51,7 @@ class NodeMappingTest(MappingTest):
         """
 
         # We create a node
-        node = Node("node1", True)
+        node = Node()
         node.name = "node1"
         node.information_retrieved = True
 

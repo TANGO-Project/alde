@@ -131,8 +131,12 @@ class SlurmTests(MappingTest):
                             ['slurm'])
 
         # We add some nodes to Testbed_1
-        node_1 = Node("node_1", True)
-        node_2 = Node("node_2", True)
+        node_1 = Node()
+        node_1.name = "node_1"
+        node_1.information_retrieved = True
+        node_2 = Node()
+        node_2.name = "node_2"
+        node_2.information_retrieved = True
         testbed.nodes = [ node_1,  node_2]
         node_1.disabled = True
 
@@ -196,7 +200,9 @@ class SlurmTests(MappingTest):
         # We store some data in the db for the test.
         testbed, node_1, node_2 = self._create_initial_db_data()
 
-        node_3 =  Node("node_3", True)
+        node_3 =  Node()
+        node_3.name = "node_3"
+        node_3.information_retrieved = True
         testbed.nodes.append(node_3)
 
         node_3.cpus = [CPU("Intel", "Xeon", "x86_64", "e6333", "2600Mhz", True, 2, "cache", "111")]
@@ -331,8 +337,12 @@ class SlurmTests(MappingTest):
                             ['slurm'])
 
         # We add some nodes to Testbed_1
-        node_1 = Node("nd80", True)
-        node_2 = Node("nd23", True)
+        node_1 = Node()
+        node_1.name = "nd80"
+        node_1.information_retrieved = True
+        node_2 = Node()
+        node_2.name = "nd23"
+        node_2.information_retrieved = True
         testbed.nodes = [ node_1,  node_2]
         node_1.disabled = True
 

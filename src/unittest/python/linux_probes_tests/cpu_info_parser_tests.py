@@ -66,11 +66,17 @@ class CpuInfoParserTests(unittest.TestCase):
                             "user@server",
                             ['slurm'])
 
-        node_1 = Node("node_1", True) # We add some nodes to Testbed_1
-        node_2 = Node("node_2", True)
+        node_1 = Node() # We add some nodes to Testbed_1
+        node_1.name = "node_1"
+        node_1.information_retrieved = True
+        node_2 = Node()
+        node_2.name = "node_2"
+        node_2.information_retrieved = True
         testbed.nodes = [ node_1, node_2]
         node_1.disabled = True
-        node_3 = Node("node_3", True)
+        node_3 = Node()
+        node_3.name = "node_3"
+        node_3.information_retrieved = True
 
         # When the node does not belong to the testbed it should return empty list
         cpus = parser.get_cpuinfo_node(testbed, node_3)
