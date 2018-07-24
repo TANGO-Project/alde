@@ -1169,16 +1169,24 @@ class ExecutorTests(MappingTest):
 		execution.status = Execution.__status_running__
 		execution.execution_configuration = execution_configuration
 		execution.slurm_sbatch_id = 21
-		execution.extra_slurm_job_id = ''
 		db.session.add(execution)
 		db.session.commit()
 
 		executor.remove_resource(execution)
 
 		# Sub text 4 - Trying to remove a resource but we get an error
-		execution.extra_slurm_job_id = '34 35'
 		db.session.add(execution)
 		db.session.commit()
+		child_1 = Execution()
+		child_1.slurm_sbatch_id = 34
+		child_1.status = Execution.__status_running__
+		execution.children.append(child_1)
+		child_2 = Execution()
+		child_2.slurm_sbatch_id = 35
+		child_2.status = Execution.__status_running__
+		execution.children.append(child_2)
+		db.session.commit()
+		
 
 		mock_shell.return_value = b'Something\n fishy\n happening here...'
 		mock_first_node.return_value = 'ns31'
@@ -1191,16 +1199,16 @@ class ExecutorTests(MappingTest):
 		mock_shell.return_value = b'Cluster default /home_nfs/home_ejarquej/matmul-cuda8-y3.img\n     COMPSS_HOME=/home_nfs/home_ejarquej/installations/2.2.6/COMPSs\n     [Adaptation] writting command CREATE SLURM-Cluster default /home_nfs/home_ejarquej/matmul-cuda8-y3.img on /fslustre/tango/matmul/log_dir/.COMPSs/7065/adaptation/command_pipe\n     [Adaptation] Reading result /fslustre/tango/matmul/log_dir/.COMPSs/7065/adaptation/result_pipe\n     [Adaptation] Read ACK\n    [Adaptation]'
 		
 		executor.remove_resource(execution)
-		execution = db.session.query(Execution).filter_by(execution_configuration_id=execution_configuration.id).first()
-		self.assertEquals('34', execution.extra_slurm_job_id)
+		execution = db.session.query(Execution).filter_by(slurm_sbatch_id=35).first()
+		self.assertEquals(Execution.__status_cancelled__, execution.status)
 
 		calls = [ call_1, call_1 ]
 		mock_shell.assert_has_calls(calls)
 
 		call_first_node_1 = call(21, 'endpoint')
-		call_first_node_2 = call('35', 'endpoint')
+		call_first_node_2 = call(35, 'endpoint')
 		call_first_node_3 = call(21, 'endpoint')
-		call_first_node_4 = call('35', 'endpoint')
+		call_first_node_4 = call(35, 'endpoint')
 		calls = [call_first_node_1, call_first_node_2, call_first_node_3, call_first_node_4]
 		mock_first_node.assert_has_calls(calls)
 		

@@ -442,11 +442,11 @@ def remove_resource(execution):
 			url = execution.execution_configuration.testbed.endpoint
 			enqueue_env_file = execution.execution_configuration.testbed.extra_config['enqueue_env_file']
 			sbatch_id = execution.slurm_sbatch_id
-			id_returned, ids = id_to_remove(execution.extra_slurm_job_id)
 			
-			if id_returned is not None :
+			if len(execution.children) > 0 :
+				execution_to_remove = execution.children[-1]
 				node = find_first_node(sbatch_id, url)
-				node_job_to_remove = find_first_node(id_returned, url)
+				node_job_to_remove = find_first_node(execution_to_remove.slurm_sbatch_id, url)
 
 				command = "source"
 				params = []
@@ -461,7 +461,7 @@ def remove_resource(execution):
 
 				if verify_adaptation_went_ok(output) :
 					logging.info("Adaptation performed ok")
-					execution.extra_slurm_job_id = ids
+					execution_to_remove.status = Execution.__status_cancelled__
 					db.session.commit()
 				else:
 					logging.info("There was an error in the adaptation:")

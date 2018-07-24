@@ -137,9 +137,9 @@ class ExecutionMappingTest(MappingTest):
 		parent.children.append(child_1)
 
 		child_2 = Execution()
-		child_2.status = "x3"
+		child_2.status = Execution.__status_running__
 		parent.children.append(child_2)
 
 		db.session.commit()
 
-		self.assertEquals(2, parent.get_number_extra_jobs())
+		self.assertEquals(1, parent.get_number_extra_jobs())

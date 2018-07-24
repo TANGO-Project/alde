@@ -110,7 +110,12 @@ class Execution(db.Model):
         extra jobs ids stored in extra_slurm_job_id
         """
 
-        return len(self.children)
+        counter = 0
+        for child in self.children:
+            if child.status == Execution.__status_running__ :
+                counter += 1
+
+        return counter
 
 
 class ExecutionConfiguration(db.Model):
