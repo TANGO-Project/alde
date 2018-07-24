@@ -858,24 +858,36 @@ class ExecutorTests(MappingTest):
 		executor.cancel_execution(execution_3, "user@testbed.com")
 		executor.cancel_execution(execution_4, "user@testbed.com")
 
-		execution_2.extra_slurm_job_id = None
-		executor.cancel_execution(execution_2, "user@testbed.com")
+		execution_21 = Execution()
+		execution_21.execution_type = Executable.__type_singularity_pm__
+		execution_21.status = Execution.__status_running__
+		execution_21.slurm_sbatch_id = 34
 
-		execution_2.extra_slurm_job_id = ''
-		executor.cancel_execution(execution_2, "user@testbed.com")
+		execution_22 = Execution()
+		execution_22.execution_type = Executable.__type_singularity_pm__
+		execution_22.status = Execution.__status_running__
+		execution_22.slurm_sbatch_id = 54
 
-		execution_2.extra_slurm_job_id = '34 54 33'
+		execution_23 = Execution()
+		execution_23.execution_type = Executable.__type_singularity_pm__
+		execution_23.status = Execution.__status_running__
+		execution_23.slurm_sbatch_id = 33
+
+		execution_24 = Execution()
+		execution_24.execution_type = Executable.__type_singularity_pm__
+		execution_24.status = Execution.__status_cancel__
+		execution_24.slurm_sbatch_id = 55
+
+		execution_2.children = [ execution_21, execution_22, execution_23, execution_24]
 		executor.cancel_execution(execution_2, "user@testbed.com")
 
 		call_1 = call("scancel", "user@testbed.com", [ "1" ])
 		call_2 = call("scancel", "user@testbed.com", [ "2" ])
-		call_3 = call("scancel", "user@testbed.com", [ "2" ])
-		call_4 = call("scancel", "user@testbed.com", [ "2" ])
-		call_5 = call("scancel", "user@testbed.com", [ "34" ])
-		call_6 = call("scancel", "user@testbed.com", [ "54" ])
-		call_7 = call("scancel", "user@testbed.com", [ "33" ])
-		call_8 = call("scancel", "user@testbed.com", [ "2" ])
-		calls = [ call_1, call_2, call_3, call_4, call_5, call_6, call_7, call_8 ]
+		call_3 = call("scancel", "user@testbed.com", [ "34" ])
+		call_4 = call("scancel", "user@testbed.com", [ "54" ])
+		call_5 = call("scancel", "user@testbed.com", [ "33" ])
+		call_6 = call("scancel", "user@testbed.com", [ "2" ])
+		calls = [ call_1, call_2, call_3, call_4, call_5, call_6 ]
 		mock_shell.assert_has_calls(calls)
 
 	@mock.patch('executor.get_job_id_after_adaptation')
@@ -956,11 +968,13 @@ class ExecutorTests(MappingTest):
 
 		# We verify the execution got the extra job id
 		execution = db.session.query(Execution).filter_by(execution_configuration_id=execution_configuration.id).first()
-		self.assertEquals('222', execution.extra_slurm_job_id)
+		self.assertEquals(222, execution.children[0].slurm_sbatch_id)
+		self.assertEquals(Execution.__status_running__, execution.children[0].status)
+		self.assertEquals(Executable.__type_singularity_pm__, execution.children[0].execution_type)
+		self.assertEquals(execution, execution.children[0].parent)
 
 		# We now check it works with an application upperbound
-		application.scaling_upper_bound = 2
-		execution.extra_slurm_job_id = '22 23'
+		application.scaling_upper_bound = 1
 		db.session.commit()
 
 		executor.add_resource(execution)

@@ -421,9 +421,10 @@ def cancel_execution(execution, url):
 
 	if (( execution.execution_type == execute_type_singularity_pm ) or ( execution.execution_type == execute_type_singularity_srun ) or ( execution.execution_type == execute_type_singularity_srun ) or ( execution.execution_type == execute_type_slurm_srun )) and ( execution.status == Execution.__status_running__ ) :
 		
-		if execution.extra_slurm_job_id is not None and execution.extra_slurm_job_id != '' :
-			for id_to_remove in execution.extra_slurm_job_id.split():
-				shell.execute_command('scancel', url, [ id_to_remove ])
+		if execution.children is not None :
+			for child in execution.children :
+				if child.status == Execution.__status_running__ :
+					shell.execute_command('scancel', url, [ str(child.slurm_sbatch_id) ])
 
 		shell.execute_command('scancel', url, [ str(execution.slurm_sbatch_id) ])
 
@@ -491,7 +492,6 @@ def add_resource(execution):
 			singularity_image_file = execution.execution_configuration.executable.singularity_image_file
 			sbatch_id = execution.slurm_sbatch_id
 
-
 			upper_bound_ok = True
 			if ( scaling_upper_bound is not None ) and ( scaling_upper_bound != 0 ) :
 				if scaling_upper_bound <= execution.get_number_extra_jobs() :
@@ -515,10 +515,11 @@ def add_resource(execution):
 				extra_job_id = get_job_id_after_adaptation(job_name, url) 
 
 				if extra_job_id != '' or extra_job_id is not None :
-					if execution.extra_slurm_job_id is None :
-						execution.extra_slurm_job_id = extra_job_id
-					else :
-						execution.extra_slurm_job_id = execution.extra_slurm_job_id + ' ' + extra_job_id
+					child = Execution()
+					child.status = Execution.__status_running__
+					child.execution_type = execute_type_singularity_pm
+					child.slurm_sbatch_id = extra_job_id
+					execution.children.append(child)
 					db.session.commit()
 			else :
 				logging.info('Execution already reached its maximum number of extra jobs, no adaptation possible')
@@ -632,7 +633,7 @@ def verify_adaptation_went_ok(output):
 
 	return ok
 
-def __list_nodes_from_squeue__(squeueue_id):
+def __list_nodes_from_squeue__(squeue_id):
 	"""
 	[garciad@ns54 ~]$ squeue -j 7286 -h -o "%A %N"
 	7286 ns51
