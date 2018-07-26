@@ -633,8 +633,11 @@ def verify_adaptation_went_ok(output):
 
 	return ok
 
-def __list_nodes_from_squeue__(squeue_id):
+def __add_nodes_to_execution__(execution):
 	"""
+	This method takes the squeue id and adds nodes
+	that are being used by the execution.
+
 	[garciad@ns54 ~]$ squeue -j 7286 -h -o "%A %N"
 	7286 ns51
 	[garciad@ns54 ~]$ squeue -j 7286 -h -o "%N"

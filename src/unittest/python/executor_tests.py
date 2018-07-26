@@ -11,7 +11,7 @@ import os
 import shell
 import unittest.mock as mock
 from sqlalchemy_mapping_tests.mapping_tests import MappingTest
-from models import db, Execution, Deployment, ExecutionConfiguration, Testbed, Executable, ExecutionConfiguration, Application
+from models import db, Execution, Deployment, ExecutionConfiguration, Testbed, Executable, ExecutionConfiguration, Application, Node
 from uuid import UUID
 from unittest.mock import call
 from testfixtures import LogCapture
@@ -1237,3 +1237,51 @@ class ExecutorTests(MappingTest):
 
 		self.assertFalse(executor.verify_adaptation_went_ok(not_ok))
 		self.assertTrue(executor.verify_adaptation_went_ok(ok))
+
+	@mock.patch("shell.execute_command")
+	def test__add_nodes_to_execution__(self, mock_shell):
+		"""
+		It checks the correct work of the method add nodes to Execution
+		"""
+
+		# We need to add some nodes for example that this work as expected
+		node_1 = Node()
+		node_1.name = "node1"
+		db.session.add(node_1)
+		node_2 = Node()
+		node_2.name = "node2"
+		db.session.add(node_2)
+		node_50 = Node()
+		node_50.name = "node50"
+		db.session.add(node_50)
+		node_51 = Node()
+		node_51.name = "node51"
+		db.session.add(node_51)
+		node_52 = Node()
+		node_52.name = "node52"
+		db.session.add(node_52)
+		node_53 = Node()
+		node_53.name = "node53"
+		db.session.add(node_53)
+		node_54 = Node()
+		node_54.name = "node54"
+		db.session.add(node_54)
+
+		execution = Execution()
+		execution.status = Execution.__status_cancel__
+		db.session.add(execution)
+		db.session.commit()
+
+		# TEST - No node should be added
+		executor.__add_nodes_to_execution__(execution)
+		self.assertEquals(0, len(execution.nodes))
+
+		# TEST - No node should be added
+		execution.slurm_sbatch_id = ''
+		execution.status = Execution.__status_running__
+		db.session.commit()
+
+		executor.__add_nodes_to_execution__(execution)
+		self.assertEquals(0, len(execution.nodes))
+
+		# We add the first return
