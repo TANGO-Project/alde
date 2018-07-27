@@ -1273,15 +1273,91 @@ class ExecutorTests(MappingTest):
 		db.session.commit()
 
 		# TEST - No node should be added
-		executor.__add_nodes_to_execution__(execution)
+		executor.__add_nodes_to_execution__(execution, 'endpoint')
 		self.assertEquals(0, len(execution.nodes))
 
 		# TEST - No node should be added
+		mock_shell.return_value = b'\n'
 		execution.slurm_sbatch_id = ''
 		execution.status = Execution.__status_running__
 		db.session.commit()
 
-		executor.__add_nodes_to_execution__(execution)
+		executor.__add_nodes_to_execution__(execution, 'endpoint')
 		self.assertEquals(0, len(execution.nodes))
+		call_1 = call('squeue',  'endpoint', [ '-j ', '-h -o "%N"' ])
 
 		# We add the first return
+		mock_shell.return_value = b'node1\n'
+		
+		execution.slurm_sbatch_id = 21
+		execution.status = Execution.__status_running__
+		db.session.commit()
+
+		executor.__add_nodes_to_execution__(execution, 'endpoint')
+		self.assertEquals(1, len(execution.nodes))
+		self.assertEquals(node_1, execution.nodes[0])
+		call_2 = call('squeue',  'endpoint', [ '-j 21', '-h -o "%N"' ])
+
+		# We test it also works with a comma in the middle
+		mock_shell.return_value = b'node1,node51\n'
+
+		execution = Execution()
+		execution.slurm_sbatch_id = 21
+		execution.status = Execution.__status_running__
+		db.session.add(execution)
+		db.session.commit()
+
+		executor.__add_nodes_to_execution__(execution, 'endpoint')
+		self.assertEquals(2, len(execution.nodes))
+		self.assertEquals(node_1, execution.nodes[0])
+		self.assertEquals(node_51, execution.nodes[1])
+
+		# We test with a more complex extructure
+		mock_shell.return_value = b'node[50-52]\n'
+
+		execution = Execution()
+		execution.slurm_sbatch_id = 21
+		execution.status = Execution.__status_running__
+		db.session.add(execution)
+		db.session.commit()
+
+		executor.__add_nodes_to_execution__(execution, 'endpoint')
+		self.assertEquals(3, len(execution.nodes))
+		self.assertEquals(node_50, execution.nodes[0])
+		self.assertEquals(node_51, execution.nodes[1])
+		self.assertEquals(node_52, execution.nodes[2])
+
+		# Next possible return
+		mock_shell.return_value = b'node[50-51],node[53-54]\n'
+
+		execution = Execution()
+		execution.slurm_sbatch_id = 21
+		execution.status = Execution.__status_running__
+		db.session.add(execution)
+		db.session.commit()
+
+		executor.__add_nodes_to_execution__(execution, 'endpoint')
+		self.assertEquals(4, len(execution.nodes))
+		self.assertEquals(node_50, execution.nodes[0])
+		self.assertEquals(node_51, execution.nodes[1])
+		self.assertEquals(node_53, execution.nodes[2])
+		self.assertEquals(node_54, execution.nodes[3])
+
+		# next possible return
+		mock_shell.return_value = b'node1,node[50-51]\n'
+
+		execution = Execution()
+		execution.slurm_sbatch_id = 21
+		execution.status = Execution.__status_running__
+		db.session.add(execution)
+		db.session.commit()
+
+		executor.__add_nodes_to_execution__(execution, 'endpoint')
+		self.assertEquals(3, len(execution.nodes))
+		self.assertEquals(node_1, execution.nodes[0])
+		self.assertEquals(node_50, execution.nodes[1])
+		self.assertEquals(node_51, execution.nodes[2])
+
+		# We check the calls to the mock
+		calls = [ call_1, call_2, call_2, call_2, call_2, call_2]
+		mock_shell.assert_has_calls(calls)

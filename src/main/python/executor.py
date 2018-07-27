@@ -7,7 +7,7 @@
 # This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
 from threading import Thread
-from models import db, Execution, Testbed, Executable, Deployment, ExecutionConfiguration
+from models import db, Execution, Testbed, Executable, Deployment, ExecutionConfiguration, Node
 import shell
 import uuid
 import os
@@ -633,21 +633,41 @@ def verify_adaptation_went_ok(output):
 
 	return ok
 
-def __add_nodes_to_execution__(execution):
+def __add_nodes_to_execution__(execution, url):
 	"""
 	This method takes the squeue id and adds nodes
 	that are being used by the execution.
 
-	[garciad@ns54 ~]$ squeue -j 7286 -h -o "%A %N"
-	7286 ns51
 	[garciad@ns54 ~]$ squeue -j 7286 -h -o "%N"
 	ns51
-	[garciad@ns54 ~]$ squeue -j 7286 -h -o "%N"
-	ns51
-	[garciad@ns54 ~]$ squeue -j 7286 -h -o "%N"
-	ns51
-	[garciad@ns54 ~]$ squeue -j 7286 -h -o "%N"
-	[garciad@ns54 ~]$ 
 	"""
 
-	pass
+	if execution.status == Execution.__status_running__ and execution.slurm_sbatch_id != None :
+
+		command_output = shell.execute_command("squeue", url , [ '-j ' + str(execution.slurm_sbatch_id) , '-h -o "%N"' ])
+		
+		if command_output != b'\n' :
+			nodes = []
+			nodes_string = command_output.decode('utf-8').split('\n')[0]
+
+			array_nodes = nodes_string.split(',')
+
+			for node_in_array in array_nodes :
+
+				if '[' not in node_in_array :
+					node = db.session.query(Node).filter_by(name=str(node_in_array)).first()
+					nodes.append(node)
+				else :
+					node_start_name = node_in_array.split('[')[0]
+					boundaries = node_in_array.split('[')[1].split(']')[0]
+					limits = boundaries.split('-')
+					start = int(limits[0])
+					end = int(limits[1]) + 1
+
+					for number in range(start,end) :
+						node_name = node_start_name + str(number)
+						node = db.session.query(Node).filter_by(name=node_name).first()
+						nodes.append(node)
+				
+			execution.nodes = nodes
+			db.session.commit()
