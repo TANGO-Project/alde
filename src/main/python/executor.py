@@ -120,6 +120,9 @@ def execute_application_type_singularity_pm(execution, identifier, create_profil
 	execution.slurm_sbatch_id = sbatch_id
 	db.session.commit()
 
+	# Add nodes
+	__add_nodes_to_execution__(execution, endpoint)
+
 def __get_srun_info__(execution, identifier):
 	"""
 	Internal method that gets all the necessary srun information
@@ -230,6 +233,9 @@ def __launch_execution__(command, endpoint, params, execution_configuration):
 	execution.slurm_sbatch_id = sbatch_id
 	db.session.commit()
 
+	# Add nodes
+	__add_nodes_to_execution__(execution, endpoint)
+
 def __extract_id_from_squeue__(output):
 	"""
 	It extracts the id from squeue output
@@ -301,6 +307,9 @@ def execute_application_type_slurm_sbatch(execution, identifier):
 		execution_configuration.executions.append(execution)
 		execution.slurm_sbatch_id = sbatch_id
 		db.session.commit()
+
+		# Add nodes
+		__add_nodes_to_execution__(execution, endpoint)
 
 def __extract_id_from_sbatch__(output):
 	"""
@@ -521,6 +530,7 @@ def add_resource(execution):
 					child.slurm_sbatch_id = extra_job_id
 					execution.children.append(child)
 					db.session.commit()
+					__add_nodes_to_execution__(child, url)
 			else :
 				logging.info('Execution already reached its maximum number of extra jobs, no adaptation possible')
 		else :
