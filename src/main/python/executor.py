@@ -12,6 +12,7 @@ import shell
 import uuid
 import os
 import logging
+import time
 from sqlalchemy import or_
 from flask import current_app as app
 
@@ -364,6 +365,15 @@ def monitor_execution_apps():
 		if execution.execution_type == Executable.__type_singularity_pm__ or execution.execution_type == Executable.__type_singularity_srun__ or execution.execution_type == Executable.__type_slurm_srun__ or execution.execution_type == Executable.__type_slurm_sbatch__:
 			status = monitor_execution_singularity_apps(execution)
 			execution.status = status
+			
+			if execution.nodes is None or len(execution.nodes) == 0 :
+				testbed = None
+				if execution.parent is None :
+					testbed = execution.execution_configuration.testbed
+				else : 
+					testbed = execution.parent.execution_configuration.testbed
+					
+				__add_nodes_to_execution__(execution, testbed.endpoint)
 			db.session.commit()
 
 
@@ -374,7 +384,12 @@ def monitor_execution_singularity_apps(execution):
 	"""
 
 	sbatch_id = execution.slurm_sbatch_id
-	testbed = execution.execution_configuration.testbed
+	
+	testbed = None
+	if execution.parent is None :
+		testbed = execution.execution_configuration.testbed
+	else : 
+		testbed = execution.parent.execution_configuration.testbed
 
 	status = _parse_sacct_output(sbatch_id, testbed.endpoint)
 
@@ -388,6 +403,9 @@ def _parse_sacct_output(id, url):
 	It executes the sacct command and extracts the status
 	information
 	"""
+	
+	if id is None or id == '' :
+		return '?'
 
 	output = shell.execute_command('sacct', server=url, params=['-j', id, '-o', 'JobID,NNodes,State,ExitCode,DerivedExitcode,Comment'])
 	
@@ -521,7 +539,10 @@ def add_resource(execution):
 				output = shell.execute_command(command, url, params)
 
 				job_name = parse_add_resource_output(output)
-				extra_job_id = get_job_id_after_adaptation(job_name, url) 
+				print(job_name)
+				time.sleep(2)
+				extra_job_id = get_job_id_after_adaptation(job_name, url)
+				print(extra_job_id)
 
 				if extra_job_id != '' or extra_job_id is not None :
 					child = Execution()

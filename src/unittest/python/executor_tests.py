@@ -404,15 +404,25 @@ class ExecutorTests(MappingTest):
 		works as expected
 		"""
 
+		testbed = Testbed('name', True, 'category', 'protocol', 'endpoint')
+		db.session.add(testbed)
+		
+		execution_configuration = ExecutionConfiguration()
+		execution_configuration.testbed = testbed
+		db.session.add(execution_configuration)
+
 		execution_1 = Execution()
 		execution_1.execution_type = "typeX"
 		execution_1.status = Execution.__status_running__
+		execution_1.execution_configuration = execution_configuration
 		execution_2 = Execution()
 		execution_2.execution_type = Executable.__type_singularity_pm__
 		execution_2.status = Execution.__status_finished__
+		execution_2.execution_configuration = execution_configuration
 		execution_3 = Execution()
 		execution_3.execution_type = Executable.__type_singularity_pm__
 		execution_3.status = Execution.__status_running__
+		execution_3.execution_configuration = execution_configuration
 
 		mock_monitor.return_value = 'pepito'
 
