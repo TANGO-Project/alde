@@ -102,6 +102,8 @@ class Execution(db.Model):
     children = db.relationship("Execution",
                 backref=db.backref('parent', remote_side=[id])
             )
+    energy_output = db.Column(db.Integer)
+    runtime_output = db.Column(db.Integer)
     add_resource = False
 
     def get_number_extra_jobs(self):

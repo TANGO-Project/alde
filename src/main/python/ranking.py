@@ -28,7 +28,6 @@ def _read_csv_first_line(file, execution_id):
 
                 if int(line[3]) == execution_id :
                     return line
-
     
     except IOError:
         logging.error("Could not read file: " + file)
