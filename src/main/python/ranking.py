@@ -14,21 +14,23 @@
 import csv
 import logging
 
-def _read_csv_first_line(file):
+def _read_csv_first_line(file, execution_id):
     """
-    Returns a file first line if possible,
+    Returns the line with the execution id if possible,
     empty line otherwise
     """
-    
-    line = []
-    
     try :
         with open(file, newline='') as csvfile:
             spamreader = csv.reader(csvfile, delimiter=',')
-            first_line = next(spamreader)
-            line = [x.strip() for x in first_line]
+            
+            for line_in_file in spamreader:
+                line = [x.strip() for x in line_in_file] # We remove the white space
+
+                if int(line[3]) == execution_id :
+                    return line
+
     
     except IOError:
         logging.error("Could not read file: " + file)
         
-    return line
+    return []

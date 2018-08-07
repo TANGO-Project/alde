@@ -20,14 +20,14 @@ class RankingTests(unittest.TestCase):
 
     def test_read_csv_first_line(self):
         """
-        It checks that it is possible to read the first line of a csv file
+        It checks that it is possible to read the line with an specific exeuction id of a csv file
         """
 
         l = LogCapture() # we cature the logger
 
         file = 'Time_Ranking.csv'
 
-        line = ranking._read_csv_first_line(file)
+        line = ranking._read_csv_first_line(file, 7332)
 
         self.assertEqual('Matmul', line[0])
         self.assertEqual('5851', line[1])
@@ -38,10 +38,16 @@ class RankingTests(unittest.TestCase):
         # inexistent file test
         file = 'no_file.csv'
 
-        line = ranking._read_csv_first_line(file)
+        line = ranking._read_csv_first_line(file, 7332)
+        self.assertEqual([], line)
+
+        # Execution id does not exists
+        file = 'Time_Ranking.csv'
+
+        line = ranking._read_csv_first_line(file, 11)
         self.assertEqual([], line)
 
         l.check(
-            ('root', 'ERROR', "Could not read file: " + file)
+            ('root', 'ERROR', "Could not read file: no_file.csv")
         )
         l.uninstall() # We uninstall the capture of the logger
