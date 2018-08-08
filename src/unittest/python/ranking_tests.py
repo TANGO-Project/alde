@@ -11,7 +11,10 @@
 
 import ranking
 import unittest
+import shell
+import unittest.mock as mock
 from testfixtures import LogCapture
+from models import Execution, ExecutionConfiguration, Application
 
 class RankingTests(unittest.TestCase):
     """
@@ -51,3 +54,27 @@ class RankingTests(unittest.TestCase):
             ('root', 'ERROR', "Could not read file: no_file.csv")
         )
         l.uninstall() # We uninstall the capture of the logger
+    
+    @mock.patch("shell.execute_command")
+    def test_execute_comparator(self, mock_shell):
+        """
+        It evaluates the the comparator command is executed as expected
+        and the execution values are added
+
+        ./post_run_processing.sh 7332 Matmul 20
+        """
+
+        execution = Execution()
+        execution.slurm_sbatch_id = 2333
+
+        execution_configuration = ExecutionConfiguration()
+        execution_configuration.id = 22
+        execution.execution_configuration = execution_configuration
+
+        application = Application()
+        application.name = "Matmul"
+        execution_configuration.application = application
+        
+        ranking._execute_comparator(execution, 'endpoint', '/path', 'command')
+
+        mock_shell.assert_called_with('/path/command', 'endpoint', [])

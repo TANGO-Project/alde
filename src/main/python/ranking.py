@@ -33,3 +33,11 @@ def _read_csv_first_line(file, execution_id):
         logging.error("Could not read file: " + file)
         
     return []
+
+def _execute_comparator(execution, endpoint, path, command):
+    """
+    It takes an execution object and calculates the 
+    comparator provided by the self-adapation manager
+    """
+    pass
+    
