@@ -75,6 +75,6 @@ class RankingTests(unittest.TestCase):
         application.name = "Matmul"
         execution_configuration.application = application
         
-        ranking._execute_comparator(execution, 'endpoint', '/path', 'command')
+        ranking._execute_comparator(execution, 'endpoint', '/path')
 
-        mock_shell.assert_called_with('/path/command', 'endpoint', [])
+        mock_shell.assert_called_with('/path/post_run_processing.sh', 'endpoint', ['2333', 'Matmul', '22'])

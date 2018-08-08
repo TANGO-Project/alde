@@ -13,11 +13,13 @@
 
 import csv
 import logging
+import shell
 
 def _read_csv_first_line(file, execution_id):
     """
     Returns the line with the execution id if possible,
     empty line otherwise
+    ./post_run_processing.sh 7332 Matmul 20
     """
     try :
         with open(file, newline='') as csvfile:
@@ -34,10 +36,15 @@ def _read_csv_first_line(file, execution_id):
         
     return []
 
-def _execute_comparator(execution, endpoint, path, command):
+def _execute_comparator(execution, endpoint, path):
     """
     It takes an execution object and calculates the 
     comparator provided by the self-adapation manager
     """
-    pass
+
+    shell.execute_command(path + '/post_run_processing.sh', endpoint, [
+        str(execution.slurm_sbatch_id),
+        execution.execution_configuration.application.name,
+        str(execution.execution_configuration.id)
+    ])
     
