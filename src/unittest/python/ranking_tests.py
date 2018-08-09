@@ -14,12 +14,41 @@ import unittest
 import shell
 import unittest.mock as mock
 from testfixtures import LogCapture
-from models import Execution, ExecutionConfiguration, Application
+from models import db, Execution, ExecutionConfiguration, Application, Testbed
+from sqlalchemy_mapping_tests.mapping_tests import MappingTest
 
-class RankingTests(unittest.TestCase):
+class RankingTests(MappingTest):
     """
     Unit tests for the ranking module
     """
+
+    execution = None
+
+    def setUp(self):
+        """
+        It creates the model objects and saves then in the database
+        """
+        super(RankingTests, self).setUp()
+
+        self.execution = Execution()
+        self.execution.slurm_sbatch_id = 2333
+
+        execution_configuration = ExecutionConfiguration()
+        execution_configuration.id = 22
+        self.execution.execution_configuration = execution_configuration
+
+        application = Application()
+        application.name = "Matmul"
+        execution_configuration.application = application
+
+        testbed = Testbed("nova", True, "SLURM", "SSH", "pepito@ssh.com", [ "SINGULARITY" ] )
+        execution_configuration.testbed = testbed
+
+        db.session.add(testbed)
+        db.session.add(application)
+        db.session.add(execution_configuration)
+        db.session.add(self.execution)
+        db.session.commit()
 
     def test_read_csv_first_line(self):
         """
@@ -30,8 +59,8 @@ class RankingTests(unittest.TestCase):
 
         file = 'Time_Ranking.csv'
 
-        line = ranking._read_csv_first_line(file, 7332)
-
+        line = ranking._read_ranking_info(file, 7332)
+        
         self.assertEqual('Matmul', line[0])
         self.assertEqual('5851', line[1])
         self.assertEqual('20', line[2])
@@ -41,13 +70,13 @@ class RankingTests(unittest.TestCase):
         # inexistent file test
         file = 'no_file.csv'
 
-        line = ranking._read_csv_first_line(file, 7332)
+        line = ranking._read_ranking_info(file, 7332)
         self.assertEqual([], line)
 
         # Execution id does not exists
         file = 'Time_Ranking.csv'
 
-        line = ranking._read_csv_first_line(file, 11)
+        line = ranking._read_ranking_info(file, 11)
         self.assertEqual([], line)
 
         l.check(
@@ -63,18 +92,24 @@ class RankingTests(unittest.TestCase):
 
         ./post_run_processing.sh 7332 Matmul 20
         """
-
-        execution = Execution()
-        execution.slurm_sbatch_id = 2333
-
-        execution_configuration = ExecutionConfiguration()
-        execution_configuration.id = 22
-        execution.execution_configuration = execution_configuration
-
-        application = Application()
-        application.name = "Matmul"
-        execution_configuration.application = application
         
-        ranking._execute_comparator(execution, 'endpoint', '/path')
+        ranking._execute_comparator(self.execution, 'endpoint', '/path')
 
         mock_shell.assert_called_with('/path/post_run_processing.sh', 'endpoint', ['2333', 'Matmul', '22'])
+    
+    @mock.patch("ranking._read_ranking_info")
+    @mock.patch("ranking._execute_comparator")
+    def test_update_ranking_info_for_an_execution(self, mock_comparator, mock_read):
+        """
+        It evaluates the correct work of the module function:
+        update_ranking_info_for_an_execution
+        """
+        mock_read.return_value = [ 'Matmul', '5851', '20', '2333', '22' ]
+        
+        ranking.update_ranking_info_for_an_execution(self.execution, '/path/', 'file')
+
+        self.assertEqual(5851, self.execution.energy_output)
+        self.assertEqual(20, self.execution.runtime_output)
+
+        mock_comparator.assert_called_with(self.execution, 'pepito@ssh.com', '/path', 'file')
+        mock_read.assert_called_with('/path/file', '2333')

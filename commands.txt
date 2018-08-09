@@ -81,3 +81,6 @@ curl -X POST -H'Content-type: application/json' http://127.0.0.1:5000/api/v1/exe
 curl -X PATCH -H'Content-type: application/json' http://127.0.0.1:5000/api/v1/execution_configurations/12 -d'{"launch_execution": true}'
 
 curl -X PATCH -H'Content-type: application/json' http://127.0.0.1:5000/api/v1/execution_configurations/12 -d'{ command":"-s /home_nfs/home_dineshkr/Gromacs/gromacs-run/peptide_water_3k.tpr -v -nsteps 50000 -testverlet"}'
+
+
+curl -X POST -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/applications -d'{ "name": "my_app", "application_type": "MALLEABLE" }'

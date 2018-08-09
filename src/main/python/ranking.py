@@ -15,7 +15,7 @@ import csv
 import logging
 import shell
 
-def _read_csv_first_line(file, execution_id):
+def _read_ranking_info(file, execution_id):
     """
     Returns the line with the execution id if possible,
     empty line otherwise
@@ -47,4 +47,11 @@ def _execute_comparator(execution, endpoint, path):
         execution.execution_configuration.application.name,
         str(execution.execution_configuration.id)
     ])
+
+def update_ranking_info_for_an_execution(execution, path, file):
+    """
+    It updates the ranking information for an execution
+    Executing in a first step the comparator.
+    """
     
+    pass
