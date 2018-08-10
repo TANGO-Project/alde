@@ -24,3 +24,5 @@ class AppTests(unittest.TestCase):
         self.assertEquals('/tmp', conf['APP_UPLOAD_FOLDER'])
         self.assertEquals('/tmp', conf['APP_PROFILE_FOLDER'])
         self.assertEquals(["RIGID", "MOULDABLE", "CHECKPOINTABLE", "MALLEABLE"], conf['APP_TYPES'])
+        self.assertEquals('/tmp/comparator', conf['COMPARATOR_PATH'])
+        self.assertEquals('comparator_file.csv', conf['COMPARATOR_FILE'])

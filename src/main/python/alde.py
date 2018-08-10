@@ -267,7 +267,13 @@ def post_and_patch_application_preprocessor(data=None, **kw):
             )
 
 
-def create_app_v1(sql_db_url, port, app_folder, profile_folder, app_types):
+def create_app_v1(sql_db_url, 
+                  port, 
+                  app_folder, 
+                  profile_folder, 
+                  app_types,
+                  comparator_path,
+                  comparator_file):
     """
     It creates the Flask REST app service
     """
@@ -282,6 +288,8 @@ def create_app_v1(sql_db_url, port, app_folder, profile_folder, app_types):
     app.config['APP_FOLDER'] = app_folder
     app.config['APP_PROFILE_FOLDER'] = profile_folder
     app.config['APP_TYPES'] = app_types
+    app.config['COMPARATOR_PATH'] = comparator_path
+    app.config['COMPARATOR_FILE'] = comparator_file
     app.config.from_object(Config())
     db.init_app(app)
     db.app=app

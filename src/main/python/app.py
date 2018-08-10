@@ -40,7 +40,9 @@ def load_config():
         'PORT' : default['PORT'],
         'APP_UPLOAD_FOLDER' : default['APP_UPLOAD_FOLDER'],
         'APP_PROFILE_FOLDER' : default['APP_PROFILE_FOLDER'],
-        'APP_TYPES' : app_types
+        'APP_TYPES' : app_types,
+        'COMPARATOR_PATH' : default['COMPARATOR_PATH'],
+        'COMPARATOR_FILE' : default['COMPARATOR_FILE']
     }
 
     return conf
@@ -53,7 +55,13 @@ def main(): # pragma: no cover
     conf = load_config() # pragma: no cover
 
     logger.info("Starting ALDE") # pragma: no cover
-    app = alde.create_app_v1(conf['SQL_LITE_URL'], conf['PORT'], conf['APP_UPLOAD_FOLDER'], conf['APP_PROFILE_FOLDER'], conf['APP_TYPES']) # pragma: no cover
+    app = alde.create_app_v1(conf['SQL_LITE_URL'], 
+                             conf['PORT'], 
+                             conf['APP_UPLOAD_FOLDER'], 
+                             conf['APP_PROFILE_FOLDER'], 
+                             conf['APP_TYPES'],
+                             conf['COMPARATOR_PATH'],
+                             conf['COMPARATOR_FILE'] ) # pragma: no cover
 
     # We start the Flask loop
     db.create_all() # pragma: no cover

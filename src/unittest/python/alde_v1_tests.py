@@ -24,13 +24,21 @@ class AldeV1Tests(TestCase):
     TESTING = True
     APP_FOLDER = "/tmp/app_folder"
     APP_TYPES = ['RIGID', 'MOULDABLE', 'CHECKPOINTABLE', 'MALLEABLE']
+    COMPARATOR_PATH = "/comparator/path"
+    COMPARATOR_FILE = "comparator_file"
 
     def create_app(self):
         """
         It initializes the application
         """
 
-        app = alde.create_app_v1(self.SQLALCHEMY_DATABASE_URI, 5101, self.APP_FOLDER, self.APP_FOLDER, self.APP_TYPES)
+        app = alde.create_app_v1(self.SQLALCHEMY_DATABASE_URI, 
+                                 5101, 
+                                 self.APP_FOLDER, 
+                                 self.APP_FOLDER, 
+                                 self.APP_TYPES,
+                                 self.COMPARATOR_PATH,
+                                 self.COMPARATOR_FILE)
 
         return app
 

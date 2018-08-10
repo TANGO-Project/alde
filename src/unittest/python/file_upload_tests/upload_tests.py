@@ -37,7 +37,13 @@ class ApplicationMappingTest(LiveServerTestCase):
 		It initializes flask_testing
 		"""
 		tmp_directory = tempfile.mkdtemp()
-		app = alde.create_app_v1(self.SQLALCHEMY_DATABASE_URI, 0, tmp_directory, tmp_directory, ['APP_TYPE'])
+		app = alde.create_app_v1(self.SQLALCHEMY_DATABASE_URI, 
+		                         0, 
+								 tmp_directory, 
+								 tmp_directory,
+								 ['APP_TYPE'],
+								 None,
+								 None)
 		app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 		app.config['TESTING'] = self.TESTING
 		db.create_all()
