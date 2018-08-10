@@ -115,4 +115,4 @@ class RankingTests(MappingTest):
         self.assertEqual(20, execution.runtime_output)
 
         mock_comparator.assert_called_with(self.execution, 'pepito@ssh.com', '/path')
-        mock_read.assert_called_with(os.path.join('/path','file'), 2333)
+        mock_read.assert_called_with('file', 2333)

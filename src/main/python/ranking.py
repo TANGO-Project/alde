@@ -60,7 +60,7 @@ def update_ranking_info_for_an_execution(execution, path, file):
 
     _execute_comparator(execution, endpoint, path)
 
-    ranking = _read_ranking_info(os.path.join(path,file), execution.slurm_sbatch_id)
+    ranking = _read_ranking_info(file, execution.slurm_sbatch_id)
 
     if len(ranking) > 3 :
 
