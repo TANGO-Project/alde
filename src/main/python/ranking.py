@@ -62,7 +62,9 @@ def update_ranking_info_for_an_execution(execution, path, file):
 
     ranking = _read_ranking_info(os.path.join(path,file), execution.slurm_sbatch_id)
 
-    execution.energy_output = ranking[1]
-    execution.runtime_output = ranking[2]
+    if len(ranking) > 3 :
+
+        execution.energy_output = ranking[1]
+        execution.runtime_output = ranking[2]
 
     db.session.commit()
