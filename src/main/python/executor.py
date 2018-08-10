@@ -13,6 +13,7 @@ import uuid
 import os
 import logging
 import time
+import ranking
 from sqlalchemy import or_
 from flask import current_app as app
 
@@ -392,6 +393,11 @@ def monitor_execution_singularity_apps(execution):
 		testbed = execution.parent.execution_configuration.testbed
 
 	status = _parse_sacct_output(sbatch_id, testbed.endpoint)
+
+	if status == Execution.__status_finished__ and execution.status == Execution.__status_running__ :
+		 ranking.update_ranking_info_for_an_execution(execution, 
+		 											  app.config['COMPARATOR_PATH'],
+													  app.config['COMPARATOR_FILE'])
 
 	if status == '?':
 		return execution.status

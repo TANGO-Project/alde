@@ -44,7 +44,7 @@ def _execute_comparator(execution, endpoint, path):
     comparator provided by the self-adapation manager
     """
 
-    shell.execute_command(path + '/post_run_processing.sh', endpoint, [
+    shell.execute_command(os.path.join(path,'post_run_processing.sh'), endpoint, [
         str(execution.slurm_sbatch_id),
         execution.execution_configuration.application.name,
         str(execution.execution_configuration.id)
