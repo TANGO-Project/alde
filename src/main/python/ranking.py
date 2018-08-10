@@ -14,6 +14,8 @@
 import csv
 import logging
 import shell
+import os
+from models import db
 
 def _read_ranking_info(file, execution_id):
     """
@@ -54,4 +56,13 @@ def update_ranking_info_for_an_execution(execution, path, file):
     Executing in a first step the comparator.
     """
     
-    pass
+    endpoint = execution.execution_configuration.testbed.endpoint
+
+    _execute_comparator(execution, endpoint, path)
+
+    ranking = _read_ranking_info(os.path.join(path,file), execution.slurm_sbatch_id)
+
+    execution.energy_output = ranking[1]
+    execution.runtime_output = ranking[2]
+
+    db.session.commit()

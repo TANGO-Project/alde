@@ -12,6 +12,7 @@
 import ranking
 import unittest
 import shell
+import os
 import unittest.mock as mock
 from testfixtures import LogCapture
 from models import db, Execution, ExecutionConfiguration, Application, Testbed
@@ -95,7 +96,7 @@ class RankingTests(MappingTest):
         
         ranking._execute_comparator(self.execution, 'endpoint', '/path')
 
-        mock_shell.assert_called_with('/path/post_run_processing.sh', 'endpoint', ['2333', 'Matmul', '22'])
+        mock_shell.assert_called_with(os.path.join('/path','post_run_processing.sh'), 'endpoint', ['2333', 'Matmul', '22'])
     
     @mock.patch("ranking._read_ranking_info")
     @mock.patch("ranking._execute_comparator")
@@ -106,10 +107,12 @@ class RankingTests(MappingTest):
         """
         mock_read.return_value = [ 'Matmul', '5851', '20', '2333', '22' ]
         
-        ranking.update_ranking_info_for_an_execution(self.execution, '/path/', 'file')
+        ranking.update_ranking_info_for_an_execution(self.execution, '/path', 'file')
 
-        self.assertEqual(5851, self.execution.energy_output)
-        self.assertEqual(20, self.execution.runtime_output)
+        execution = db.session.query(Execution).filter_by(id=self.execution.id).first()
 
-        mock_comparator.assert_called_with(self.execution, 'pepito@ssh.com', '/path', 'file')
-        mock_read.assert_called_with('/path/file', '2333')
+        self.assertEqual(5851, execution.energy_output)
+        self.assertEqual(20, execution.runtime_output)
+
+        mock_comparator.assert_called_with(self.execution, 'pepito@ssh.com', '/path')
+        mock_read.assert_called_with(os.path.join('/path','file'), 2333)
