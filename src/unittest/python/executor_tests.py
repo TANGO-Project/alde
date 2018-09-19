@@ -154,8 +154,9 @@ class ExecutorTests(MappingTest):
 		self.assertEquals(executor.execute_status_failed, execution.status)
 		self.assertEquals("No support for execurtion type: xxx", execution.output)
 
+	@mock.patch("executor.__add_nodes_to_execution__")
 	@mock.patch("shell.execute_command")
-	def test_execute_application_type_singularity_pm(self, mock_shell):
+	def test_execute_application_type_singularity_pm(self, mock_shell, mock_add_nodes):
 		"""
 		It verifies the correct work of the function:
 		execute_application_type_singularity_pm
@@ -244,6 +245,8 @@ class ExecutorTests(MappingTest):
 		self.assertEquals(execution.status, Execution.__status_running__)
 		self.assertEquals(3357, execution.slurm_sbatch_id)
 
+		mock_add_nodes.assert_called_with(execution, "user@testbed.com")
+
 		# TEST with profile
 		# TEST starts here:
 		execution_config.profile_file = "/tmp/surperprofile.profile"
@@ -291,8 +294,9 @@ class ExecutorTests(MappingTest):
 
 		self.assertEquals(3357, sbatch_id)
 
+	@mock.patch("executor.__add_nodes_to_execution__")
 	@mock.patch("shell.execute_command")
-	def test_execute_application_type_slurm_sbatch(self, mock_shell):
+	def test_execute_application_type_slurm_sbatch(self, mock_shell, mock_add_nodes):
 		"""
 		It verifies that the application type slurm sbatch is executed
 		"""
@@ -390,6 +394,8 @@ class ExecutorTests(MappingTest):
 		self.assertEquals(execution.execution_type, execution_config.execution_type)
 		self.assertEquals(execution.status, Execution.__status_running__)
 		self.assertEquals(5740, execution.slurm_sbatch_id)
+
+		mock_add_nodes.assert_called_with(execution, "user@testbed.com")
 
 	@mock.patch("executor.monitor_execution_singularity_apps")
 	def test_monitor_execution_apps(self, mock_monitor):
@@ -555,8 +561,9 @@ class ExecutorTests(MappingTest):
 
 		self.assertEquals(4610, squeue_id)
 
+	@mock.patch("executor.__add_nodes_to_execution__")
 	@mock.patch("shell.execute_command")
-	def test_execute_application_type_singularity_srun(self, mock_shell):
+	def test_execute_application_type_singularity_srun(self, mock_shell, mock_add_nodes):
 		"""
 		Test the correct work fo this function
 		"""
@@ -692,9 +699,11 @@ class ExecutorTests(MappingTest):
 									   ])
 		calls = [ call_1, call_2]
 		mock_shell.assert_has_calls(calls)
+		mock_add_nodes.assert_called_with(execution, "user@testbed.com")
 
+	@mock.patch("executor.__add_nodes_to_execution__")
 	@mock.patch("shell.execute_command")
-	def test_execute_application_type_slurm_srun(self, mock_shell):
+	def test_execute_application_type_slurm_srun(self, mock_shell, mock_add_nodes):
 		"""
 		Test the correct work fo this function
 		"""
@@ -828,6 +837,7 @@ class ExecutorTests(MappingTest):
 									   ])
 		calls = [ call_1, call_2]
 		mock_shell.assert_has_calls(calls)
+		mock_add_nodes.assert_called_with(execution, "user@testbed.com")
 
 	@mock.patch("shell.execute_command")
 	def test_cancel_execution(self, mock_shell):
@@ -890,10 +900,11 @@ class ExecutorTests(MappingTest):
 		calls = [ call_1, call_2, call_3, call_4, call_5, call_6 ]
 		mock_shell.assert_has_calls(calls)
 
+	@mock.patch('executor.__add_nodes_to_execution__')
 	@mock.patch('executor.get_job_id_after_adaptation')
 	@mock.patch('executor.find_first_node')
 	@mock.patch("shell.execute_command")
-	def test_add_resource(self, mock_shell, mock_find_node, mock_get_job_id):
+	def test_add_resource(self, mock_shell, mock_find_node, mock_get_job_id, mock_add_nodes):
 		"""
 		It tests that it is possible to add a resource
 		"""
@@ -973,6 +984,8 @@ class ExecutorTests(MappingTest):
 		self.assertEquals(Executable.__type_singularity_pm__, execution.children[0].execution_type)
 		self.assertEquals(execution, execution.children[0].parent)
 
+		mock_add_nodes.assert_called_with(execution.children[0], 'endpoint')
+
 		# We now check it works with an application upperbound
 		application.scaling_upper_bound = 1
 		db.session.commit()
@@ -990,10 +1003,7 @@ class ExecutorTests(MappingTest):
 			('root', 'INFO', 'Execution already reached its maximum number of extra jobs, no adaptation possible')
 		)
 		l.uninstall() # We uninstall the capture of the logger
-
-		
-
-    
+  
 	@mock.patch("shell.execute_command")
 	def test_find_first_node(self, mock_shell):
 		"""
@@ -1276,25 +1286,94 @@ class ExecutorTests(MappingTest):
 		db.session.commit()
 
 		# TEST - No node should be added
-		executor.__add_nodes_to_execution__(execution)
+		executor.__add_nodes_to_execution__(execution, 'endpoint')
 		self.assertEquals(0, len(execution.nodes))
 
 		# TEST - No node should be added
+		mock_shell.return_value = b'\n'
 		execution.slurm_sbatch_id = ''
 		execution.status = Execution.__status_running__
 		db.session.commit()
 
-		executor.__add_nodes_to_execution__(execution)
+		executor.__add_nodes_to_execution__(execution, 'endpoint')
 		self.assertEquals(0, len(execution.nodes))
+		call_1 = call('squeue',  'endpoint', [ '-j ', '-h -o "%N"' ])
 
 		# We add the first return
-		# Node format examples: nd[10-14,16-19], nd21, nd32,nd44 , nd[44-45]
+		mock_shell.return_value = b'node1\n'
+		
+		execution.slurm_sbatch_id = 21
+		execution.status = Execution.__status_running__
+		db.session.commit()
 
-		mock_shell.return_value = b'node1'
-		mock_shell.return_value = b'node[50-54]'
-		mock_shell.return_value = b'node[50-51,53-55]'
-		mock_shell.return_value = b'node2,node[50-51]'
-		mock_shell.return_value = b'node1,node2'
+		executor.__add_nodes_to_execution__(execution, 'endpoint')
+		self.assertEquals(1, len(execution.nodes))
+		self.assertEquals(node_1, execution.nodes[0])
+		call_2 = call('squeue',  'endpoint', [ '-j 21', '-h -o "%N"' ])
+
+		# We test it also works with a comma in the middle
+		mock_shell.return_value = b'node1,node51\n'
+
+		execution = Execution()
+		execution.slurm_sbatch_id = 21
+		execution.status = Execution.__status_running__
+		db.session.add(execution)
+		db.session.commit()
+
+		executor.__add_nodes_to_execution__(execution, 'endpoint')
+		self.assertEquals(2, len(execution.nodes))
+		self.assertEquals(node_1, execution.nodes[0])
+		self.assertEquals(node_51, execution.nodes[1])
+
+		# We test with a more complex extructure
+		mock_shell.return_value = b'node[50-52]\n'
+
+		execution = Execution()
+		execution.slurm_sbatch_id = 21
+		execution.status = Execution.__status_running__
+		db.session.add(execution)
+		db.session.commit()
+
+		executor.__add_nodes_to_execution__(execution, 'endpoint')
+		self.assertEquals(3, len(execution.nodes))
+		self.assertEquals(node_50, execution.nodes[0])
+		self.assertEquals(node_51, execution.nodes[1])
+		self.assertEquals(node_52, execution.nodes[2])
+
+		# Next possible return
+		mock_shell.return_value = b'node[50-51],node[53-54]\n'
+
+		execution = Execution()
+		execution.slurm_sbatch_id = 21
+		execution.status = Execution.__status_running__
+		db.session.add(execution)
+		db.session.commit()
+
+		executor.__add_nodes_to_execution__(execution, 'endpoint')
+		self.assertEquals(4, len(execution.nodes))
+		self.assertEquals(node_50, execution.nodes[0])
+		self.assertEquals(node_51, execution.nodes[1])
+		self.assertEquals(node_53, execution.nodes[2])
+		self.assertEquals(node_54, execution.nodes[3])
+
+		# next possible return
+		mock_shell.return_value = b'node1,node[50-51]\n'
+
+		execution = Execution()
+		execution.slurm_sbatch_id = 21
+		execution.status = Execution.__status_running__
+		db.session.add(execution)
+		db.session.commit()
+
+		executor.__add_nodes_to_execution__(execution, 'endpoint')
+		self.assertEquals(3, len(execution.nodes))
+		self.assertEquals(node_1, execution.nodes[0])
+		self.assertEquals(node_50, execution.nodes[1])
+		self.assertEquals(node_51, execution.nodes[2])
+
+		# We check the calls to the mock
+		calls = [ call_1, call_2, call_2, call_2, call_2, call_2]
+		mock_shell.assert_has_calls(calls)
 
 	@mock.patch('shell.execute_command')
 	def test_drain_a_node(self, mock_shell):

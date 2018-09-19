@@ -120,6 +120,9 @@ def execute_application_type_singularity_pm(execution, identifier, create_profil
 	execution.slurm_sbatch_id = sbatch_id
 	db.session.commit()
 
+	# Add nodes
+	__add_nodes_to_execution__(execution, endpoint)
+
 def __get_srun_info__(execution, identifier):
 	"""
 	Internal method that gets all the necessary srun information
@@ -230,6 +233,9 @@ def __launch_execution__(command, endpoint, params, execution_configuration):
 	execution.slurm_sbatch_id = sbatch_id
 	db.session.commit()
 
+	# Add nodes
+	__add_nodes_to_execution__(execution, endpoint)
+
 def __extract_id_from_squeue__(output):
 	"""
 	It extracts the id from squeue output
@@ -301,6 +307,9 @@ def execute_application_type_slurm_sbatch(execution, identifier):
 		execution_configuration.executions.append(execution)
 		execution.slurm_sbatch_id = sbatch_id
 		db.session.commit()
+
+		# Add nodes
+		__add_nodes_to_execution__(execution, endpoint)
 
 def __extract_id_from_sbatch__(output):
 	"""
@@ -521,6 +530,7 @@ def add_resource(execution):
 					child.slurm_sbatch_id = extra_job_id
 					execution.children.append(child)
 					db.session.commit()
+					__add_nodes_to_execution__(child, url)
 			else :
 				logging.info('Execution already reached its maximum number of extra jobs, no adaptation possible')
 		else :
@@ -633,24 +643,44 @@ def verify_adaptation_went_ok(output):
 
 	return ok
 
-def __add_nodes_to_execution__(execution):
+def __add_nodes_to_execution__(execution, url):
 	"""
 	This method takes the squeue id and adds nodes
 	that are being used by the execution.
 
-	[garciad@ns54 ~]$ squeue -j 7286 -h -o "%A %N"
-	7286 ns51
 	[garciad@ns54 ~]$ squeue -j 7286 -h -o "%N"
 	ns51
-	[garciad@ns54 ~]$ squeue -j 7286 -h -o "%N"
-	ns51
-	[garciad@ns54 ~]$ squeue -j 7286 -h -o "%N"
-	ns51
-	[garciad@ns54 ~]$ squeue -j 7286 -h -o "%N"
-	[garciad@ns54 ~]$ 
 	"""
 
-	pass
+	if execution.status == Execution.__status_running__ and execution.slurm_sbatch_id != None :
+
+		command_output = shell.execute_command("squeue", url , [ '-j ' + str(execution.slurm_sbatch_id) , '-h -o "%N"' ])
+		
+		if command_output != b'\n' :
+			nodes = []
+			nodes_string = command_output.decode('utf-8').split('\n')[0]
+
+			array_nodes = nodes_string.split(',')
+
+			for node_in_array in array_nodes :
+
+				if '[' not in node_in_array :
+					node = db.session.query(Node).filter_by(name=str(node_in_array)).first()
+					nodes.append(node)
+				else :
+					node_start_name = node_in_array.split('[')[0]
+					boundaries = node_in_array.split('[')[1].split(']')[0]
+					limits = boundaries.split('-')
+					start = int(limits[0])
+					end = int(limits[1]) + 1
+
+					for number in range(start,end) :
+						node_name = node_start_name + str(number)
+						node = db.session.query(Node).filter_by(name=node_name).first()
+						nodes.append(node)
+				
+			execution.nodes = nodes
+			db.session.commit()
 
 def drain_a_node(node_id, reason):
 	"""
@@ -686,3 +716,4 @@ def idle_a_node(node_id):
 	params.append('State=idle')
 	
 	shell.execute_command(command, url, params)
+
