@@ -853,6 +853,49 @@ class AldeV1Tests(TestCase):
         calls = [ call_1, call_2, call_3, call_4, call_5 ]
         mock_execute_application.assert_has_calls(calls)
 
+    @mock.patch('executor.drain_a_node')
+    @mock.patch('executor.idle_a_node')
+    def test_put_node_preprocessor(self, mock_executor_idle, mock_executor_drain):
+        """
+        It test the correct work of draining of iddleing a node via a PUT command over a node object
+        """
+
+        data = { 'state': 'drain' }
+
+        response = self.client.patch("/api/v1/nodes/1",
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        self.assertEquals(200, response.status_code)
+
+        call_1 = call('1', 'TANGO SAM requested to drain the node')
+
+        
+        data = { 'state': 'drain',
+                 'reason': 'reason' }
+
+        response = self.client.patch("/api/v1/nodes/1",
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        self.assertEquals(200, response.status_code)
+
+        call_2 = call('1', 'reason')
+        
+        calls = [ call_1, call_2 ]
+        mock_executor_drain.assert_has_calls(calls)
+
+        data = { 'state': 'idle' }
+
+        response = self.client.patch("/api/v1/nodes/1",
+                                     data=json.dumps(data),
+                                     content_type='application/json')
+
+        self.assertEquals(200, response.status_code)
+
+        mock_executor_idle.assert_called_with('1')
+         
+
     @mock.patch('executor.remove_resource')
     @mock.patch('executor.add_resource')
     @mock.patch('executor.cancel_execution')

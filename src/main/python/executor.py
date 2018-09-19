@@ -651,3 +651,17 @@ def __add_nodes_to_execution__(execution):
 	"""
 
 	pass
+
+def drain_a_node(node_id, reason):
+	"""
+	It drains a node
+	"""
+
+	pass
+
+def idle_a_node(node_id):
+	"""
+	It changes a node to idle state so it can execute jobs
+	"""
+
+	pass

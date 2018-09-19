@@ -309,6 +309,7 @@ class Node(db.Model):
     mcps = db.relationship("MCP", order_by=MCP.id, back_populates="node")
     memories = db.relationship("Memory", order_by=Memory.id, back_populates="node")
     status = {}
+    reason = ''
 
     def add_cpu(self, cpu):
         """ It adds a new cpu element to the node """

@@ -1266,6 +1266,9 @@ class ExecutorTests(MappingTest):
 		node_54 = Node()
 		node_54.name = "node54"
 		db.session.add(node_54)
+		node_55 = Node()
+		node_55.name = "node55"
+		db.session.add(node_55)
 
 		execution = Execution()
 		execution.status = Execution.__status_cancel__
@@ -1285,3 +1288,10 @@ class ExecutorTests(MappingTest):
 		self.assertEquals(0, len(execution.nodes))
 
 		# We add the first return
+		# Node format examples: nd[10-14,16-19], nd21, nd32,nd44 , nd[44-45]
+
+		mock_shell.return_value = b'node1'
+		mock_shell.return_value = b'node[50-54]'
+		mock_shell.return_value = b'node[50-51,53-55]'
+		mock_shell.return_value = b'node2,node[50-51]'
+		mock_shell.return_value = b'node1,node2'

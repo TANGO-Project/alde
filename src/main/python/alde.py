@@ -119,6 +119,26 @@ def put_testbed_preprocessor(instance_id=None, data=None, **kw):
                                                 description=create['reason'],
                                                 code=405)
 
+def put_node_preprocessor(instance_id=None, data=None, **kw):
+    """
+    It changes the state of a node
+    """
+
+    drain_reason = 'TANGO SAM requested to drain the node'
+
+    if instance_id != None :
+
+        if 'reason' in data:
+            drain_reason = data['reason']
+
+        if 'state' in data:
+            if data['state'] == 'drain' :
+                print(data)
+                print('it arrives here...')
+                executor.drain_a_node(instance_id, drain_reason)
+            elif data['state'] == 'idle':
+                executor.idle_a_node(instance_id)
+
 
 def post_testbed_preprocessor(data=None, **kw):
     """
@@ -343,6 +363,9 @@ def create_app_v1(sql_db_url, port, app_folder, profile_folder, app_types):
     # Create teh REST methods for a Node
     manager.create_api(Node,
                        methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+                       preprocessors={
+                           'PATCH_SINGLE': [put_node_preprocessor]
+                       },
                        url_prefix=url_prefix_v1, results_per_page=-1)
 
     # Create the REST methods for the GPU
