@@ -1295,3 +1295,60 @@ class ExecutorTests(MappingTest):
 		mock_shell.return_value = b'node[50-51,53-55]'
 		mock_shell.return_value = b'node2,node[50-51]'
 		mock_shell.return_value = b'node1,node2'
+
+	@mock.patch('shell.execute_command')
+	def test_drain_a_node(self, mock_shell):
+		"""
+		It verifies that it is possible to drain a node with slurm
+		"""
+
+		testbed = Testbed( "testbed", True, "nice_testbed", "ssh", "endpoint")
+		extra = {'enqueue_env_file': 'source_file'}
+		testbed.extra_config = extra
+		db.session.add(testbed)
+		db.session.commit()
+
+		node = Node()
+		node.name = "pepito"
+		node.testbed = testbed
+		db.session.add(node)
+		db.session.commit()
+
+		executor.drain_a_node(node.id, "some strange reason")
+
+		mock_shell.assert_called_with('scontrol',
+		                              'endpoint',
+									  [ 
+										  'update',
+										  'NodeName=pepito',
+										  'State=drain',
+										  'Reason="some strange reason"'
+									  ])
+
+	@mock.patch('shell.execute_command')
+	def test_idle_a_node(self, mock_shell):
+		"""
+		It verifies that it is possible to drain a node with slurm
+		"""
+
+		testbed = Testbed( "testbed", True, "nice_testbed", "ssh", "endpoint")
+		extra = {'enqueue_env_file': 'source_file'}
+		testbed.extra_config = extra
+		db.session.add(testbed)
+		db.session.commit()
+
+		node = Node()
+		node.name = "pepito"
+		node.testbed = testbed
+		db.session.add(node)
+		db.session.commit()
+
+		executor.idle_a_node(node.id)
+
+		mock_shell.assert_called_with('scontrol',
+		                              'endpoint',
+									  [ 
+										  'update',
+										  'NodeName=pepito',
+										  'State=idle'
+									  ])
