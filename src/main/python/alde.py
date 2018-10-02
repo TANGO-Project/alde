@@ -53,7 +53,7 @@ class Config(object):
             'func': 'compilation.compiler:compile_executables',
             'args': (),
             'trigger': 'interval',
-            'seconds': 30 
+            'seconds': 31 
         },
         {
             'id': 'check_running_app_status',
