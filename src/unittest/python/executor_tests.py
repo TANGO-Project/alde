@@ -1286,6 +1286,9 @@ class ExecutorTests(MappingTest):
 		node_54 = Node()
 		node_54.name = "node54"
 		db.session.add(node_54)
+		node_55 = Node()
+		node_55.name = "node55"
+		db.session.add(node_55)
 
 		execution = Execution()
 		execution.status = Execution.__status_cancel__
@@ -1381,3 +1384,60 @@ class ExecutorTests(MappingTest):
 		# We check the calls to the mock
 		calls = [ call_1, call_2, call_2, call_2, call_2, call_2]
 		mock_shell.assert_has_calls(calls)
+
+	@mock.patch('shell.execute_command')
+	def test_drain_a_node(self, mock_shell):
+		"""
+		It verifies that it is possible to drain a node with slurm
+		"""
+
+		testbed = Testbed( "testbed", True, "nice_testbed", "ssh", "endpoint")
+		extra = {'enqueue_env_file': 'source_file'}
+		testbed.extra_config = extra
+		db.session.add(testbed)
+		db.session.commit()
+
+		node = Node()
+		node.name = "pepito"
+		node.testbed = testbed
+		db.session.add(node)
+		db.session.commit()
+
+		executor.drain_a_node(node.id, "some strange reason")
+
+		mock_shell.assert_called_with('scontrol',
+		                              'endpoint',
+									  [ 
+										  'update',
+										  'NodeName=pepito',
+										  'State=drain',
+										  'Reason="some strange reason"'
+									  ])
+
+	@mock.patch('shell.execute_command')
+	def test_idle_a_node(self, mock_shell):
+		"""
+		It verifies that it is possible to drain a node with slurm
+		"""
+
+		testbed = Testbed( "testbed", True, "nice_testbed", "ssh", "endpoint")
+		extra = {'enqueue_env_file': 'source_file'}
+		testbed.extra_config = extra
+		db.session.add(testbed)
+		db.session.commit()
+
+		node = Node()
+		node.name = "pepito"
+		node.testbed = testbed
+		db.session.add(node)
+		db.session.commit()
+
+		executor.idle_a_node(node.id)
+
+		mock_shell.assert_called_with('scontrol',
+		                              'endpoint',
+									  [ 
+										  'update',
+										  'NodeName=pepito',
+										  'State=idle'
+									  ])

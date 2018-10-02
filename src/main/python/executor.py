@@ -710,3 +710,39 @@ def __add_nodes_to_execution__(execution, url):
 				
 			execution.nodes = nodes
 			db.session.commit()
+
+def drain_a_node(node_id, reason):
+	"""
+	It drains a node
+
+	scontrol update NodeName=nodelist State=drain Reason="describe reason here"
+	"""
+
+	node = db.session.query(Node).filter_by(id=int(node_id)).first()
+	url = node.testbed.endpoint
+
+	command = "scontrol"
+	params = []
+	params.append('update')
+	params.append('NodeName=' + node.name)
+	params.append('State=drain')
+	params.append('Reason="' + reason + '"')
+	
+	shell.execute_command(command, url, params)
+
+def idle_a_node(node_id):
+	"""
+	It changes a node to idle state so it can execute jobs
+	"""
+
+	node = db.session.query(Node).filter_by(id=int(node_id)).first()
+	url = node.testbed.endpoint
+
+	command = "scontrol"
+	params = []
+	params.append('update')
+	params.append('NodeName=' + node.name)
+	params.append('State=idle')
+	
+	shell.execute_command(command, url, params)
+
