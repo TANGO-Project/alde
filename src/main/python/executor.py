@@ -123,6 +123,7 @@ def execute_application_type_singularity_pm(execution, identifier, create_profil
 	db.session.commit()
 
 	# Add nodes
+	time.sleep(5)
 	__add_nodes_to_execution__(execution, endpoint)
 
 def __get_srun_info__(execution, identifier):
@@ -557,6 +558,7 @@ def add_resource(execution):
 					child.slurm_sbatch_id = extra_job_id
 					execution.children.append(child)
 					db.session.commit()
+					time.sleep(5)
 					__add_nodes_to_execution__(child, url)
 			else :
 				logging.info('Execution already reached its maximum number of extra jobs, no adaptation possible')
