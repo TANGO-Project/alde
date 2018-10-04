@@ -26,6 +26,7 @@ import executor
 from flask_apscheduler import APScheduler
 from flask import current_app as current
 from models import db, Application, ExecutionConfiguration, Testbed, Node, Memory, CPU, MCP, GPU, Deployment, Executable, Execution
+from flask_cors import CORS
 
 url_prefix_v1='/api/v1'
 accepted_message = { 'create' : True, 'reason' : ''}
@@ -313,6 +314,7 @@ def create_app_v1(sql_db_url,
 
     # We create the Flask Apo
     app = flask.Flask(__name__)
+    CORS(app) # pragma: no cover
     app.config['DEBUG'] = True
     app.config['SQLALCHEMY_DATABASE_URI'] = sql_db_url
     app.config['LIVESERVER_PORT'] = port
