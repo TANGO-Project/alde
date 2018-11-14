@@ -1,22 +1,9 @@
-#
-# Copyright 2018 Atos Research and Innovation
-#
-# Licensed under the Apache License, Version 2.0 (the "License"); you may not
-# use this file except in compliance with the License. You may obtain a copy of
-# the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-# License for the specific language governing permissions and limitations under
-# the License.
-# 
+# Builder script for the Application Lifecycle Deployment Engine #
 # This is being developed for the TANGO Project: http://tango-project.eu
 #
-# REST facade for ALDE web service
+# Copyright: David García Pérez, Atos Research and Innovation, 2016.
 #
+# This code is licensed under an Apache 2.0 license. Please, refer to the LICENSE.TXT file for more information
 
 import flask
 import flask_restless
@@ -26,7 +13,6 @@ import executor
 from flask_apscheduler import APScheduler
 from flask import current_app as current
 from models import db, Application, ExecutionConfiguration, Testbed, Node, Memory, CPU, MCP, GPU, Deployment, Executable, Execution
-from flask_cors import CORS
 
 url_prefix_v1='/api/v1'
 accepted_message = { 'create' : True, 'reason' : ''}
@@ -86,7 +72,7 @@ def _testbed_creation_node(testbed):
     creation of a node
     """
 
-    if testbed == None:
+    if testbed == None:git 
         return { 'create' : False, 'reason' : no_testbed }
     elif testbed.on_line :
         return testbed_not_configured_message
@@ -314,7 +300,6 @@ def create_app_v1(sql_db_url,
 
     # We create the Flask Apo
     app = flask.Flask(__name__)
-    CORS(app) # pragma: no cover
     app.config['DEBUG'] = True
     app.config['SQLALCHEMY_DATABASE_URI'] = sql_db_url
     app.config['LIVESERVER_PORT'] = port
