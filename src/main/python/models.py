@@ -87,6 +87,7 @@ class Execution(db.Model):
     __status_unknown__ = "UNKNOWN"
     __status_cancel__ = 'CANCEL'
     __status_stop__ = 'STOP'
+    __status_stopped__ = 'STOPPED'
     __status_restart__ = 'RESTART'
     __status_cancelled__ = 'CANCELLED'
 

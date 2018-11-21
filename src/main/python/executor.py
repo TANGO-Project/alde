@@ -748,3 +748,10 @@ def stop_execution(execution):
 	"""
 
 	pass
+
+def restart_execution(execution):
+	"""
+	It stops a checkpointable execution
+	"""
+
+	pass
