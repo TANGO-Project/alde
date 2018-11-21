@@ -742,3 +742,9 @@ def idle_a_node(node_id):
 	
 	shell.execute_command(command, url, params)
 
+def stop_execution(execution):
+	"""
+	It stops a checkpointable execution
+	"""
+
+	pass

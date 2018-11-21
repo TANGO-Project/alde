@@ -212,6 +212,16 @@ def patch_execution_preprocessor(instance_id=None, data=None, **kw):
             if data['status'] == Execution.__status_cancel__ :
                 url = execution.execution_configuration.testbed.endpoint
                 executor.cancel_execution(execution, url) 
+            elif data['status'] == Execution.__status_stop__ :
+                if Application.CHECKPOINTABLE == execution.execution_configuration.application.application_type :
+                    if execution.status == Execution.__status_running__ :
+                        executor.stop_execution(execution)
+                    else :
+                        description = 'Execution is not in ' + Execution.__status_running__ + ' state'
+                        raise flask_restless.ProcessingException(description=description, code=409)
+                else :
+                    description = 'No a ' + Application.CHECKPOINTABLE + ' application type'
+                    raise flask_restless.ProcessingException(description=description, code=409)
             else :
                 raise flask_restless.ProcessingException(
                                 description='No valid state to try to change',
