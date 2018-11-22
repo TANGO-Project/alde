@@ -26,6 +26,7 @@ import os
 import logging
 import time
 import ranking
+import slurm
 from sqlalchemy import or_
 from flask import current_app as app
 
@@ -204,41 +205,15 @@ def execute_application_type_singularity_srun(execution, identifier):
 
 	execution_configuration, testbed, deployment, executable = __get_srun_info__(execution, identifier)
 
-	# Preparing the command to be executed
-	command = "("
-	endpoint = testbed.endpoint
-	params = []
-	params.append("srun")
-	if execution_configuration.num_nodes:
-		params.append("-N")
-		params.append(str(execution_configuration.num_nodes))
-	if execution_configuration.num_gpus_per_node:
-		params.append("--gres=gpu:" + str(execution_configuration.num_gpus_per_node))
-	params.append("-n")
-	params.append(str(execution_configuration.num_cpus_per_node))
-	params.append("singularity")
-	params.append("run")
-	params.append(deployment.path)
-	params.append(">")
-	params.append("allout.txt")
-	params.append("2>&1")
-	params.append("&")
-	params.append(")")
-	params.append(";")
-	params.append("sleep")
-	params.append("1;")
-	params.append("squeue")
+	output = slurm.execute_srun(testbed, execution_configuration, executable, deployment, True)
 
-	logging.info("Launching execution of application: command: " + command + " | endpoint: " + endpoint + " | params: " + str(params))
+	__parse_output__(output, testbed.endpoint, execution_configuration)
 
-	__launch_execution__(command, endpoint, params, execution_configuration)
-
-def __launch_execution__(command, endpoint, params, execution_configuration):
+def __parse_output__(output, endpoint, execution_configuration):
 	"""
-	It updates after any srun execution, singularity or not
+	It parses output and adds nodes to the execution
 	"""
 
-	output = shell.execute_command(command, endpoint, params)
 	sbatch_id = __extract_id_from_squeue__(output)
 	
 	execution = Execution()
@@ -250,6 +225,15 @@ def __launch_execution__(command, endpoint, params, execution_configuration):
 
 	# Add nodes
 	__add_nodes_to_execution__(execution, endpoint)
+
+
+def __launch_execution__(command, endpoint, params, execution_configuration):
+	"""
+	It updates after any srun execution, singularity or not
+	"""
+
+	output = shell.execute_command(command, endpoint, params)
+	__parse_output__(output, endpoint, execution_configuration)
 
 def __extract_id_from_squeue__(output):
 	"""
@@ -758,3 +742,16 @@ def idle_a_node(node_id):
 	
 	shell.execute_command(command, url, params)
 
+def stop_execution(execution):
+	"""
+	It stops a checkpointable execution
+	"""
+
+	pass
+
+def restart_execution(execution):
+	"""
+	It stops a checkpointable execution
+	"""
+
+	pass

@@ -12,10 +12,8 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations under
 # the License.
-# 
-# This is being developed for the TANGO Project: http://tango-project.eu
 #
-# REST facade for ALDE web service
+#  REST API for Application Lifecycle Deployment Engine 
 #
 
 import flask
@@ -26,7 +24,6 @@ import executor
 from flask_apscheduler import APScheduler
 from flask import current_app as current
 from models import db, Application, ExecutionConfiguration, Testbed, Node, Memory, CPU, MCP, GPU, Deployment, Executable, Execution
-from flask_cors import CORS
 
 url_prefix_v1='/api/v1'
 accepted_message = { 'create' : True, 'reason' : ''}
@@ -86,7 +83,7 @@ def _testbed_creation_node(testbed):
     creation of a node
     """
 
-    if testbed == None:
+    if testbed == None :
         return { 'create' : False, 'reason' : no_testbed }
     elif testbed.on_line :
         return testbed_not_configured_message
@@ -215,6 +212,18 @@ def patch_execution_preprocessor(instance_id=None, data=None, **kw):
             if data['status'] == Execution.__status_cancel__ :
                 url = execution.execution_configuration.testbed.endpoint
                 executor.cancel_execution(execution, url) 
+            elif data['status'] == Execution.__status_stop__ or  data['status'] == Execution.__status_restart__:
+                if Application.CHECKPOINTABLE == execution.execution_configuration.application.application_type :
+                    if execution.status == Execution.__status_running__ and data['status'] == Execution.__status_stop__  :
+                        executor.stop_execution(execution)
+                    elif execution.status == Execution.__status_stopped__ and data['status'] == Execution.__status_restart__ :
+                        executor.restart_execution(execution)
+                    else :
+                        description = 'Execution is not in right state'
+                        raise flask_restless.ProcessingException(description=description, code=409)
+                else :
+                    description = 'No a ' + Application.CHECKPOINTABLE + ' application type'
+                    raise flask_restless.ProcessingException(description=description, code=409)
             else :
                 raise flask_restless.ProcessingException(
                                 description='No valid state to try to change',
@@ -314,7 +323,6 @@ def create_app_v1(sql_db_url,
 
     # We create the Flask Apo
     app = flask.Flask(__name__)
-    CORS(app) # pragma: no cover
     app.config['DEBUG'] = True
     app.config['SQLALCHEMY_DATABASE_URI'] = sql_db_url
     app.config['LIVESERVER_PORT'] = port

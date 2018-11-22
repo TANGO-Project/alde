@@ -20,6 +20,7 @@
 
 import executor
 import os
+import slurm
 import shell
 import unittest.mock as mock
 from sqlalchemy_mapping_tests.mapping_tests import MappingTest
@@ -584,8 +585,8 @@ class ExecutorTests(MappingTest):
 		self.assertEquals(4610, squeue_id)
 
 	@mock.patch("executor.__add_nodes_to_execution__")
-	@mock.patch("shell.execute_command")
-	def test_execute_application_type_singularity_srun(self, mock_shell, mock_add_nodes):
+	@mock.patch("slurm.execute_srun")
+	def test_execute_application_type_singularity_srun(self, mock_slurm, mock_add_nodes):
 		"""
 		Test the correct work fo this function
 		"""
@@ -640,7 +641,7 @@ class ExecutorTests(MappingTest):
 
 		output = b'             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)\n              4610       all singular  garciad  R       0:01      2 ns[55-56]\n'
 
-		mock_shell.return_value = output
+		mock_slurm.return_value = output
 
 		# TEST starts here:
 		execution = Execution()
@@ -654,26 +655,7 @@ class ExecutorTests(MappingTest):
 		self.assertEquals(execution.status, Execution.__status_running__)
 		self.assertEquals(4610, execution.slurm_sbatch_id)
 
-		call_1 = call('(', "user@testbed.com",
-									  [
-									  	"srun",
-									  	"-N",
-									  	"2",
-									  	"-n",
-									  	"16",
-									  	"singularity",
-									  	"run",
-									  	"/pepito/pepito.img",
-									  	">",
-										"allout.txt",
-										"2>&1",
-									  	"&",
-									  	")",
-									  	";",
-									  	"sleep",
-									  	"1;",
-									  	"squeue"
-									   ])
+		call_1 = call(testbed, execution_config, executable, deployment, True)
 
 		# adding a new type of execution
 		execution_config = ExecutionConfiguration()
@@ -700,27 +682,9 @@ class ExecutorTests(MappingTest):
 		self.assertEquals(execution.status, Execution.__status_running__)
 		self.assertEquals(4610, execution.slurm_sbatch_id)
 
-		call_2 = call('(', "user@testbed.com",
-									  [
-									  	"srun",
-									  	"--gres=gpu:2",
-									  	"-n",
-									  	"16",
-									  	"singularity",
-									  	"run",
-									  	"/pepito/pepito.img",
-									  	">",
-										"allout.txt",
-										"2>&1",
-									  	"&",
-									  	")",
-									  	";",
-									  	"sleep",
-									  	"1;",
-									  	"squeue"
-									   ])
+		call_2 = call(testbed, execution_config, executable, deployment, True)
 		calls = [ call_1, call_2]
-		mock_shell.assert_has_calls(calls)
+		mock_slurm.assert_has_calls(calls)
 		mock_add_nodes.assert_called_with(execution, "user@testbed.com")
 
 	@mock.patch("executor.__add_nodes_to_execution__")
@@ -783,6 +747,7 @@ class ExecutorTests(MappingTest):
 		execution = Execution()
 		execution.execution_type = execution_config.execution_type
 		execution.execution_type = executor.execute_status_submitted
+
 		executor.execute_application_type_slurm_srun(execution, execution_config.id)
 
 		execution = db.session.query(Execution).filter_by(execution_configuration_id=execution_config.id).first()

@@ -98,6 +98,9 @@ class Execution(db.Model):
     __status_failed__ = "FAILED"
     __status_unknown__ = "UNKNOWN"
     __status_cancel__ = 'CANCEL'
+    __status_stop__ = 'STOP'
+    __status_stopped__ = 'STOPPED'
+    __status_restart__ = 'RESTART'
     __status_cancelled__ = 'CANCELLED'
 
     # SQLAlchemy mapping code
@@ -168,6 +171,8 @@ class Application(db.Model):
     application that it needs to be build and maybe deploy by the
     Application Lifecycle Deployment Engine
     """
+
+    CHECKPOINTABLE = "CHECKPOINTABLE"
 
     # SQLAlchemy mapping code
     __tablename__ = 'applications'

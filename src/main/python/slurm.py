@@ -348,3 +348,45 @@ def parse_gre_field_info(gre):
                 resources['gpu'] = gpus
 
     return resources
+
+def execute_srun(testbed, execution_configuration, executable, deployment, singularity=False):
+    """
+    This will execute an slurm application and return the output
+    """
+
+	# Preparing the command to be executed
+    command = "("
+    endpoint = testbed.endpoint
+    params = []
+    params.append("srun")
+    if execution_configuration.num_nodes:
+        params.append("-N")
+        params.append(str(execution_configuration.num_nodes))
+    if execution_configuration.num_gpus_per_node:
+        params.append("--gres=gpu:" + str(execution_configuration.num_gpus_per_node))
+    params.append("-n")
+    params.append(str(execution_configuration.num_cpus_per_node))
+    if execution_configuration.srun_config:
+        params.append(execution_configuration.srun_config)
+    if singularity :
+        params.append('singularity')
+        params.append('run')
+        params.append(deployment.path)
+    else :
+        params.append(executable.executable_file)
+        params.append(execution_configuration.command)
+    params.append(">")
+    params.append("allout.txt")
+    params.append("2>&1")
+    params.append("&")
+    params.append(")")
+    params.append(";")
+    params.append("sleep")
+    params.append("1;")
+    params.append("squeue")
+    
+    logging.info("Launching execution of application: command: " + command + " | endpoint: " + endpoint + " | params: " + str(params))
+    
+    output = shell.execute_command(command, endpoint, params)
+    
+    return output

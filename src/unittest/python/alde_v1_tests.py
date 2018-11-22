@@ -919,7 +919,9 @@ class AldeV1Tests(TestCase):
     @mock.patch('executor.remove_resource')
     @mock.patch('executor.add_resource')
     @mock.patch('executor.cancel_execution')
-    def test_patch_execution_preprocessor(self, mock_executor_cancel, mock_executor_add, mock_executor_remove):
+    @mock.patch('executor.stop_execution')
+    @mock.patch('executor.restart_execution')
+    def test_patch_execution_preprocessor(self, mock_restart_execution, mock_executor_stop, mock_executor_cancel, mock_executor_add, mock_executor_remove):
         """
         It test the correct work of the method of canceling an execution
         """
@@ -940,14 +942,21 @@ class AldeV1Tests(TestCase):
         testbed = Testbed("name", False, "slurm", "ssh", "user@server", ['slurm'])
         db.session.add(testbed)
         db.session.commit()
+        application = Application()
+        application.name = "xxx"
+        application.application_type = "XXX"
+        db.session.add(application)
+        db.session.commit()
         execution_configuration = ExecutionConfiguration()
         execution_configuration.testbed = testbed
+        execution_configuration.application = application
         db.session.add(execution_configuration)
         db.session.commit()
         execution = Execution()
         execution.execution_type = Executable.__type_singularity_srun__
         execution.status = Execution.__status_running__
         execution.execution_configuration = execution_configuration
+       
         db.session.add(execution)
         db.session.commit()
 
@@ -990,6 +999,73 @@ class AldeV1Tests(TestCase):
                                      content_type='application/json')
 
         mock_executor_remove.assert_called_with(execution)
+
+        # Adding Checkpointable changes of status at ALDE level.
+        execution.status = Execution.__status_running__
+        db.session.commit()
+        data = {'status': 'STOP'}
+        
+        response = self.client.patch("/api/v1/executions/" + str(execution.id),
+                                    data=json.dumps(data),
+                                    content_type="application/json")
+        self.assertEquals(409, response.status_code)
+        self.assertEquals(
+          'No a CHECKPOINTABLE application type',
+          response.json['message'])
+        
+        application.application_type = Application.CHECKPOINTABLE
+        db.session.commit()
+
+        data = {'status': 'STOP'}
+        response = self.client.patch("/api/v1/executions/" + str(execution.id),
+                                    data=json.dumps(data),
+                                    content_type="application/json")
+        
+        mock_executor_stop.assert_called_with(execution)
+
+        execution.status = Execution.__status_cancel__
+        db.session.commit()
+        response = self.client.patch("/api/v1/executions/" + str(execution.id),
+                                    data=json.dumps(data),
+                                    content_type="application/json")
+        self.assertEquals(409, response.status_code)
+        self.assertEquals(
+          'Execution is not in right state',
+          response.json['message'])
+
+        # Checkpointable restart
+        execution.status = Execution.__status_stopped__
+        application.application_type = 'xxx'
+        db.session.commit()
+        data = {'status': 'RESTART'}
+        
+        response = self.client.patch("/api/v1/executions/" + str(execution.id),
+                                    data=json.dumps(data),
+                                    content_type="application/json")
+        self.assertEquals(409, response.status_code)
+        self.assertEquals(
+          'No a CHECKPOINTABLE application type',
+          response.json['message'])
+        
+        application.application_type = Application.CHECKPOINTABLE
+        db.session.commit()
+
+        response = self.client.patch("/api/v1/executions/" + str(execution.id),
+                                    data=json.dumps(data),
+                                    content_type="application/json")
+        
+        mock_restart_execution.assert_called_with(execution)
+
+        execution.status = Execution.__status_cancel__
+        db.session.commit()
+        response = self.client.patch("/api/v1/executions/" + str(execution.id),
+                                    data=json.dumps(data),
+                                    content_type="application/json")
+        self.assertEquals(409, response.status_code)
+        self.assertEquals(
+          'Execution is not in right state',
+          response.json['message'])
+        
 
     @mock.patch('executor.upload_deployment')
     def test_post_deployment_preprocessor(self, mock_upload_deployment):
