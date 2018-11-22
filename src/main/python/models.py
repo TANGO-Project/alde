@@ -103,6 +103,7 @@ class Execution(db.Model):
     __status_restart__ = 'RESTART'
     __status_restarted__ = 'RESTARTED'
     __status_cancelled__ = 'CANCELLED'
+    __status_submitted__ = "SUBMITTED"
 
     # SQLAlchemy mapping code
     __tablename__ = 'executions'

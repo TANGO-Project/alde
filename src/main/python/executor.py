@@ -34,8 +34,8 @@ execute_type_slurm_sbatch = Executable.__type_slurm_sbatch__
 execute_type_singularity_pm = Executable.__type_singularity_pm__
 execute_type_singularity_srun = Executable.__type_singularity_srun__
 execute_type_slurm_srun = Executable.__type_slurm_srun__
-execute_status_submitted = "SUBMITTED"
-execute_status_failed = "FAILED"
+execute_status_submitted = Execution.__status_submitted__
+execute_status_failed = Execution.__status_failed__
 
 
 def execute_application(execution_configuration, create_profile=False, use_stored_profile=False):
@@ -754,6 +754,7 @@ def stop_execution(execution):
 		child = Execution()
 		child.status = Execution.__status_running__
 		child.execution_configuration = execution.execution_configuration
+		child.execution_type = execution.execution_configuration.execution_type
 		child.slurm_sbatch_id = execution.slurm_sbatch_id
 
 		execution.slurm_sbatch_id = -1
@@ -770,5 +771,17 @@ def restart_execution(execution):
 	"""
 	It stops a checkpointable execution
 	"""
+	
+	# We create the execution
+	child = Execution()
+	child.execution_type = execution.execution_configuration.execution_type
+	child.status = Execution.__status_submitted__
+	execution.children.append(child)
+	db.session.commit()
+	
+	if execution.execution_configuration.execution_type == execute_type_slurm_srun :
+		execute_application_type_slurm_srun(child, execution.execution_configuration.execution_type)
 
-	pass
+	else :
+		child.status = Execution.__status_failed__
+		db.session.commit()
