@@ -101,6 +101,7 @@ class Execution(db.Model):
     __status_stop__ = 'STOP'
     __status_stopped__ = 'STOPPED'
     __status_restart__ = 'RESTART'
+    __status_restarted__ = 'RESTARTED'
     __status_cancelled__ = 'CANCELLED'
 
     # SQLAlchemy mapping code
@@ -391,14 +392,14 @@ class Node(db.Model):
             del self.status[key]
 
 class JsonEncodedDict(sqla.TypeDecorator):
-  """Enables JSON storage by encoding and decoding on the fly."""
-  impl = sqla.String
+    """Enables JSON storage by encoding and decoding on the fly."""
+    impl = sqla.String
 
-  def process_bind_param(self, value, dialect):
-    return simplejson.dumps(value)
+    def process_bind_param(self, value, dialect):
+        return simplejson.dumps(value)
 
-  def process_result_value(self, value, dialect):
-    return simplejson.loads(value)
+    def process_result_value(self, value, dialect):
+        return simplejson.loads(value)
 
 json_type = MutableDict.as_mutable(JsonEncodedDict)
 

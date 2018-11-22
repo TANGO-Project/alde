@@ -392,7 +392,8 @@ def monitor_execution_singularity_apps(execution):
 	status = _parse_sacct_output(sbatch_id, testbed.endpoint)
 
 	if status == Execution.__status_finished__ and execution.status == Execution.__status_running__ :
-		 ranking.update_ranking_info_for_an_execution(execution, 
+		# ranking.update_ranking_info_for_an_execution(execution, '/home_nfs/home_garciad/comparator', 'Measurements.csv')
+		ranking.update_ranking_info_for_an_execution(execution, 
 		 											  app.config['COMPARATOR_PATH'],
 													  app.config['COMPARATOR_FILE'])
 
@@ -747,7 +748,23 @@ def stop_execution(execution):
 	It stops a checkpointable execution
 	"""
 
-	pass
+	child = None
+	
+	if execution.status == Execution.__status_running__ :
+		child = Execution()
+		child.status = Execution.__status_running__
+		child.execution_configuration = execution.execution_configuration
+		child.slurm_sbatch_id = execution.slurm_sbatch_id
+
+		execution.slurm_sbatch_id = -1
+		execution.children.append(child)
+	else :
+		child = next(filter(lambda child : child.status == Execution.__status_running__, execution.children)) # Only one execution can be running
+		
+	execution.status = Execution.__status_stopped__
+	db.session.commit()
+
+	cancel_execution(child, execution.execution_configuration.testbed.endpoint)
 
 def restart_execution(execution):
 	"""
