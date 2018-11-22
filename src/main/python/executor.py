@@ -449,7 +449,7 @@ def cancel_execution(execution, url):
 	It finds an execution an cancels it if running
 	"""
 
-	if (( execution.execution_type == execute_type_singularity_pm ) or ( execution.execution_type == execute_type_singularity_srun ) or ( execution.execution_type == execute_type_singularity_srun ) or ( execution.execution_type == execute_type_slurm_srun )) and ( execution.status == Execution.__status_running__ ) :
+	if (( execution.execution_type == execute_type_singularity_pm ) or ( execution.execution_type == Executable.__type_slurm_sbatch__ ) or ( execution.execution_type == execute_type_singularity_srun ) or ( execution.execution_type == execute_type_singularity_srun ) or ( execution.execution_type == execute_type_slurm_srun )) and ( execution.status == Execution.__status_running__ ) :
 		
 		if execution.children is not None :
 			for child in execution.children :

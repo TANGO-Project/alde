@@ -68,17 +68,17 @@ TODO try first squeue (appears still RUNNING) try second sacct (it stopped) (fai
 
 curl -X POST -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/applications -d'{ "name": "gromacs" }'
 
-curl -X PUT -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/applications/10 -d'{"executables":[{"compilation_script":"none","compilation_type":"SLURM:SRUN", "executable_file":"/usr/local/gromacs-4.6.7-cuda2/bin/mdrun","status":"COMPILED"}]}'
+curl -X PUT -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/applications/6 -d'{"executables":[{"compilation_script":"none","compilation_type":"SLURM:SRUN", "executable_file":"/usr/local/gromacs-4.6.7-cuda2/bin/mdrun","status":"COMPILED"}]}'
 
- curl -X POST -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/deployments -d'{"executable_id":11,"testbed_id":1,"status":"UPLOADED_UPDATED"}'
+curl -X POST -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/deployments -d'{"executable_id":9,"testbed_id":1,"status":"UPLOADED_UPDATED"}'
 
 
 
 /usr/local/gromacs-4.6.7-cuda2/bin/mdrun -s /home_nfs/home_dineshkr/Gromacs/gromacs-run/peptide_water_3k.tpr -v -nsteps 50000 -testverlet
 
-curl -X POST -H'Content-type: application/json' http://127.0.0.1:5000/api/v1/execution_configurations -d'{ "execution_type":"SLURM:SRUN", "application_id": 10, "testbed_id": 1, "executable_id": 11, "num_gpus_per_node": 1, "num_cpus_per_node": 1, "srun_config":"--job-name gromacstest --profile=energy,task --acctg-freq=Energy=1,Task=1", "command":"-s /home_nfs/home_dineshkr/Gromacs/gromacs-run/peptide_water_3k.tpr -v -nsteps 50000 -testverlet"}'
+curl -X POST -H'Content-type: application/json' http://127.0.0.1:5000/api/v1/execution_configurations -d'{ "execution_type":"SLURM:SRUN", "application_id": 6, "testbed_id": 1, "executable_id": 9, "num_gpus_per_node": 1, "num_cpus_per_node": 1, "srun_config":"--job-name gromacstest --profile=energy,task --acctg-freq=Energy=1,Task=1", "command":"-s /home_nfs/home_dineshkr/Gromacs/gromacs-run/peptide_water_3k.tpr -v -nsteps 50000 -testverlet"}'
 
-curl -X PATCH -H'Content-type: application/json' http://127.0.0.1:5000/api/v1/execution_configurations/12 -d'{"launch_execution": true}'
+    curl -X PATCH -H'Content-type: application/json' http://127.0.0.1:5000/api/v1/execution_configurations/29 -d'{"launch_execution": true}'
 
 curl -X PATCH -H'Content-type: application/json' http://127.0.0.1:5000/api/v1/execution_configurations/12 -d'{ command":"-s /home_nfs/home_dineshkr/Gromacs/gromacs-run/peptide_water_3k.tpr -v -nsteps 50000 -testverlet"}'
 

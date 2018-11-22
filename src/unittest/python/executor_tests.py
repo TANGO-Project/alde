@@ -849,11 +849,17 @@ class ExecutorTests(MappingTest):
 		execution_4.execution_type = Executable.__type_singularity_pm__
 		execution_4.status = Execution.__status_finished__
 		execution_4.slurm_sbatch_id = 4
+		execution_5 = Execution()
+		execution_5.execution_type = Executable.__type_slurm_sbatch__
+		execution_5.slurm_sbatch_id = 5
+		execution_5.status = Execution.__status_running__
+
 
 		executor.cancel_execution(execution_1, "user@testbed.com")
 		executor.cancel_execution(execution_2, "user@testbed.com")
 		executor.cancel_execution(execution_3, "user@testbed.com")
 		executor.cancel_execution(execution_4, "user@testbed.com")
+		executor.cancel_execution(execution_5, "user@testbed.com")
 
 		execution_21 = Execution()
 		execution_21.execution_type = Executable.__type_singularity_pm__
@@ -880,11 +886,12 @@ class ExecutorTests(MappingTest):
 
 		call_1 = call("scancel", "user@testbed.com", [ "1" ])
 		call_2 = call("scancel", "user@testbed.com", [ "2" ])
-		call_3 = call("scancel", "user@testbed.com", [ "34" ])
-		call_4 = call("scancel", "user@testbed.com", [ "54" ])
-		call_5 = call("scancel", "user@testbed.com", [ "33" ])
-		call_6 = call("scancel", "user@testbed.com", [ "2" ])
-		calls = [ call_1, call_2, call_3, call_4, call_5, call_6 ]
+		call_3 = call("scancel", "user@testbed.com", ["5"])
+		call_4 = call("scancel", "user@testbed.com", [ "34" ])
+		call_5 = call("scancel", "user@testbed.com", [ "54" ])
+		call_6 = call("scancel", "user@testbed.com", [ "33" ])
+		call_7 = call("scancel", "user@testbed.com", [ "2" ])
+		calls = [ call_1, call_2, call_3, call_4, call_5, call_6, call_7 ]
 		mock_shell.assert_has_calls(calls)
 
 	@mock.patch('executor.__add_nodes_to_execution__')
