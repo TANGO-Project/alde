@@ -777,10 +777,13 @@ def restart_execution(execution):
 	child.execution_type = execution.execution_configuration.execution_type
 	child.status = Execution.__status_submitted__
 	execution.children.append(child)
+	execution.status = Execution.__status_restarted__
 	db.session.commit()
 	
 	if execution.execution_configuration.execution_type == execute_type_slurm_srun :
 		execute_application_type_slurm_srun(child, execution.execution_configuration_id)
+		child.status = Execution.__status_running__
+		db.session.commit()
 
 	else :
 		child.status = Execution.__status_failed__

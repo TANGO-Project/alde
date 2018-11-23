@@ -1604,4 +1604,5 @@ class ExecutorTests(MappingTest):
 		execution = db.session.query(Execution).filter_by(id=execution.id).first()
 		new_child = execution.children[2]
 		self.assertEquals(execution_config.execution_type, new_child.execution_type)
-		self.assertEquals(Execution.__status_submitted__, new_child.status)
+		self.assertEquals(Execution.__status_running__, new_child.status)
+		self.assertEquals(Execution.__status_restarted__, execution.status)
