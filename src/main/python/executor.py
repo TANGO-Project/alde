@@ -153,7 +153,7 @@ def __get_srun_info__(execution, identifier):
 	return execution_configuration, testbed, deployment, executable
 
 
-def execute_application_type_slurm_srun(execution, identifier):
+def execute_application_type_slurm_srun(execution, identifier, child_execution=None):
 	"""
 	It supports execution of this type:
 	( srun --job-name gromacstest 
@@ -194,7 +194,10 @@ def execute_application_type_slurm_srun(execution, identifier):
 
 	logging.info("Launching execution of application: command: " + command + " | endpoint: " + endpoint + " | params: " + str(params))
 
-	__launch_execution__(command, endpoint, params, execution_configuration)
+	if child_execution :
+		__launch_execution__(command, endpoint, params, execution_configuration, execution)
+	else : 
+		__launch_execution__(command, endpoint, params, execution_configuration)
 
 
 def execute_application_type_singularity_srun(execution, identifier):
@@ -209,17 +212,22 @@ def execute_application_type_singularity_srun(execution, identifier):
 
 	__parse_output__(output, testbed.endpoint, execution_configuration)
 
-def __parse_output__(output, endpoint, execution_configuration):
+def __parse_output__(output, endpoint, execution_configuration, child_execution=None):
 	"""
 	It parses output and adds nodes to the execution
 	"""
 
 	sbatch_id = __extract_id_from_squeue__(output)
+	execution = None
 	
-	execution = Execution()
-	execution.execution_type = execution_configuration.execution_type
+	if child_execution :
+		execution = child_execution
+	else :
+		execution = Execution()
+		execution.execution_type = execution_configuration.execution_type
+		execution_configuration.executions.append(execution)
+	
 	execution.status = Execution.__status_running__
-	execution_configuration.executions.append(execution)
 	execution.slurm_sbatch_id = sbatch_id
 	db.session.commit()
 
@@ -227,13 +235,13 @@ def __parse_output__(output, endpoint, execution_configuration):
 	__add_nodes_to_execution__(execution, endpoint)
 
 
-def __launch_execution__(command, endpoint, params, execution_configuration):
+def __launch_execution__(command, endpoint, params, execution_configuration, child_execution=None):
 	"""
 	It updates after any srun execution, singularity or not
 	"""
 
 	output = shell.execute_command(command, endpoint, params)
-	__parse_output__(output, endpoint, execution_configuration)
+	__parse_output__(output, endpoint, execution_configuration, child_execution)
 
 def __extract_id_from_squeue__(output):
 	"""
@@ -781,7 +789,7 @@ def restart_execution(execution):
 	db.session.commit()
 	
 	if execution.execution_configuration.execution_type == execute_type_slurm_srun :
-		execute_application_type_slurm_srun(child, execution.execution_configuration_id)
+		execute_application_type_slurm_srun(child, execution.execution_configuration_id, True)
 		child.status = Execution.__status_running__
 		db.session.commit()
 

@@ -106,4 +106,107 @@ curl -X POST -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/ap
   "scaling_upper_bound": null
 }
 
-curl -X PUT -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/applications/6 -d'{"executables":[{"compilation_script":"none","compilation_type":"SLURM:SRUN", "executable_file":"/home_nfs/home_garciad/fti-0.9.8/build/examples/hd.exe","status":"COMPILED"}]}'
+curl -X PUT -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/applications/11 -d'{"executables":[{"compilation_script":"none","compilation_type":"SLURM:SRUN", "executable_file":"/home_nfs/home_garciad/fti-0.9.8/build/examples/hd.exe","status":"COMPILED"}]}'
+{
+  "application_type": "CHECKPOINTABLE", 
+  "deadline": null, 
+  "executables": [
+    {
+      "application_id": 11, 
+      "compilation_script": "none", 
+      "compilation_type": "SLURM:SRUN", 
+      "executable_file": "/home_nfs/home_garciad/fti-0.9.8/build/examples/hd.exe", 
+      "id": 15, 
+      "singularity_app_folder": null, 
+      "singularity_image_file": null, 
+      "source_code_file": null, 
+      "status": "COMPILED"
+    }
+  ], 
+  "execution_configurations": [], 
+  "id": 11, 
+  "max_energy": null, 
+  "max_energy_units": null, 
+  "max_power": null, 
+  "max_power_units": null, 
+  "name": "Heat Distribution", 
+  "priority": null, 
+  "scaling_lower_bound": null, 
+  "scaling_upper_bound": null
+}
+
+curl -X POST -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/deployments -d'{"executable_id":15,"testbed_id":1,"status":"UPLOADED_UPDATED"}'
+{
+  "executable_id": 15, 
+  "path": null, 
+  "status": "UPLOADED_UPDATED", 
+  "testbed_id": 1
+}
+
+srun -n16 /home_nfs/home_garciad/fti-0.9.8/build/examples/hd.exe 32 /home_nfs/home_garciad/fti-0.9.8/build/examples/config.fti
+
+curl -X POST -H'Content-type: application/json' http://127.0.0.1:5000/api/v1/execution_configurations -d'{ "execution_type":"SLURM:SRUN", "application_id": 11, "testbed_id": 1, "executable_id": 15, "num_cpus_per_node": 16, "srun_config":"--mpi=pmi2 --job-name heatDistributionCheckpointable --profile=energy,task --acctg-freq=Energy=1,Task=1", "command":"32 /home_nfs/home_garciad/fti-0.9.8/build/examples/config.fti"}'
+{
+  "application": {
+    "application_type": "CHECKPOINTABLE", 
+    "deadline": null, 
+    "id": 11, 
+    "max_energy": null, 
+    "max_energy_units": null, 
+    "max_power": null, 
+    "max_power_units": null, 
+    "name": "Heat Distribution", 
+    "priority": null, 
+    "scaling_lower_bound": null, 
+    "scaling_upper_bound": null
+  }, 
+  "application_id": 11, 
+  "command": "32 /home_nfs/home_garciad/fti-0.9.8/build/examples/config.fti", 
+  "compss_config": null, 
+  "exec_time": null, 
+  "executable": {
+    "application_id": 11, 
+    "compilation_script": "none", 
+    "compilation_type": "SLURM:SRUN", 
+    "executable_file": "/home_nfs/home_garciad/fti-0.9.8/build/examples/hd.exe", 
+    "id": 15, 
+    "singularity_app_folder": null, 
+    "singularity_image_file": null, 
+    "source_code_file": null, 
+    "status": "COMPILED"
+  }, 
+  "executable_id": 15, 
+  "execution_type": "SLURM:SRUN", 
+  "executions": [], 
+  "id": 34, 
+  "num_cpus_per_node": 16, 
+  "num_gpus_per_node": null, 
+  "num_nodes": null, 
+  "profile_file": null, 
+  "srun_config": "--mpi=pmi2 --job-name heatDistributionCheckpointable --profile=energy,task --acctg-freq=Energy=1,Task=1", 
+  "testbed": {
+    "category": "SLURM", 
+    "endpoint": "", 
+    "extra_config": {
+      "enqueue_compss_sc_cfg": "nova.cfg", 
+      "enqueue_env_file": "/home_nfs/home_ejarquej/installations/2.2.6/COMPSs/compssenv"
+    }, 
+    "id": 1, 
+    "name": "nova2", 
+    "on_line": true, 
+    "package_formats": [
+      "SINGULARITY"
+    ], 
+    "protocol": "LOCAL"
+  }, 
+  "testbed_id": 1
+}
+
+curl -X PATCH -H'Content-type: application/json' http://127.0.0.1:5000/api/v1/execution_configurations/34 -d'{"launch_execution": true}'
+
+
+curl -X PATCH -H'Content-type: application/json' http://127.0.0.1:5000/api/v1/executions/648 -d'{"status": "STOP"}'
+
+curl -X PATCH -H'Content-type: application/json' http://127.0.0.1:5000/api/v1/executions/648 -d'{"status": "RESTART"}'
+
+curl -X PATCH -H'Content-type: application/json' http://127.0.0.1:5000/api/v1/executions/648 -d'{"status": "STOPPED"}'
