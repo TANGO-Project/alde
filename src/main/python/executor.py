@@ -780,7 +780,7 @@ def restart_execution(execution):
 	db.session.commit()
 	
 	if execution.execution_configuration.execution_type == execute_type_slurm_srun :
-		execute_application_type_slurm_srun(child, execution.execution_configuration.execution_type)
+		execute_application_type_slurm_srun(child, execution.execution_configuration_id)
 
 	else :
 		child.status = Execution.__status_failed__

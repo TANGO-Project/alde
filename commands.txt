@@ -84,3 +84,26 @@ curl -X PATCH -H'Content-type: application/json' http://127.0.0.1:5000/api/v1/ex
 
 
 curl -X POST -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/applications -d'{ "name": "my_app", "application_type": "MALLEABLE" }'
+
+
+
+# Heat Distribution creation
+
+curl -X POST -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/applications -d'{ "name": "Heat Distribution", "application_type": "CHECKPOINTABLE" }'
+{
+  "application_type": "CHECKPOINTABLE", 
+  "deadline": null, 
+  "executables": [], 
+  "execution_configurations": [], 
+  "id": 11, 
+  "max_energy": null, 
+  "max_energy_units": null, 
+  "max_power": null, 
+  "max_power_units": null, 
+  "name": "Heat Distribution", 
+  "priority": null, 
+  "scaling_lower_bound": null, 
+  "scaling_upper_bound": null
+}
+
+curl -X PUT -H'Content-type: application/json'  http://127.0.0.1:5000/api/v1/applications/6 -d'{"executables":[{"compilation_script":"none","compilation_type":"SLURM:SRUN", "executable_file":"/home_nfs/home_garciad/fti-0.9.8/build/examples/hd.exe","status":"COMPILED"}]}'
