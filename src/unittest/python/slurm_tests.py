@@ -548,3 +548,19 @@ class SlurmTests(MappingTest):
         mock_shell.assert_has_calls(calls)
 
         self.assertEquals(output, output_srun)
+
+    @mock.patch("shell.execute_command")
+    def test_execute_srun(self, mock_shell):
+        """ 
+        It stops a command with scontrol
+        """
+
+        ## First case endpoint null
+        slurm.stop_execution(333, None)
+
+        mock_shell.assert_called_with(command="scontrol", params=["suspend", "333"])
+
+        ## Secon case endpoint not null
+        slurm.stop_execution(333, "endpoint")
+
+        mock_shell.assert_called_with(command="scontrol", server="endpoint", params=["suspend", "333"])

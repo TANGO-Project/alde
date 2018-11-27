@@ -394,6 +394,14 @@ def execute_srun(testbed, execution_configuration, executable, deployment, singu
 def stop_execution(execution_id, endpoint):
     """
     This will use scontrol to stop an execution
+
+    scontrol suspend 7993
     """
 
-    pass
+    command="scontrol"
+    params=["suspend", str(execution_id)]
+
+    if endpoint:
+        shell.execute_command(command=command, server=endpoint, params=params)
+    else :
+        shell.execute_command(command=command, params=params)
