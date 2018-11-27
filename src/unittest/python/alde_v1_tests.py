@@ -1002,17 +1002,6 @@ class AldeV1Tests(TestCase):
 
         # Adding Checkpointable changes of status at ALDE level.
         execution.status = Execution.__status_running__
-        db.session.commit()
-        data = {'status': 'STOP'}
-        
-        response = self.client.patch("/api/v1/executions/" + str(execution.id),
-                                    data=json.dumps(data),
-                                    content_type="application/json")
-        self.assertEquals(409, response.status_code)
-        self.assertEquals(
-          'No a CHECKPOINTABLE application type',
-          response.json['message'])
-        
         application.application_type = Application.CHECKPOINTABLE
         db.session.commit()
 
@@ -1035,21 +1024,9 @@ class AldeV1Tests(TestCase):
 
         # Checkpointable restart
         execution.status = Execution.__status_stopped__
-        application.application_type = 'xxx'
         db.session.commit()
         data = {'status': 'RESTART'}
         
-        response = self.client.patch("/api/v1/executions/" + str(execution.id),
-                                    data=json.dumps(data),
-                                    content_type="application/json")
-        self.assertEquals(409, response.status_code)
-        self.assertEquals(
-          'No a CHECKPOINTABLE application type',
-          response.json['message'])
-        
-        application.application_type = Application.CHECKPOINTABLE
-        db.session.commit()
-
         response = self.client.patch("/api/v1/executions/" + str(execution.id),
                                     data=json.dumps(data),
                                     content_type="application/json")

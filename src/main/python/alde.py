@@ -213,16 +213,12 @@ def patch_execution_preprocessor(instance_id=None, data=None, **kw):
                 url = execution.execution_configuration.testbed.endpoint
                 executor.cancel_execution(execution, url) 
             elif data['status'] == Execution.__status_stop__ or  data['status'] == Execution.__status_restart__:
-                if Application.CHECKPOINTABLE == execution.execution_configuration.application.application_type :
-                    if ( execution.status == Execution.__status_running__ or execution.status == Execution.__status_restarted__ or execution.status == Execution.__status_restart__ ) and data['status'] == Execution.__status_stop__  :
-                        executor.stop_execution(execution)
-                    elif ( execution.status == Execution.__status_stopped__ or execution.status == Execution.__status_stop__ ) and data['status'] == Execution.__status_restart__ :
-                        executor.restart_execution(execution)
-                    else :
-                        description = 'Execution is not in right state'
-                        raise flask_restless.ProcessingException(description=description, code=409)
+                if ( execution.status == Execution.__status_running__ or execution.status == Execution.__status_restarted__ or execution.status == Execution.__status_restart__ ) and data['status'] == Execution.__status_stop__  :
+                    executor.stop_execution(execution)
+                elif ( execution.status == Execution.__status_stopped__ or execution.status == Execution.__status_stop__ ) and data['status'] == Execution.__status_restart__ :
+                    executor.restart_execution(execution)
                 else :
-                    description = 'No a ' + Application.CHECKPOINTABLE + ' application type'
+                    description = 'Execution is not in right state'
                     raise flask_restless.ProcessingException(description=description, code=409)
             else :
                 raise flask_restless.ProcessingException(
