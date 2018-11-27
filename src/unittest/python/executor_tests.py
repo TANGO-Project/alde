@@ -1426,8 +1426,9 @@ class ExecutorTests(MappingTest):
 										  'State=idle'
 									  ])
 
+	@mock.patch("slurm.stop_execution")
 	@mock.patch('executor.cancel_execution')
-	def test_stop_execution(self, mock_cancel):
+	def test_stop_execution(self, mock_cancel, mock_stop):
 		"""
 		It tests that it is possible to stop an execution with slurm
 		"""
@@ -1519,6 +1520,64 @@ class ExecutorTests(MappingTest):
 		args, kwargs = call_2
 		self.assertEquals(child.status, args[0].status)
 		self.assertEquals(child.id, args[0].id)
+
+		## testing with no checkpointable application
+				# We define the different entities necessaryb for the test.
+		testbed = Testbed(name="nova2",
+						  on_line=True,
+						  category="SLURM",
+						  protocol="SSH",
+						  endpoint="user@testbed.com",
+						  package_formats= ['sbatch', 'srun', 'SINGULARITY'],
+						  extra_config= {
+						  	"enqueue_compss_sc_cfg": "nova.cfg" ,
+						  	"enqueue_env_file": "/home_nfs/home_ejarquej/installations/rc1707/COMPSs/compssenv"
+						  })
+		db.session.add(testbed)
+
+		application = Application(name="super_app")
+		db.session.add(application)
+		db.session.commit() 
+
+		executable = Executable()
+		executable.source_code_file = 'test.zip'
+		executable.compilation_script = 'gcc -X'
+		executable.compilation_type = "SLURM:SRUN"
+		executable.executable_file = "/usr/local/gromacs-4.6.7-cuda2/bin/mdrun"
+		executable.status = "COMPILED"
+		executable.application = application
+		db.session.add(executable)
+		db.session.commit() # We do this so executable gets and id
+
+		deployment = Deployment()
+		deployment.testbed_id = testbed.id
+		deployment.executable_id = executable.id
+		db.session.add(deployment) # We add the executable to the db so it has an id
+
+		execution_config = ExecutionConfiguration()
+		execution_config.execution_type ="SLURM:SRUN"
+		execution_config.application = application
+		execution_config.testbed = testbed
+		execution_config.executable = executable 
+		execution_config.num_nodes = 2
+		#execution_config.num_gpus_per_node = 2
+		execution_config.num_cpus_per_node = 16
+		execution_config.srun_config = "--job-name gromacstest --profile=energy,task --acctg-freq=Energy=1,Task=1"
+		execution_config.command = "-s /home_nfs/home_dineshkr/Gromacs/gromacs-run/peptide_water_3k.tpr -v -nsteps 50000 -testverlet"
+		db.session.add(execution_config)
+		db.session.commit()
+
+		execution = Execution()
+		execution.slurm_sbatch_id = 21
+		execution.status = Execution.__status_running__
+		execution.execution_configuration = execution_config
+		db.session.add(execution)
+		db.session.commit()
+
+		# Test starts here
+		executor.stop_execution(execution)
+		mock_stop.assert_called_with(21, "user@testbed.com")
+
 
 	@mock.patch('executor.execute_application_type_slurm_srun')
 	def test_restart_execution(self, mock_slurm):

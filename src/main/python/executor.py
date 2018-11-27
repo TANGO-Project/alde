@@ -19,7 +19,7 @@
 #
 
 from threading import Thread
-from models import db, Execution, Testbed, Executable, Deployment, ExecutionConfiguration, Node
+from models import db, Execution, Testbed, Executable, Deployment, ExecutionConfiguration, Node, Application
 import shell
 import uuid
 import os
@@ -756,24 +756,27 @@ def stop_execution(execution):
 	It stops a checkpointable execution
 	"""
 
-	child = None
+	if Application.CHECKPOINTABLE == execution.execution_configuration.application.application_type :
+		child = None
 	
-	if execution.status == Execution.__status_running__ :
-		child = Execution()
-		child.status = Execution.__status_running__
-		child.execution_configuration = execution.execution_configuration
-		child.execution_type = execution.execution_configuration.execution_type
-		child.slurm_sbatch_id = execution.slurm_sbatch_id
+		if execution.status == Execution.__status_running__ :
+			child = Execution()
+			child.status = Execution.__status_running__
+			child.execution_configuration = execution.execution_configuration
+			child.execution_type = execution.execution_configuration.execution_type
+			child.slurm_sbatch_id = execution.slurm_sbatch_id
 
-		execution.slurm_sbatch_id = -1
-		execution.children.append(child)
-	else :
-		child = next(filter(lambda child : child.status == Execution.__status_running__, execution.children)) # Only one execution can be running
+			execution.slurm_sbatch_id = -1
+			execution.children.append(child)
+		else :
+			child = next(filter(lambda child : child.status == Execution.__status_running__, execution.children)) # Only one execution can be running
 		
-	execution.status = Execution.__status_stopped__
-	db.session.commit()
+		execution.status = Execution.__status_stopped__
+		db.session.commit()
 
-	cancel_execution(child, execution.execution_configuration.testbed.endpoint)
+		cancel_execution(child, execution.execution_configuration.testbed.endpoint)
+	else :
+		slurm.stop_execution(execution.slurm_sbatch_id, execution.execution_configuration.testbed.endpoint)
 
 def restart_execution(execution):
 	"""
