@@ -74,12 +74,30 @@ def execute_application(execution_configuration, create_profile=False, use_store
 		t = Thread(target=execute_application_type_slurm_srun, args=(execution, execution_configuration.id))
 		t.start()
 		return t
+	elif execution.execution_type == Executable.__type_pm__ :
+		t = Thread(target=execute_application_type_pm, args=(execution, execution_configuration.id, create_profile, use_stored_profile, profile_folder))
+		t.start()
+		return t
 	else: 
 		execution.status = execute_status_failed
 		execution.output = "No support for execurtion type: " + execution.execution_type
 		db.session.commit()
 
+def execute_application_type_pm(execution, identifier, create_profile=False, use_storage_profile=False, profile_folder='.'):
+	"""
+	It executes a Singularity PM application in a targatted testbed
+	"""
+
+	__execute_pm_applications__(execution, identifier, create_profile, use_storage_profile, profile_folder, False)
+
 def execute_application_type_singularity_pm(execution, identifier, create_profile=False, use_storage_profile=False, profile_folder='.'):
+	"""
+	It executes a Singularity PM application in a targatted testbed
+	"""
+
+	__execute_pm_applications__(execution, identifier, create_profile, use_storage_profile, profile_folder, True)
+
+def __execute_pm_applications__(execution, identifier, create_profile, use_storage_profile, profile_folder, singularity):
 	"""
 	It executes a Singularity PM application in a targatted testbed
 	"""
@@ -106,11 +124,16 @@ def execute_application_type_singularity_pm(execution, identifier, create_profil
 	params.append("--num_nodes=" + str(execution_configuration.num_nodes))
 	params.append("--gpus_per_node=" + str(execution_configuration.num_gpus_per_node))
 	params.append("--cpus_per_node=" + str(execution_configuration.num_cpus_per_node))
-	params.append("--container_image=" + deployment.path)
-	params.append("--container_compss_path=/opt/TANGO/TANGO_ProgrammingModel/COMPSs/") # TODO Ugly... ugly... and more ugly...
-	#params.append("--appdir=" + executable.singularity_app_folder)
-	params.append("--appdir=/apps/application/") # TODO Ugly... fix this... 
+	
+	if singularity :
+		params.append("--container_image=" + deployment.path)
+		params.append("--container_compss_path=/opt/TANGO/TANGO_ProgrammingModel/COMPSs/") # TODO Ugly... ugly... and more ugly...
+		#params.append("--appdir=" + executable.singularity_app_folder)
+		params.append("--appdir=/apps/application/") # TODO Ugly... fix this... 
+	else :
+		params.append("--appdir=" + executable.singularity_app_folder)
 	params.append("--exec_time=" + str(execution_configuration.exec_time))
+	
 	# If create profile
 	if create_profile :
 		params.append("--output_profile=" + profile_file)

@@ -71,6 +71,7 @@ class Executable(db.Model):
     __type_singularity_srun__ = 'SINGULARITY:SRUN'
     __type_slurm_srun__ = 'SLURM:SRUN'
     __type_slurm_sbatch__ = 'SLURM:SBATCH'
+    __type_pm__ = 'PM'
 
 
     # SQLAlchemy mapping code
