@@ -83,6 +83,16 @@ class SlurmTests(MappingTest):
         self.assertTrue(self.example3 in output)
         self.assertTrue(self.example4 in output)
 
+    def test_is_node_idle(self):
+        """
+        Check in an array of nodes if the status is idle
+        """
+
+        nodes = slurm.parse_sinfo_partitions(self.command_output)
+        self.assertFalse(slurm.is_node_idle(nodes, 'nd15'))
+        self.assertTrue(slurm.is_node_idle(nodes, 'nd18'))
+        self.assertFalse(slurm.is_node_idle(nodes, 'Pepito'))
+
     @mock.patch('slurm.shell.execute_command')
     def test_get_nodes_testbed(self, mock_shell):
         """

@@ -37,6 +37,7 @@ sonarqube_project_key = "ce9b5211cc48e2ca6ac94406eb8fe0a0f31eed06"
 # Coverage configuration:
 coverage_allow_non_imported_modules = "True"
 coverage_exceptions = [ 'alde.py' ]
+install_dependencies_upgrade = True
 
 # Resources to be copied
 @init

@@ -27,6 +27,17 @@ import linux_probes.cpu_info_parser as parser
 import inventory
 from models import db, Testbed, Node, CPU, GPU, Memory
 
+def is_node_idle(nodes, node_name):
+    """
+    For a list of nodes checks if the nodle is idle
+    """
+    node = next(filter(lambda node: node['node_name'] == node_name, nodes), None)
+    
+    if node and node['partition_state'] == 'idle' :
+        return True
+    else :
+        return False
+
 def parse_sinfo_partitions(command_output):
     """
     It parses an text in the following format:

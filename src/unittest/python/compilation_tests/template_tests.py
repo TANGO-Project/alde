@@ -89,7 +89,7 @@ class TemplateTests(unittest.TestCase):
 
 		# Checking that we are logging the correct messages
 		l.check(
-			('root', 'INFO', 'Creating singulartiy template using file: test_update_template_variables.txt'),
-			('root', 'INFO', log_string)
-			)
+		 	('root', 'INFO', 'Creating singulartiy template using file: test_update_template_variables.txt'),
+		 	('root', 'INFO', log_string)
+		 	)
 		l.uninstall()
