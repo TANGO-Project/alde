@@ -123,6 +123,7 @@ class Execution(db.Model):
     energy_output = db.Column(db.Integer)
     runtime_output = db.Column(db.Integer)
     add_resource = False
+    remove_resource = False
 
     def get_number_extra_jobs(self):
         """
