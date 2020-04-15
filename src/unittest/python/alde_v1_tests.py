@@ -51,7 +51,7 @@ class AldeV1Tests(TestCase):
                                  self.APP_TYPES,
                                  self.COMPARATOR_PATH,
                                  self.COMPARATOR_FILE)
-
+        app.scheduler.shutdown()
         return app
 
     def setUp(self):

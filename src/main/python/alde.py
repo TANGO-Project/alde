@@ -423,7 +423,7 @@ def create_app_v1(sql_db_url,
     # scheduler.api_enabled = True
     scheduler.init_app(app)
     scheduler.start()
-
+    app.scheduler = scheduler
     return app
 
 

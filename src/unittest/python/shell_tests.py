@@ -98,7 +98,7 @@ class ShellTests(unittest.TestCase):
         l.check(
             ('root', 'INFO', 'Executing: ls -la .'),
             ('root', 'ERROR', "Trying to execute command:  ls -la ."),
-            ('root', 'ERROR', "Error: Command 'ls' returned non-zero exit status 255."),
+            ('root', 'ERROR', "Error: Command 'ls' returned non-zero exit status 255"),
             ('root', 'ERROR', "failed"),
             ('root', 'ERROR', 'Trying to execute command at server ')
             )
