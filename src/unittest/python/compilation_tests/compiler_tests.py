@@ -126,7 +126,7 @@ class CompilerTests(MappingTest):
 		# We verify that the creation of the template is done
 		mock_create_sing_template.assert_called_with(configuration, executable, 'ubuntu@localhost:2222', 'dest_folder')
 		# We verify that the image was created
-		mock_image.assert_called_with(configuration, 'ubuntu@localhost:2222', 'singularity_pm.img')
+		#mock_image.assert_called_with(configuration, 'ubuntu@localhost:2222', 'singularity_pm.img')
 		# We verify that the container was build
 		mock_build.assert_called_with('ubuntu@localhost:2222', 'template.def', 'singularity_pm.img', 'asdf', become=True)
 
@@ -183,20 +183,20 @@ class CompilerTests(MappingTest):
 
 		## WE VERIFY ALL THE CALLS:
 
-		call_1 = call('sudo', 'asdf@asdf.com', ['singularity', 'bootstrap', 'image.img', 'test.def'])
-		call_2 = call('singularity', 'asdf@asdf.com', ['bootstrap', 'image.img', 'test.def'])
-		call_3 = call('singularity', '', ['bootstrap', 'image.img', '/test/test.def'])
+		call_1 = call('sudo', 'asdf@asdf.com', ['singularity', 'build', '-F', 'image.img', 'test.def'])
+		call_2 = call('singularity', 'asdf@asdf.com', ['build', '-F', 'image.img', 'test.def'])
+		call_3 = call('singularity', '', ['build', '-F', 'image.img', '/test/test.def'])
 		call_4 = call('mv', '', [ANY, ANY])
 		calls = [ call_1, call_2, call_3, call_4]
 		mock_shell.assert_has_calls(calls)
 
 		# Checking that we are logging the correct messages
 		l.check(
-			('root', 'INFO', "Executing [asdf@asdf.com], 'sudo singulary bootstrap image.img test.def'"),
+			('root', 'INFO', "Executing [asdf@asdf.com], 'sudo singulary build -F image.img test.def'"),
 			('root', 'INFO', 'Downloading image from asdf@asdf.com'),
-			('root', 'INFO', "Executing [asdf@asdf.com], 'singulary bootstrap image.img test.def'"),
+			('root', 'INFO', "Executing [asdf@asdf.com], 'singulary build -F image.img test.def'"),
 			('root', 'INFO', 'Downloading image from asdf@asdf.com'),
-			('root', 'INFO', "Executing [], 'singulary bootstrap image.img /test/test.def'"),
+			('root', 'INFO', "Executing [], 'singulary build -F image.img /test/test.def'"),
 			('root', 'INFO', 'Moving image to final destination')
 			)
 		l.uninstall()

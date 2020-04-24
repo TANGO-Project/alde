@@ -366,7 +366,7 @@ def execute_srun(testbed, execution_configuration, executable, deployment, singu
     """
 
 	# Preparing the command to be executed
-    command = "("
+    command = "' ("
     endpoint = testbed.endpoint
     params = []
     params.append("srun")
@@ -395,6 +395,7 @@ def execute_srun(testbed, execution_configuration, executable, deployment, singu
     params.append("sleep")
     params.append("1;")
     params.append("squeue")
+    params.append("'")
     
     logging.info("Launching execution of application: command: " + command + " | endpoint: " + endpoint + " | params: " + str(params))
     

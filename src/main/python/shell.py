@@ -58,7 +58,7 @@ def execute_command(command, server='', params=[]):
         if server != '':
             command = ""
             for param in params:
-                command = command + " " + param
+                command = command + " " + str(param)
 
             params = []
             params.append('ssh')

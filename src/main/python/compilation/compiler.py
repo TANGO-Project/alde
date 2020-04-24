@@ -83,7 +83,6 @@ def compile_singularity_pm(executable, app_folder):
 	output_template = create_singularity_template(configuration, executable, connection_url, compilation_folder)
 
 	# We create the image and we build the container
-	create_singularity_image(configuration, connection_url, _singularity_pm_image_)
 	image_file = build_singularity_container(connection_url, output_template, _singularity_pm_image_, app_folder, become=become)
 
 	executable.singularity_image_file = image_file
@@ -105,11 +104,11 @@ def build_singularity_container(connection_url, template, image_file, upload_fol
 		template = os.path.basename(template)
 
 	if become:
-		logging.info("Executing [%s], 'sudo singulary bootstrap %s %s'", connection_url, image_file, template)
-		shell.execute_command('sudo', connection_url, ['singularity', 'bootstrap', image_file, template ])
+		logging.info("Executing [%s], 'sudo singulary build -F %s %s'", connection_url, image_file, template)
+		shell.execute_command('sudo', connection_url, ['singularity', 'build', '-F', image_file, template ])
 	else:
-		logging.info("Executing [%s], 'singulary bootstrap %s %s'", connection_url, image_file, template)
-		shell.execute_command('singularity', connection_url, ['bootstrap', image_file, template ])
+		logging.info("Executing [%s], 'singulary build -F %s %s'", connection_url, image_file, template)
+		shell.execute_command('singularity', connection_url, ['build', '-F', image_file, template ])
 
 	if connection_url != '':
 		logging.info("Downloading image from %s", connection_url)
