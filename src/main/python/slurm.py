@@ -27,16 +27,24 @@ import linux_probes.cpu_info_parser as parser
 import inventory
 from models import db, Testbed, Node, CPU, GPU, Memory
 
+import testbeds.common
+from testbeds.constants import NAME
+from testbeds.constants import MEMORY
+from testbeds.constants import STATE
+from testbeds.constants import GRES
+
+
 def is_node_idle(nodes, node_name):
     """
     For a list of nodes checks if the nodle is idle
     """
-    node = next(filter(lambda node: node['node_name'] == node_name, nodes), None)
+    node = next(filter(lambda node: node[NAME] == node_name, nodes), None)
     
     if node and node['partition_state'] == 'idle' :
         return True
     else :
         return False
+
 
 def parse_sinfo_partitions(command_output):
     """
@@ -68,7 +76,7 @@ def parse_sinfo_partitions(command_output):
                          'partition_avail': avail,
                          'partition_timelimit': timelimit,
                          'partition_state': state,
-                         'node_name': nodes_string}
+                         NAME: nodes_string}
 
                 nodes.append(node)
 
@@ -82,7 +90,7 @@ def parse_sinfo_partitions(command_output):
                                  'partition_avail': avail,
                                  'partition_timelimit': timelimit,
                                  'partition_state': state,
-                                 'node_name': node_name}
+                                 NAME: node_name}
 
                         nodes.append(node)
                     else:
@@ -96,11 +104,12 @@ def parse_sinfo_partitions(command_output):
                                      'partition_avail': avail,
                                      'partition_timelimit': timelimit,
                                      'partition_state': state,
-                                     'node_name': node_name}
+                                     NAME: node_name}
 
                             nodes.append(node)
 
     return nodes
+
 
 def get_nodes_testbed(testbed):
     """
@@ -116,23 +125,11 @@ def get_nodes_testbed(testbed):
 
     If it is not type SLURM it will just return an empty list
     """
-
     command = "sinfo"
     params = ["-a"]
 
-    if testbed.category == Testbed.slurm_category:
-        if testbed.protocol == Testbed.protocol_local:
-            output = shell.execute_command(command=command, params=params)
-        elif testbed.protocol == Testbed.protocol_ssh:
-            output = shell.execute_command(command=command,
-                                           server=testbed.endpoint,
-                                           params=params)
-        else:
-            return []
+    return testbeds.common.get_nodes_testbed(testbed, command, params, parse_sinfo_partitions)
 
-        return parse_sinfo_partitions(output)
-    else:
-        return []
 
 def check_nodes_in_db_for_on_line_testbeds():
     """
@@ -149,53 +146,17 @@ def check_nodes_in_db_for_on_line_testbeds():
     in the db but it is not in the list provided. If that happens, the node
     it is changed to dissabled
     """
+    #
+    # This function is obsolete and is here just to make existing tests pass.
+    # Application code MUST NOT call this function, 
+    # but testbeds.facade.check_nodes_in_db_for_on_line_testbeds
+    #
+    import testbeds.facade
+    tbs = query.get_online_testbeds(Testbed.slurm_category)
 
-    testbeds = query.get_slurm_online_testbeds()
+    for testbed in tbs:
+        testbeds.facade.check_testbed_nodes_in_db(testbed)
 
-    for testbed in testbeds:
-        logging.info("Checking node info for testbed: " + testbed.name)
-
-        nodes_from_slurm = get_nodes_testbed(testbed)
-        nodes_names_from_slurm = [x['node_name'] for x in nodes_from_slurm]
-        nodes_names_from_db = []
-        nodes_ids = []
-        for node in testbed.nodes:
-            nodes_names_from_db.append(node.name)
-            nodes_ids.append({'name' : node.name, 'id': node.id})
-
-        nodes_in_slurm_and_db = set(nodes_names_from_slurm).intersection(set(nodes_names_from_db))
-        nodes_in_slurm_and_not_in_db = set(nodes_names_from_slurm).difference(set(nodes_names_from_db))
-        nodes_in_db_and_not_in_slurm = set(nodes_names_from_db).difference(set(nodes_names_from_slurm))
-
-        # We add new nodes if not previously present in the db
-        for node in nodes_in_slurm_and_not_in_db:
-            logging.info("Adding a new node: " + node + " to testbed: " + testbed.name)
-            new_node = Node(name = node, information_retrieved = True)
-            testbed.add_node(new_node)
-            db.session.commit()
-
-        # We check that the nodes in the db are updated if necessary
-        for node in nodes_in_slurm_and_db:
-            interested_nodes = [d for d in nodes_ids if d['name'] == node]
-
-            for node_id in interested_nodes:
-                node_from_db = db.session.query(Node).filter_by(id=node_id['id']).first()
-                if node_from_db.disabled:
-                    logging.info("Enabling node: " + node)
-                    node_from_db.disabled = False
-                    db.session.commit()
-
-        # We check that the nodes not returned by slurm are set to 0
-        for node in nodes_in_db_and_not_in_slurm:
-            interested_nodes = [d for d in nodes_ids if d['name'] == node]
-
-            for node_id in interested_nodes:
-                node_from_db = db.session.query(Node).filter_by(id=node_id['id']).first()
-
-                if not node_from_db.disabled:
-                    logging.info("Disabling node: " + node)
-                    node_from_db.disabled = True
-                    db.session.commit()
 
 def parse_scontrol_information(command_output):
     """
@@ -205,6 +166,15 @@ def parse_scontrol_information(command_output):
     This will be used to get information and live stats of the status_code
     of the node
     """
+    def normalize(node):
+        if 'NodeName' in node:
+            node[NAME] = node['NodeName']
+        if 'State' in node:
+            node[STATE] = node['State']
+        if 'RealMemory' in node:
+            node[MEMORY] = node['RealMemory']
+        if 'Gres' in node:
+            node[GRES] = node['Gres']
 
     nodes_info = []
     lines = command_output.decode('utf-8').split('\n')
@@ -214,10 +184,11 @@ def parse_scontrol_information(command_output):
         new_dict = {}
         for k,v in r.findall(line):
             new_dict[k] = v.strip()
-
+        normalize(new_dict)
         nodes_info.append(new_dict)
 
     return nodes_info
+
 
 def  update_cpu_node_information():
     """
@@ -228,21 +199,18 @@ def  update_cpu_node_information():
     error occours it keeps the node information as it is. If no error occours
     updates the entries in the db deleting the old CPU information first.
     """
+    #
+    # This function is obsolete and is here just to make existing tests pass.
+    # Application code MUST NOT call this function, 
+    # but testbeds.facade.update_testbed_cpu_node_information()
+    #
+    import testbeds.facade
+    
+    tbs = query.get_slurm_online_testbeds()
 
-    testbeds = query.get_slurm_online_testbeds()
+    for testbed in tbs:
+        testbeds.facade.update_testbed_cpu_node_information(testbed)
 
-    for testbed in testbeds:
-        for node in testbed.nodes:
-            if not node.disabled:
-                cpus = parser.get_cpuinfo_node(testbed, node)
-
-                if cpus != []:
-                    logging.info("Updating CPU info for node: " + node.name)
-                    db.session.query(CPU).filter_by(node_id=node.id).delete()
-                    node.cpus = cpus
-                    db.session.commit()
-                else:
-                    logging.error("Impossible to update CPU info for node: " + node.name)
 
 def get_node_information(testbed):
     """
@@ -262,25 +230,9 @@ def get_node_information(testbed):
 
     scontrol -o  --all show node
     """
-
     command = "scontrol"
     params = ["-o", "--all", "show", "node"]
-
-    if testbed.category == Testbed.slurm_category:
-
-        if testbed.protocol == Testbed.protocol_local:
-            output = shell.execute_command(command=command, params=params)
-        elif testbed.protocol == Testbed.protocol_ssh:
-            output = shell.execute_command(command=command,
-                                           server=testbed.endpoint,
-                                           params=params)
-        else:
-            return []
-
-        return parse_scontrol_information(output)
-
-    else:
-        return []
+    return testbeds.common.get_nodes_testbed(testbed, command, params, parse_scontrol_information)
 
 
 def update_node_information():
@@ -289,39 +241,22 @@ def update_node_information():
     configured to retrieve all information automatically and
     update the node information if necessary
     """
+    #
+    # This function is obsolete and is here just to make existing test pass
+    # Application code MUST NOT call this function, 
+    # but testbeds.facade.update_node_information()
+    #
+    import testbeds.facade
 
-    testbeds = query.get_slurm_online_testbeds()
+    tbs = query.get_slurm_online_testbeds()
 
-    for testbed in testbeds:
+    for testbed in tbs:
+        testbeds.facade.update_testbed_node_information(testbed)
 
-        nodes_info = get_node_information(testbed)
 
-        for node_info in nodes_info:
+def parse_memory(memory: str) -> Memory:
+    return Memory(size=memory, units=Memory.MEGABYTE)
 
-            if 'NodeName' in node_info:
-                node = db.session.query(Node).filter_by(
-                            testbed_id=testbed.id,
-                            name=node_info['NodeName']).first()
-
-                if node and 'State' in node_info:
-                    logging.info("Updating information for node: " + node.name + " if necessary")
-                    node.state = node_info['State']
-                    db.session.commit()
-
-                if node and 'RealMemory' in node_info:
-                    logging.info("Updating memory information for node: " + node.name)
-                    db.session.query(Memory).filter_by(node_id=node.id).delete()
-                    memory = Memory(size=node_info['RealMemory'], units=Memory.MEGABYTE)
-                    node.memories = [ memory ]
-                    db.session.commit()
-
-                if node and 'Gres' in node_info:
-                    resources = parse_gre_field_info(node_info['Gres'])
-                    if 'gpu' in resources:
-                        db.session.query(GPU).filter_by(node_id=node.id).delete()
-                        logging.info("Updating gpu information for node: " + node.name)
-                        node.gpus = resources['gpu']
-                        db.session.commit()
 
 def parse_gre_field_info(gre):
     """

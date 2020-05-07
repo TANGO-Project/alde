@@ -30,6 +30,8 @@ from models import db, Testbed, Node, CPU, Memory
 from testfixtures import LogCapture
 from unittest.mock import call
 
+from testbeds.constants import NAME
+
 class SlurmTests(MappingTest):
     """
     Unittests of the functions used to interact with and slurm
@@ -42,28 +44,28 @@ class SlurmTests(MappingTest):
     example1 = {
                 'partition_state': 'drain',
                 'partition': 'bullx',
-                'node_name': 'nd15',
+                NAME: 'nd15',
                 'partition_timelimit': 'infinite',
                 'partition_avail': 'up'
                }
     example2 = {
                 'partition_state': 'idle',
                 'partition': 'bullx',
-                'node_name': 'nd10',
+                NAME: 'nd10',
                 'partition_timelimit': 'infinite',
                 'partition_avail': 'up'
                }
     example3 = {
                 'partition_state': 'idle',
                 'partition': 'B510_2.6GHz',
-                'node_name': 'nd43',
+                NAME: 'nd43',
                 'partition_timelimit': 'infinite',
                 'partition_avail': 'up'
                }
     example4 = {
                 'partition_avail': 'up',
                 'partition': 'B510_2.6GHz',
-                'node_name': 'nd41',
+                NAME: 'nd41',
                 'partition_timelimit': 'infinite',
                 'partition_state': 'idle'
                }
@@ -179,8 +181,8 @@ class SlurmTests(MappingTest):
         testbed, node_1, node_2 = self._create_initial_db_data()
 
         #We create the expectation to retrieve a list of nodes from slurm.
-        node_3 = { 'node_name': 'node_3' }
-        node_1_slurm = { 'node_name': 'node_1'}
+        node_3 = { NAME: 'node_3' }
+        node_1_slurm = { NAME: 'node_1'}
         mock_get_nodes.return_value = [ node_1_slurm, node_3 ]
 
         # We exectue the command

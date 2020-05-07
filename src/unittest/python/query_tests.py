@@ -71,3 +71,50 @@ class QueryTests(MappingTest):
         self.assertEquals(2, len(testbeds))
         self.assertEquals("name1", testbeds[0].name)
         self.assertEquals("name4", testbeds[1].name)
+
+    def test_get_on_line_testbeds(self):
+        """
+        It sees if it is possible to get from the db only the on-line
+        testbeds that are from given type 
+        """
+
+        # We add shome testbeds to the temporal db
+        testbed_1 = Testbed("name1",
+                            True,
+                            Testbed.slurm_category,
+                            "ssh",
+                            "user@server",
+                            ['slurm'])
+        testbed_2 = Testbed("name2",
+                            True,
+                            Testbed.torque_category,
+                            "ssh",
+                            "user@server",
+                            ['torque'])
+        testbed_3 = Testbed("name3",
+                            True,
+                            "xxx",
+                            "ssh",
+                            "user@server",
+                            ['slurm'])
+        testbed_4 = Testbed("name4",
+                            False,
+                            Testbed.slurm_category,
+                            "ssh",
+                            "user@server",
+                            ['slurm'])
+
+        # We store the object in the db
+        db.session.add(testbed_1)
+        db.session.add(testbed_2)
+        db.session.add(testbed_3)
+        db.session.add(testbed_4)
+
+        testbeds = query.get_online_testbeds(Testbed.slurm_category)
+        self.assertEquals(1, len(testbeds))
+        self.assertEquals("name1", testbeds[0].name)
+
+        testbeds = query.get_online_testbeds(Testbed.torque_category)
+        self.assertEquals(1, len(testbeds))
+        self.assertEquals("name2", testbeds[0].name)
+

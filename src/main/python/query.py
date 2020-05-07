@@ -17,7 +17,7 @@
 #
 # Module that containds db queries
 #
-
+from typing import List
 from models import db, Testbed
 
 def get_slurm_online_testbeds():
@@ -30,3 +30,6 @@ def get_slurm_online_testbeds():
     """
 
     return db.session.query(Testbed).filter(Testbed.on_line == True).filter(Testbed.category == Testbed.slurm_category).all()
+
+def get_online_testbeds(category: Testbed.Category) -> List[Testbed]:
+    return db.session.query(Testbed).filter(Testbed.on_line == True).filter(Testbed.category == category).all()

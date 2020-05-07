@@ -41,21 +41,21 @@ class Config(object):
     JOBS = [
         {
             'id': 'check_nodes_in_db_for_on_line_testbeds',
-            'func': 'slurm:check_nodes_in_db_for_on_line_testbeds',
+            'func': 'testbeds.facade:check_nodes_in_db_for_on_line_testbeds',
             'args': (),
             'trigger': 'interval',
             'seconds': 60 
         },
         {
             'id': 'update_node_info',
-            'func': 'slurm:update_node_information',
+            'func': 'testbeds.facade:update_node_information',
             'args': (),
             'trigger': 'interval',
             'seconds': 70 
         },
         {
             'id': 'update_cpu_node_info',
-            'func': 'slurm:update_cpu_node_information',
+            'func': 'testbeds.facade:update_cpu_node_information',
             'args': (),
             'trigger': 'interval',
             'seconds': 80 

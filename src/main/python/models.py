@@ -221,6 +221,9 @@ class Memory(db.Model):
         self.address = address
         self.size = size
         self.units = units
+    def __str__(self):
+        return "<Memory size={} units={} address={} memory_type={}>".format(
+            self.size, self.units, self.address, self.memory_type)
 
 class Processor():
     """This class represents the basic information for all types of processors.
@@ -414,9 +417,14 @@ class Testbed(db.Model):
     """
 
     # Categories of testbeds
+    Category = str    
     slurm_category = 'SLURM'
+    torque_category = 'TORQUE'
+
+    Protocol = str
     protocol_local = 'LOCAL'
     protocol_ssh = 'SSH'
+
 
     # SQLAlchemy mapping code
     __tablename__ = 'testbeds'
