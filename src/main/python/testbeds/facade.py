@@ -27,6 +27,7 @@ import query
 from models import db, Node, CPU, GPU, Testbed, Memory
 import linux_probes.cpu_info_parser as parser
 import slurm
+import torque
 from testbeds.constants import NAME
 from testbeds.constants import MEMORY
 from testbeds.constants import STATE
@@ -36,6 +37,7 @@ from testbeds.constants import GRES
 # supported categories and corresponding module 
 categories = {
     Testbed.slurm_category: slurm,
+    Testbed.torque_category: torque,
 }
 
 

@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<Data>
+  <Node>
+    <name>node-1.novalocal</name>
+    <state>free</state>
+    <power_state>Running</power_state>
+    <np>40</np>
+    <ntype>cluster</ntype>
+    <status>opsys=linux,uname=Linux node-1.novalocal 3.10.0-1062.12.1.el7.x86_64 #1 SMP Tue Feb 4 23:02:59 UTC 2020 x86_64,nsessions=0,nusers=0,idletime=4223120,totmem=131583196kb,availmem=126681396kb,physmem=131583196kb,ncpus=40,loadave=0.00,gres=,netload=2460784901468,state=free,varattr= ,cpuclock=Fixed,macaddr=ac:1f:6b:69:cf:d0,version=6.1.2,rectime=1588771420,jobs=</status>
+    <mom_service_port>15002</mom_service_port>
+    <mom_manager_port>15003</mom_manager_port>
+    <gpus>1</gpus>
+    <total_sockets>2</total_sockets>
+    <total_numa_nodes>2</total_numa_nodes>
+    <total_cores>20</total_cores>
+    <total_threads>40</total_threads>
+    <dedicated_sockets>0</dedicated_sockets>
+    <dedicated_numa_nodes>0</dedicated_numa_nodes>
+    <dedicated_cores>0</dedicated_cores>
+    <dedicated_threads>0</dedicated_threads>
+  </Node>
+  <Node>
+    <name>node-2.novalocal</name>
+    <state>free</state>
+    <power_state>Running</power_state>
+    <np>40</np>
+    <ntype>cluster</ntype>
+    <status>opsys=linux,uname=Linux node-2.novalocal 3.10.0-1062.12.1.el7.x86_64 #1 SMP Tue Feb 4 23:02:59 UTC 2020 x86_64,nsessions=0,nusers=0,idletime=5326901,totmem=131583197kb,availmem=126752684kb,physmem=131583196kb,ncpus=40,loadave=0.00,gres=,netload=787388029591,state=free,varattr= ,cpuclock=Fixed,macaddr=ac:1f:6b:6a:ec:4c,version=6.1.2,rectime=1588771459,jobs=</status>
+    <mom_service_port>15002</mom_service_port>
+    <mom_manager_port>15003</mom_manager_port>
+    <gpus>1</gpus>
+    <total_sockets>2</total_sockets>
+    <total_numa_nodes>2</total_numa_nodes>
+    <total_cores>20</total_cores>
+    <total_threads>40</total_threads>
+    <dedicated_sockets>0</dedicated_sockets>
+    <dedicated_numa_nodes>0</dedicated_numa_nodes>
+    <dedicated_cores>0</dedicated_cores>
+    <dedicated_threads>0</dedicated_threads>
+  </Node>
+  <Node>
+    <name>node-6.novalocal</name>
+    <state>free</state>
+    <power_state>Running</power_state>
+    <np>40</np>
+    <ntype>cluster</ntype>
+    <status>opsys=linux,uname=Linux node-6.novalocal 3.10.0-1062.12.1.el7.x86_64 #1 SMP Tue Feb 4 23:02:59 UTC 2020 x86_64,nsessions=0,nusers=0,idletime=5326174,totmem=131583196kb,availmem=128472452kb,physmem=131583196kb,ncpus=40,loadave=0.00,gres=,netload=37227988315,state=free,varattr= ,cpuclock=Fixed,macaddr=ac:1f:6b:6a:ec:38,version=6.1.2,rectime=1588771453,jobs=</status>
+    <mom_service_port>15002</mom_service_port>
+    <mom_manager_port>15003</mom_manager_port>
+    <gpus>1</gpus>
+    <total_sockets>2</total_sockets>
+    <total_numa_nodes>2</total_numa_nodes>
+    <total_cores>20</total_cores>
+    <total_threads>40</total_threads>
+    <dedicated_sockets>0</dedicated_sockets>
+    <dedicated_numa_nodes>0</dedicated_numa_nodes>
+    <dedicated_cores>0</dedicated_cores>
+    <dedicated_threads>0</dedicated_threads>
+  </Node>
+</Data>

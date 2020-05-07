@@ -67,3 +67,4 @@ def initialize(project):
     project.depends_on('flask-uploads')
     project.depends_on('simplejson')
     project.depends_on('flask-cors')
+    project.depends_on('xmltodict')
