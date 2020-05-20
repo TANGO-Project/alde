@@ -50,5 +50,10 @@
         "microarchitecture": "Kepler",
         "base_clock": 706,
         "base_clock_units": "MHz"
+    },
+    {
+        "model_code_slurm": "gtx1080",
+        "vendor_id": "Nvidia",
+        "model_name": "GeForce GTX 1080 Ti"
     }
 ]

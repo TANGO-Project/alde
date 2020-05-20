@@ -10,6 +10,7 @@
     <mom_service_port>15002</mom_service_port>
     <mom_manager_port>15003</mom_manager_port>
     <gpus>1</gpus>
+    <gpu_status>gpu[0]=gpu_id=00000000:03:00.0;gpu_pci_device_id=453382366;gpu_pci_location_id=00000000:03:00.0;gpu_product_name=GeForce GTX 1080 Ti;gpu_fan_speed=28%;gpu_memory_total=11178 MB;gpu_memory_used=1 MB;gpu_mode=Exclusive_Process;gpu_state=Unallocated;gpu_utilization=0%;gpu_memory_utilization=0%;gpu_temperature=29 C,gpu_display=Disabled,driver_ver=440.33.01,timestamp=Mon May 18 15:38:29 2020</gpu_status>
     <total_sockets>2</total_sockets>
     <total_numa_nodes>2</total_numa_nodes>
     <total_cores>20</total_cores>
@@ -48,6 +49,7 @@
     <mom_service_port>15002</mom_service_port>
     <mom_manager_port>15003</mom_manager_port>
     <gpus>1</gpus>
+    <gpu_status>gpu[0]=gpu_id=00000000:03:00.0;gpu_pci_device_id=453382366;gpu_pci_location_id=00000000:03:00.0;gpu_product_name=GeForce GTX 1080 Ti;gpu_fan_speed=27%;gpu_memory_total=11178 MB;gpu_memory_used=1 MB;gpu_mode=Default;gpu_state=Unallocated;gpu_utilization=0%;gpu_memory_utilization=0%;gpu_temperature=34 C,gpu_display=Disabled,driver_ver=440.33.01,timestamp=Mon May 18 17:38:59 2020</gpu_status>
     <total_sockets>2</total_sockets>
     <total_numa_nodes>2</total_numa_nodes>
     <total_cores>20</total_cores>

@@ -42,7 +42,10 @@ import testbeds.common
 _NAME = "node_name"
 _STATE = "state"
 _STATUS = "status"
+_GPU_STATUS = "gpu_status"
 _PARSED_STATUS = "parsed_status"
+_PARSED_GPU_STATUS = "parsed_gpu_status"
+_GPU_MODEL = "gpu_product_name"
 _TOTAL_MEM = "totmem"
 
 
@@ -82,14 +85,17 @@ def _parse_pbsnodes_information(command_output):
         if status is not None:
             n[_PARSED_STATUS] = status
             n[MEMORY] = status[_TOTAL_MEM]
+        n[GRES] = n.get(_GPU_STATUS, "")
+        gpustatus = _parse_status(n[GRES])
+        n[_PARSED_GPU_STATUS] = gpustatus
     return nodes
 
 
-def _parse_status(statusline: str):
+def _parse_status(statusline: str, fs=","):
     """Parses different fields of the status line in the output of pbsnodes
     
     It returns a dictionary with all the parsed fields"""
-    parts = ( i.split("=") for i in statusline.split(",") )
+    parts = ( i.split("=", 1) for i in statusline.split(fs) if i != "")
     return { part[0]: part[1] for part in parts }
 
 
@@ -129,12 +135,35 @@ def parse_memory(memory: str) -> Memory:
 
 
 def parse_gre_field_info(gre):
-    """This function will return a dictionary with the GPU information
+    """This function will return a dictionary with the GPU information obtained from
+    the GRES field of the normalized node structure.
+
+    The gre string has the following format: gpu[0]=k00=v00;k01=v01...,gpu[1]=k10=v10;k11=v11..,k1=v1,k2=v2...
+    Example:
+    gpu[0]=gpu_id=00000000:03:00.0;gpu_pci_location_id=00000000:03:00.0;gpu_product_name=GeForce GTX 1080 Ti,gpu_display=Disabled,driver_ver=440.33.01,timestamp=Mon May 18 17:38:59 2020
     """
 
     resources = {}
 
-    # TODO! 
+    parsed = _parse_status(gre)
+
+    gpus = [ inventory.find_gpu(item[_GPU_MODEL], inventory.FIELD_MODEL_NAME) 
+            for item in _find_gpus(parsed) ]
+
+    if len(gpus) > 0:
+        resources["gpu"] = gpus
 
     return resources
 
+
+def _find_gpus(status: Dict):
+    """
+    """
+    i = 0
+    while True:
+        field = "gpu[{}]".format(i)
+        if not field in status:
+            break
+        yield _parse_status(status[field], ";")
+        i = i + 1
+    return

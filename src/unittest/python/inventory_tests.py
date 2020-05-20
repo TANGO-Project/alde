@@ -42,3 +42,16 @@ class InventoryTests(unittest.TestCase):
 
         gpu = inventory.find_gpu_slurm("xxxxx")
         self.assertIsNone(gpu)
+
+
+    def test_find_gpu(self):
+        """Test the generic find function"""
+        inventory.GPU_FILE = "gpu_cards_list.json"
+
+        gpu = inventory.find_gpu("GeForce GTX 1080 Ti", inventory.FIELD_MODEL_NAME)
+        self.assertEqual("Nvidia", gpu.vendor_id)
+        self.assertEqual("GeForce GTX 1080 Ti", gpu.model_name)
+
+        gpu = inventory.find_gpu("xxxxx", inventory.FIELD_CODE_SLURM)
+        self.assertIsNone(gpu)
+        

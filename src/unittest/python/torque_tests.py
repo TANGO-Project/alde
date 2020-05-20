@@ -96,6 +96,23 @@ class TorqueTests(MappingTest):
         self.assertEqual("131583196kb", d.get(torque._TOTAL_MEM))
         self.assertEqual("128473264kb", d.get("availmem"))
 
+
+    def test_parse_gpu_status(self):
+        s = "gpu_id=00000000:03:00.0;gpu_product_name=GeForce GTX 1080 Ti"
+        d = torque._parse_status(s, ";")
+
+        self.assertEqual("GeForce GTX 1080 Ti", d["gpu_product_name"])
+        self.assertEqual("00000000:03:00.0", d["gpu_id"])
+        return
+
+
+    def test_find_gpus(self):
+        s = "gpu[0]=gpu_product_name=GeForce GTX 1080 Ti,gpu[1]=gpu_product_name=Nvidia TESLA C2075,field1=value1"
+        gpustatus = torque._parse_status(s)
+        gpus = list(torque._find_gpus(gpustatus))
+        self.assertEqual(2, len(gpus))
+
+
     def test_parse_pbsnodes_information(self):
         """
         Unit test to verify the correct work of the function:
@@ -110,7 +127,7 @@ class TorqueTests(MappingTest):
         self.assertEqual("40", nodes_info[0]['total_threads'])
         self.assertEqual("2", nodes_info[0]['total_sockets'])
         self.assertEqual("131583196kb", nodes_info[0][torque._PARSED_STATUS][torque._TOTAL_MEM])
-
+        self.assertTrue("gpu[0]=gpu_id=00000000" in nodes_info[0][torque.GRES])
         self.assertEqual("node-2.novalocal", nodes_info[1]['name'])
         self.assertEqual("1", nodes_info[1]['gpus'])
         self.assertEqual("node-6.novalocal", nodes_info[2]['name'])
@@ -210,12 +227,13 @@ class TorqueTests(MappingTest):
         self.assertEqual(1, len(node_1.memories))
         self.assertEqual(Memory.KILOBYTE, node_1.memories[0].units)
         self.assertEqual(131583196, node_1.memories[0].size)
-        self.assertEqual(0,len(node_1.gpus))
+        self.assertEqual(1,len(node_1.gpus))
 
         self.assertEqual('free', node_2.state)
         self.assertEqual(1, len(node_2.memories))
         self.assertEqual(Memory.KILOBYTE, node_2.memories[0].units)
         self.assertEqual(131583197, node_2.memories[0].size)
+        self.assertEqual(0,len(node_2.gpus))
 
         mock_shell.assert_called_with(command=command, server="user@server", params=params)
         self.assertEqual(1, mock_shell.call_count)
@@ -224,9 +242,9 @@ class TorqueTests(MappingTest):
         l.check(
             ('root', 'INFO', 'Updating information for node: node-1.novalocal if necessary'),
             ('root', 'INFO', 'Updating memory information for node: node-1.novalocal'),
+            ('root', 'INFO', 'Updating gpu information for node: node-1.novalocal'),
             ('root', 'INFO', 'Updating information for node: node-2.novalocal if necessary'),
             ('root', 'INFO', 'Updating memory information for node: node-2.novalocal'),
-            #('root', 'INFO', 'Updating gpu information for node: nd23')
             )
         l.uninstall() # We uninstall the capture of the logger
 
