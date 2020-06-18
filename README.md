@@ -1,20 +1,21 @@
 # Application Lifecycle Deployment Engine (ALDE)
 
-&copy; Atos Spain S.A. 2016
+&copy; Atos Spain S.A. 2020
 
-Application Lifecycle Deployment Engine (ALDE) is a component of the European Project TANGO (http://tango-project.eu ).
+Application Lifecycle Deployment Engine (ALDE) is a component of the European Project SODALITE (http://sodalite.eu), 
+initially implemented in TANGO (http://tango-project.eu ).
 
 ALDE is distributed under a [GNU AFFERO GENERAL PUBLIC LICENSE](https://www.gnu.org/licenses/agpl-3.0.txt).
 
 ## Description
 
-ALDE is responsible for the workload scheduling and the management of the application life-cycle while it is executed. ALDE will take the application source code, packetize for different heterogeneous architectures configurations and, if possible, deploy it via a TANGO Device Supervisor and manage the application execution. 
+ALDE is responsible for the workload scheduling and the management of the application life-cycle while it is executed. ALDE will take the application source code, packetize for different heterogeneous architectures configurations and, if possible, deploy it and manage the application execution. 
 
 More in detail each one of the previous steps:
 
 * **Compilation** - ALDE is able to compile the application in different configurations depending of the selected heterogeneous architectures. The result will be a set of binaries optimal compiled for specific hardware architectures.
 * **Packetization** - ALDE, once the application has been compiled, can packetize it. For the moment it only supports typical tar.gz files and [Docker](https://www.docker.com/) and [Singularity](http://singularity.lbl.gov/) containers.
-* **Deployment** - ALDE is able to automatically deploy an application into a TANGO compatible Device Supervisor. It will launch the execution and monitor it. It will also support adaptations interactions if used in combination with the [TANGO Self-Adaptation Manager](https://github.com/TANGO-Project/self-adaptation-manager).
+* **Deployment** - ALDE is able to automatically deploy an application, launch the execution and monitor it.
 
 ## Installation Guide
 
@@ -167,21 +168,13 @@ $ source venv/bin/activate
 1. Install Singularity - [View doc](SingularityTests.md)
 
 
-#### Build status from Travis-CI
-
-[![Build Status](https://travis-ci.org/TANGO-Project/alde.svg?branch=master)](https://travis-ci.org/TANGO-Project/alde)
-
-#### SonarQube reports:
-
-SonarQube ( http://www.sonarqube.org/ ) reports for this project are available at: https://sonarqube.com/dashboard?id=tango%3Aalde
-
 ### Installation for running the service
 
 In this case, we are going to detail how to run the application directly using Python. It is possible to run it behind a proxy or webserver, to do so, please, check [this guides](http://flask.pocoo.org/docs/0.12/deploying/).
 
 #### Configuring the service
 
-ALDE employs a [SQLite](https://www.sqlite.org/) database server that needs to be configured together with the port were the service it is going to be listen. That configuration can be done editing the file alde_configuration.ini that contains these two variables:
+ALDE employs a [SQLite](https://www.sqlite.org/) database server that needs to be configured. That configuration can be done editing the file alde_configuration.ini that contains these two variables:
 
 ```dosini
 [DEFAULT]
@@ -232,9 +225,13 @@ $ curl localhost:5000/api/v1/testbeds
 
 Although a CLI client is planned, for the moment ALDE offers a REST interface.
 
+### Class diagram ###
+
+The [class diagram](./documentation/class_diagram.md) can help understanding the ALDE usage.
+
 ### REST API documentation
 
-The rest api is fully documented here: ( https://jsapi.apiary.io/previews/applicationlifecycledeploymentengine/reference/0/testbed )
+The rest api is fully documented here: ( https://applicationlifecycledeploymentengine.docs.apiary.io/ )
 
 ### Example scenarios
 
@@ -292,11 +289,3 @@ $ curl http://localhost:5000/api/v1/applications/1
 ```
 curl localhost:5000/api/v1/testbeds -X POST -H'Content-type: application/json' -d'{ "name": "slurm_testbed", "on_line": true, "category": "SLURM", "protocol": "SSH", "endpoint": "user@ssh.com"}'
 ```
-
-## Relation to other TANGO components
-
-ALDE can be used as an standalone tool in TANGO, it will allow to compile application for different targeted heterogenous architectures in an optimize way and with different configurations of heterogenous devices, but its fully potential it is with other TANGO components:
-
-* **Programming model and IDE tools** - TANGO Programming Model can connect with ALDE to submit the code for compilation and packetization. Also it could be intereact with ALDE to submit the application directly to a TANGO compatible device supervisor.
-* **Device Supervisor** - ALDE can interact with a on-line testbed that has installed a TANGO device supervisor on it. This will allow to automatically deploy diferent configurations of the application and execute it, monitoring the execution and extract back the results.
-* **Self-Adaptation Manager** - ALDE will provide intefaces for the Self-Adaptation Manager to change the configuration of an application to optimize its execution in a TANGO compatible testbed.

@@ -1,0 +1,68 @@
+@startuml
+
+class Application {
+  name
+  application_type
+}
+
+class Executable {
+  status
+  singularity_image_file  #path of img
+  compilation_type
+  compilation_script
+}
+
+class Deployment {
+  status
+  path  # of img in frontend
+}
+
+class Testbed {
+  name
+  online: boolean
+  category: SLURM | TORQUE
+  protocol: SSH | LOCAL
+  endpoint
+}
+
+class Node {
+  []cpu
+  []memory
+  []gpu
+}
+
+class ExecutionConfiguration {
+  execution_type: SINGULARITY:PM | SINGULARITY:SRUN | SLURM:SRUN ...
+  command
+  num_nodes
+  num_gpus_per_node
+  num_cpus_per_node
+  exec_time
+  launch_execution
+}
+
+class Execution {
+  execution_type
+  status
+  output
+  slurm_sbatch_id
+  
+}
+
+Application "1" *- "*" Executable
+
+Deployment  --  Testbed
+Deployment --  Executable
+
+ExecutionConfiguration ---  Application
+ExecutionConfiguration ---  Executable
+ExecutionConfiguration --- Testbed
+ExecutionConfiguration "1" *- "*" Execution
+
+Testbed "1" *- "*" Node
+
+'Node "1" *- "*" CPU
+'Node "1" *- "*" Memory
+'Node "1" *- "*" GPU
+
+@enduml
