@@ -10,6 +10,7 @@ ALDE is distributed under a [GNU AFFERO GENERAL PUBLIC LICENSE](https://www.gnu.
 
 ALDE is responsible for the workload scheduling and the management of the application life-cycle while it is executed. ALDE will take the application source code, packetize for different heterogeneous architectures configurations and, if possible, deploy it via a TANGO Device Supervisor and manage the application execution. 
 
+
 More in detail each one of the previous steps:
 
 * **Compilation** - ALDE is able to compile the application in different configurations depending of the selected heterogeneous architectures. The result will be a set of binaries optimal compiled for specific hardware architectures.
